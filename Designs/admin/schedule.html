@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telehealings — Sessions & Schedule</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2a73d4; --primary-hover: #2361b5; --primary-dark: #0745b1;
+            --surface: #ffffff;
+            --text-main: #111111; --text-muted: #4b4b4b; --text-soft: #64748b; --text-dark: #0f172a;
+            --border: #e2e8f0; --border-light: #f1f5f9;
+            --success: #22c55e; --danger: #ef4444; --warning: #f59e0b;
+            --radius: 8px; --radius-md: 12px; --radius-lg: 16px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --sidebar-width: 280px; --sidebar-collapsed: 88px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 16px; -webkit-font-smoothing: antialiased; height: 100%; }
+        body { font-family: var(--font); color: var(--text-main); line-height: 1.5; height: 100%; display: flex; overflow: hidden; background: linear-gradient(110deg, #ffffff 0%, #eef5fc 35%, #7aaaf6 100%); }
+        a { color: inherit; text-decoration: none; }
+        button { font-family: var(--font); cursor: pointer; border: none; outline: none; background: none; }
+        ul, li { list-style: none; }
+        img { display: block; }
+
+        /* ─── SIDEBAR ─── */
+        .sidebar { width: var(--sidebar-width); height: 100%; padding: 30px 20px; display: flex; flex-direction: column; border-right: 1px solid rgba(0,0,0,0.05); background: var(--surface); flex-shrink: 0; position: relative; transition: width 0.3s ease, padding 0.3s ease; overflow: visible; z-index: 100; }
+        .brand { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 30px; padding: 0 10px; box-sizing: border-box; }
+        .brand-left { display: flex; align-items: center; gap: 12px; }
+        .brand-logo { width: 36px; height: 36px; }
+        .brand-name-text { font-size: 20px; font-weight: 700; color: #000; }
+        .sidebar-toggle-btn { color: var(--text-soft); cursor: pointer; padding: 4px; border-radius: 6px; display: flex; align-items: flex-start; justify-content: center; transition: all 0.2s; }
+        .sidebar-toggle-btn:hover { background: var(--border-light); color: var(--text-main); }
+        .sidebar-toggle-btn svg { transition: transform 0.3s ease; }
+        .search-box { position: relative; margin-bottom: 20px; }
+        .search-box input { width: 100%; padding: 12px 12px 12px 40px; border-radius: 20px; border: 1px solid var(--border); background: #f8fafc; font-family: inherit; font-size: 14px; outline: none; box-sizing: border-box; transition: border-color 0.2s; }
+        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(42,115,212,0.1); }
+        .search-box svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--text-soft); }
+        .nav-menu { display: flex; flex-direction: column; gap: 2px; flex-grow: 1; overflow-y: auto; overflow-x: hidden; margin-bottom: 20px; }
+        .nav-item { display: flex; align-items: center; gap: 14px; padding: 10px 16px; border-radius: var(--radius); color: #475569; font-weight: 600; font-size: 15px; transition: all 0.2s; white-space: nowrap; }
+        .nav-item:hover { background: var(--border-light); color: var(--text-main); }
+        .nav-item.active { background: #1c52b8; color: #fff; }
+        .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+        .nav-item.active svg { color: #fff; }
+        .nav-text { overflow: hidden; }
+        .badge { margin-left: auto; background: #f04438; color: #fff; font-size: 11px; padding: 2px 6px; border-radius: 10px; font-weight: 700; }
+        .nav-separator { height: 1px; background-color: var(--border); margin: 2px 16px; flex-shrink: 0; }
+        .user-profile { background: #fff; padding: 16px; border-radius: var(--radius-md); display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-top: auto; border: 1px solid var(--border-light); cursor: pointer; position: relative; outline: none; }
+        .user-profile img { width: 75px; height: 75px; border-radius: 50%; margin-top: -45px; margin-bottom: 10px; object-fit: cover; border: 4px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.08); background-color: #fff; }
+        .user-profile h4 { font-size: 14px; margin: 0 0 2px 0; color: var(--text-main); }
+        .user-profile p { font-size: 12px; color: var(--text-soft); margin: 0; }
+        .profile-dropdown { display: none; position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); width: 220px; background: #fff; border-radius: var(--radius-md); box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border); flex-direction: column; padding: 8px 0; z-index: 1000; }
+        .user-profile:focus .profile-dropdown, .user-profile:focus-within .profile-dropdown { display: flex; }
+        .sidebar.collapsed .profile-dropdown { left: 100%; bottom: 8px; transform: none; margin-left: 16px; }
+        .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; color: #475569; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+        .dropdown-item:hover { background: #f8fafc; color: var(--text-main); }
+        .dropdown-item svg { width: 16px; height: 16px; }
+        .dropdown-divider { height: 1px; background-color: var(--border-light); margin: 4px 0; }
+        .logout-item { color: #e11d48; }
+        .logout-item:hover { background: #fff1f2; color: #be123c; }
+        .sidebar.collapsed { width: var(--sidebar-collapsed); padding: 30px 10px; }
+        .sidebar.collapsed .nav-text, .sidebar.collapsed .badge, .sidebar.collapsed .user-profile h4, .sidebar.collapsed .user-profile p { display: none; }
+        .sidebar.collapsed .brand { flex-direction: row !important; padding: 0 !important; justify-content: center !important; gap: 2px; }
+        .sidebar.collapsed .brand-left span { display: none; }
+        .sidebar.collapsed .sidebar-toggle-btn svg { transform: rotate(180deg); }
+        .sidebar.collapsed .search-box input { display: none; }
+        .sidebar.collapsed .search-box { width: 40px; height: 40px; background: #f8fafc; border-radius: 50%; display: flex; align-items: flex-start; justify-content: center; margin: 0 auto 20px auto; cursor: pointer; }
+        .sidebar.collapsed .search-box svg { position: static; transform: none; }
+        .sidebar.collapsed .nav-item { padding: 12px; justify-content: center; }
+        .sidebar.collapsed .user-profile { padding: 10px; background: transparent; box-shadow: none; border: none; }
+        .sidebar.collapsed .user-profile img { margin-top: 0; margin-bottom: 0; width: 40px; height: 40px; border: none; box-shadow: none; }
+
+        /* ─── MAIN CONTENT ─── */
+        .page-shell { flex: 1; padding: 0 32px 16px; overflow-y: auto; background: transparent; min-width: 0; }
+        .content-wrapper { width: 100%; max-width: 100%; margin: 0 auto; display: flex; flex-direction: column; padding-bottom: 40px; }
+        .sidebar:not(.collapsed) ~ .page-shell .content-wrapper { max-width: 1100px; }
+
+        /* Sticky Zone */
+        .sticky-zone { position: sticky; top: 0; z-index: 50; background: linear-gradient(110deg, #ffffff 0%, #eef5fc 35%, #7aaaf6 100%); padding: 0 32px 6px; margin: 0 -32px; }
+        .sticky-inner { max-width: 100%; }
+        .sidebar:not(.collapsed) ~ .page-shell .sticky-inner { max-width: 1100px; margin: 0 auto; }
+
+        /* Header */
+        .page-header { display: flex; justify-content: space-between; align-items: flex-start; padding-top: 40px; margin-bottom: 12px; }
+        .header-left { display: flex; align-items: flex-start; }
+        .header-right { display: flex; align-items: center; gap: 12px; }
+        .header-tab { font-size: 20px; font-weight: 700; color: var(--text-dark); position: relative; padding: 0 0 8px 0; border-bottom: 2px solid var(--border); }
+        .header-tab::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 3px; background: var(--text-dark); border-radius: 2px 2px 0 0; }
+        .header-mascot { height: 32px; flex-shrink: 0; }
+
+        /* Heali Inline */
+        .heali-inline { display: flex; align-items: center; gap: 8px; }
+        .heali-insight { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #bfdbfe; border-radius: 8px; flex-shrink: 0; }
+        .heali-insight-icon { width: 24px; height: 24px; border-radius: 50%; background: #2563eb; color: #fff; display: flex; align-items: flex-start; justify-content: center; flex-shrink: 0; }
+        .heali-insight-icon svg { width: 12px; height: 12px; }
+        .heali-insight-content { display: flex; flex-direction: column; gap: 0; }
+        .heali-insight-label { font-size: 9px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.3px; line-height: 1.2; }
+        .heali-insight-text { font-size: 11px; color: #1e40af; line-height: 1.3; white-space: nowrap; }
+        .heali-insight-text strong { font-weight: 700; color: #1e3a8a; }
+        .heali-insight-dismiss { background: none; border: none; color: #93c5fd; cursor: pointer; padding: 2px; border-radius: 4px; display: flex; align-items: flex-start; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+        .heali-insight-dismiss:hover { background: rgba(37,99,235,0.1); color: #2563eb; }
+
+        /* Small Buttons */
+        .btn-sm { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
+        .btn-sm svg { width: 14px; height: 14px; }
+        .btn-sm.btn-outline { border: 1px solid var(--border); background: var(--surface); color: var(--text-soft); }
+        .btn-sm.btn-outline:hover { border-color: #94a3b8; color: var(--text-dark); background: #f8fafc; }
+        .btn-sm.btn-primary { background: var(--primary); color: #fff; }
+        .btn-sm.btn-primary:hover { background: var(--primary-hover); }
+
+        /* Tabs Nav */
+        .tabs-nav { display: flex; gap: 24px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+        .tab-btn { background: transparent; border: none; padding: 10px 4px; font-size: 14px; font-weight: 600; color: var(--text-soft); cursor: pointer; position: relative; transition: color 0.2s; }
+        .tab-btn:hover { color: var(--text-dark); }
+        .tab-btn.active { color: var(--primary); }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: var(--primary); border-radius: 2px 2px 0 0; }
+        .tab-btn .tab-badge { background: #ef4444; color: #fff; border-radius: 99px; padding: 1px 6px; font-size: 10px; margin-left: 4px; font-weight: 700; }
+
+        /* Toolbar */
+        .toolbar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .toolbar-left, .toolbar-right { display: flex; align-items: center; gap: 12px; }
+        .search-wrap { position: relative; width: 220px; }
+        .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text-soft); }
+        .search-input { width: 100%; padding: 8px 12px 8px 34px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface); font-size: 13px; outline: none; transition: border-color 0.2s; }
+        .search-input:focus { border-color: var(--primary); }
+
+        /* View Toggle */
+        .view-toggle { display: flex; background: #f1f5f9; border-radius: 8px; padding: 3px; }
+        .view-toggle-btn { background: transparent; border: none; padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-start; gap: 2px; }
+        .view-toggle-btn.active { background: var(--surface); color: var(--text-dark); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .view-toggle-btn svg { width: 12px; height: 12px; }
+
+        /* Table */
+        .table-card { background: var(--surface); border-radius: var(--radius-lg); padding: 24px 32px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); display: flex; flex-direction: column; overflow: hidden; }
+        .table-scroll { overflow-x: auto; }
+        .clients-table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        .clients-table thead { position: sticky; top: 0; z-index: 10; background: var(--surface); }
+        .clients-table th { text-align: left; font-size: 13px; font-weight: 500; color: var(--text-soft); padding: 8px 12px 8px 0; border-bottom: 1px solid var(--border-light); background: var(--surface); vertical-align: bottom; }
+        /* Table Rows - Compact */
+        .clients-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-light); font-size: 13px; color: #334155; vertical-align: middle; }
+
+        /* Session Summary Bar */
+        .session-summary { display: flex; align-items: flex-start; gap: 20px; padding: 8px 12px; background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; }
+        .summary-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-soft); }
+        .summary-item strong { color: var(--text-dark); font-weight: 700; }
+        .summary-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+        /* Tab Count */
+        .tab-count { font-size: 11px; font-weight: 600; color: var(--text-soft); margin-left: 4px; }
+
+        /* Calendar - Today Highlight */
+        .cal-col.today { background: #f0f9ff; }
+        .cal-col.today .cal-head { background: #e0f2fe; color: #1e40af; font-weight: 700; }
+        .cal-today-label { display: inline-block; background: #2563eb; color: #fff; font-size: 9px; font-weight: 700; padding: 1px 4px; border-radius: 3px; margin-left: 4px; vertical-align: middle; }
+        .clients-table tr:last-child td { border-bottom: none; }
+        .clients-table tbody tr:hover { background: #f8fafc; }
+        .clients-table th:first-child, .clients-table td:first-child { padding-left: 0; }
+        .clients-table th:last-child, .clients-table td:last-child { padding-right: 0; }
+
+        /* Inline Filters */
+        .th-filter-wrap { position: relative; }
+        .th-filter-display { display: flex; align-items: flex-start; gap: 2px; }
+        .th-label { display: inline; }
+        .th-filter-btn { background: none; border: none; color: #cbd5e1; cursor: pointer; padding: 2px; border-radius: 4px; display: inline-flex; align-items: flex-start; justify-content: center; transition: all 0.2s; flex-shrink: 0; margin-left: 2px; }
+        .th-filter-btn:hover { background: #f1f5f9; color: var(--text-dark); }
+        .th-filter-input-wrap { display: none; align-items: flex-start; gap: 2px; position: absolute; top: 100%; left: 0; right: 0; z-index: 5; background: var(--surface); padding: 4px 0; }
+        .th-filter-input-wrap.open { display: flex; }
+        .th-filter-input { flex: 1; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--primary); font-size: 12px; font-family: inherit; color: var(--text-dark); outline: none; background: #fff; box-shadow: 0 0 0 2px rgba(42,115,212,0.1); }
+        .th-filter-select { flex: 1; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--primary); font-size: 12px; font-family: inherit; color: var(--text-dark); outline: none; background: #fff; cursor: pointer; box-shadow: 0 0 0 2px rgba(42,115,212,0.1); }
+        .th-filter-close { background: none; border: none; color: #94a3b8; cursor: pointer; padding: 2px; border-radius: 4px; display: flex; align-items: flex-start; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+        .th-filter-close:hover { background: #f1f5f9; color: var(--text-dark); }
+
+        /* Status Badges */
+        .status-badge { display: inline-flex; align-items: flex-start; gap: 2px; padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+        .status-badge.upcoming { background: #e0f2fe; color: #1e40af; border: 1px solid #bae6fd; }
+        .status-badge.ongoing { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
+        .status-badge.completed { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .status-badge.cancelled { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .status-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
+        .status-badge.upcoming::before { background: #3b82f6; }
+        .status-badge.ongoing::before { background: #eab308; }
+        .status-badge.completed::before { background: #22c55e; }
+        .status-badge.cancelled::before { background: #ef4444; }
+
+        /* Type Badges */
+        .type-badge { display: inline-flex; align-items: flex-start; gap: 2px; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+        .type-badge.type-video { background: #e0f2fe; color: #1e40af; }
+        .type-badge.type-audio { background: #f3e8ff; color: #6b21a8; }
+        .type-badge.type-chat { background: #fef3c7; color: #92400e; }
+
+        .user-cell { display: flex; align-items: flex-start; gap: 10px; }
+        .avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: var(--border-light); display: flex; align-items: flex-start; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0; }
+        .avatar-fallback { background: #3b82f6; }
+        .user-details { display: flex; flex-direction: column; }
+        .user-name { font-weight: 600; color: var(--text-dark); font-size: 13px; }
+        .user-email { font-size: 11px; color: var(--text-soft); margin-top: 1px; }
+        .sub-text { display: block; font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+        .action-btn { background: transparent; border: none; color: var(--text-soft); cursor: pointer; padding: 8px; border-radius: 50%; display: inline-flex; align-items: flex-start; justify-content: center; transition: all 0.2s; }
+        .action-btn:hover { background: #f1f5f9; color: var(--text-dark); }
+        .action-btn svg { width: 16px; height: 16px; }
+
+        /* Calendar View */
+        .calendar-view { display: none; flex-direction: column; gap: 12px; }
+        .calendar-view.active { display: flex; }
+        .list-view { display: flex; flex-direction: column; gap: 0; }
+        .list-view.hidden { display: none; }
+        .cal-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .cal-header h3 { font-size: 15px; color: var(--text-dark); margin: 0; }
+        .cal-nav { display: flex; gap: 6px; }
+        .cal-nav-btn { background: var(--surface); border: 1px solid var(--border); padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--text-soft); cursor: pointer; display: flex; align-items: flex-start; gap: 2px; }
+        .cal-nav-btn:hover { border-color: #94a3b8; color: var(--text-dark); }
+        .cal-grid { display: grid; grid-template-columns: 70px repeat(7, 1fr); border: 1px solid var(--border); border-radius: 10px; background: var(--surface); overflow: hidden; }
+        .cal-head { padding: 10px 8px; background: #f8fafc; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); font-size: 12px; font-weight: 600; color: #475569; }
+        .cal-head:last-child { border-right: none; }
+        .cal-col { border-right: 1px solid var(--border); position: relative; min-height: 360px; }
+        .cal-col:last-child { border-right: none; }
+        .cal-slot { height: 60px; border-bottom: 1px dashed #e2e8f0; box-sizing: border-box; }
+        .cal-col .cal-slot:last-child { border-bottom: none; }
+        .cal-time { height: 60px; padding: 6px 10px; text-align: right; font-size: 10px; color: #94a3b8; font-weight: 500; border-bottom: 1px dashed #e2e8f0; box-sizing: border-box; }
+        .cal-event { position: absolute; left: 3px; right: 3px; border-radius: 5px; padding: 6px; font-size: 10px; font-weight: 500; overflow: hidden; display: flex; flex-direction: column; gap: 2px; z-index: 2; cursor: pointer; transition: transform 0.15s; }
+        .cal-event:hover { transform: scale(1.02); z-index: 3; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .cal-event.high { background: #fee2e2; border: 1px solid #fecaca; color: #991b1b; }
+        .cal-event.medium { background: #fef9c3; border: 1px solid #fef08a; color: #854d0e; }
+        .cal-event.low { background: #dcfce7; border: 1px solid #bbf7d0; color: #166534; }
+        .cal-event-title { font-weight: 700; font-size: 11px; }
+
+        /* Calendar Stats */
+        .cal-stats { display: flex; gap: 12px; }
+        .cal-stat-item { font-size: 11px; color: var(--text-soft); display: flex; align-items: flex-start; gap: 2px; }
+        .cal-stat-item strong { color: var(--text-dark); font-weight: 700; }
+        .cal-stat-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+        /* Calendar Dynamic Events */
+        .cal-event-session { position: absolute; left: 2px; right: 2px; border-radius: 4px; padding: 3px 5px; font-size: 10px; font-weight: 600; overflow: hidden; cursor: pointer; z-index: 2; transition: transform 0.15s; display: flex; flex-direction: column; gap: 1px; }
+        .cal-event-session:hover { transform: scale(1.02); z-index: 3; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+        .cal-event-session .session-client { font-weight: 700; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cal-event-session .session-therapist { font-size: 9px; opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cal-event-session.session-upcoming { background: #dbeafe; color: #1e40af; border-left: 2px solid #3b82f6; }
+        .cal-event-session.session-ongoing { background: #fef9c3; color: #854d0e; border-left: 2px solid #eab308; }
+        .cal-event-session.session-completed { background: #dcfce7; color: #166534; border-left: 2px solid #22c55e; }
+        .cal-event-session.session-cancelled { background: #fee2e2; color: #991b1b; border-left: 2px solid #ef4444; }
+        .cal-day-count { font-size: 9px; font-weight: 700; color: var(--text-soft); margin-left: 4px; }
+
+        /* Calendar Empty State */
+        .cal-empty-state { display: none; flex-direction: column; align-items: flex-start; justify-content: center; padding: 40px 20px; text-align: center; }
+        .cal-empty-state h3 { font-size: 15px; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
+        .cal-empty-state p { font-size: 13px; color: var(--text-soft); }
+
+        /* Empty State */
+        .empty-state { display: none; flex-direction: column; align-items: flex-start; justify-content: center; padding: 60px 20px; text-align: center; }
+        .empty-state.show { display: flex; }
+        .empty-state svg { width: 64px; height: 64px; color: #cbd5e1; margin-bottom: 16px; }
+        .empty-state h3 { font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 6px; }
+        .empty-state p { font-size: 14px; color: var(--text-soft); }
+
+        /* Pagination */
+        .pagination-container { display: flex; justify-content: space-between; align-items: flex-start; padding-top: 16px; border-top: 1px solid var(--border-light); margin-top: 16px; }
+        .pagination-info { font-size: 12px; font-weight: 700; color: #94a3b8; letter-spacing: 0.05em; text-transform: uppercase; }
+        .pagination-nav { display: flex; gap: 8px; }
+        .page-btn { width: 32px; height: 32px; display: flex; align-items: flex-start; justify-content: center; border-radius: var(--radius); border: none; background: #f1f5f9; color: #334155; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .page-btn:hover { background: #e2e8f0; }
+        .page-btn.active { background: #2563eb; color: #fff; }
+        .page-btn svg { width: 16px; height: 16px; }
+
+        /* Modals */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: flex; align-items: flex-start; justify-content: center; z-index: 2000; opacity: 0; visibility: hidden; transition: all 0.2s; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-card { background: #fff; width: 500px; max-width: 90%; border-radius: var(--radius-lg); box-shadow: 0 20px 40px rgba(0,0,0,0.1); transform: scale(0.95); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; overflow: hidden; }
+        .modal-overlay.active .modal-card { transform: scale(1); }
+        .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; background: #f8fafc; }
+        .modal-title { font-size: 16px; font-weight: 700; color: var(--text-dark); display: flex; align-items: center; gap: 8px; }
+        .modal-title svg { color: #2563eb; }
+        .modal-close { background: transparent; border: none; cursor: pointer; color: var(--text-soft); padding: 4px; border-radius: 50%; }
+        .modal-close:hover { background: #e2e8f0; color: var(--text-dark); }
+        .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-label { font-size: 12px; font-weight: 600; color: #475569; }
+        .form-input { width: 100%; padding: 10px 12px; border-radius: var(--radius); border: 1px solid #cbd5e1; font-size: 14px; font-family: inherit; outline: none; transition: border 0.2s; box-sizing: border-box; background: #fff; color: var(--text-dark); }
+        .form-input:focus { border-color: #2563eb; }
+        .form-row { display: flex; gap: 16px; }
+        .form-row .form-group { flex: 1; }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; background: #fafafa; }
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+    <div class="brand">
+        <div class="brand-left">
+            <img src="../assets/logo.png" alt="Telehealings" class="brand-logo">
+            <span class="nav-text brand-name-text">Telehealings</span>
+        </div>
+        <button class="sidebar-toggle-btn" id="sidebarToggle" title="Toggle Sidebar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+    </div>
+    <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search">
+    </div>
+    <nav class="nav-menu">
+        <a href="dashboard.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span class="nav-text">Dashboard</span></a>
+        <a href="therapist.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nav-text">Therapist</span></a>
+        <a href="clients.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-text">Clients</span></a>
+        <div class="nav-separator"></div>
+        <a href="schedule.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="nav-text">Sessions & Schedule</span></a>
+        <a href="content-management.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span class="nav-text">Content Management</span></a>
+        <a href="communications.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="nav-text">Communications</span></a>
+        <a href="compliance.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span class="nav-text">Compliance</span></a>
+        <div class="nav-separator"></div>
+        <a href="financials.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12"/><path d="M6 8h12"/><path d="m6 13 8.5 8"/><path d="M6 13h3"/><path d="M9 13c6.667 0 6.667-10 0-10"/></svg><span class="nav-text">Financials</span></a>
+        <a href="analytics.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span class="nav-text">Analytics & Reporting</span></a>
+        <a href="Promotion.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><span class="nav-text">Promotion & Offers</span></a>
+    </nav>
+    <div class="user-profile" tabindex="0">
+        <img src="../assets/user-profile.jpg" alt="Dr. Ajesh Anand">
+        <h4>Dr. Ajesh Anand</h4>
+        <p>Admin</p>
+        <div class="profile-dropdown">
+            <a href="#" class="dropdown-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</a>
+            <a href="#" class="dropdown-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Account Settings</a>
+            <div class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Help & Support</a>
+            <div class="dropdown-divider"></div>
+            <a href="index.html" class="dropdown-item logout-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Logout</a>
+        </div>
+    </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<div class="page-shell">
+    <div class="sticky-zone">
+        <div class="sticky-inner">
+
+        <header class="page-header">
+            <div class="header-left">
+                <div class="header-tab">Sessions & Schedule</div>
+            </div>
+            <div class="header-right">
+                <div class="heali-inline">
+                    <div class="heali-insight">
+                        <div class="heali-insight-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/></svg>
+                        </div>
+                        <div class="heali-insight-content">
+                            <span class="heali-insight-label">Heali Insight</span>
+                            <span class="heali-insight-text">Peak demand on Tuesday. Consider adding 2 more slots for <strong>Dr. Sarah Smith</strong>.</span>
+                        </div>
+                        <button class="heali-insight-dismiss" title="Dismiss"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                    </div>
+                    <img src="../assets/Heali.png" class="header-mascot" alt="Mascot">
+                </div>
+            </div>
+        </header>
+
+        <!-- Tabs Nav -->
+        <div class="tabs-nav">
+            <button class="tab-btn active" data-tab="all">All Sessions <span class="tab-count">342</span></button>
+            <button class="tab-btn" data-tab="ongoing">Ongoing <span class="tab-badge">1</span></button>
+            <button class="tab-btn" data-tab="upcoming">Upcoming <span class="tab-count">128</span></button>
+            <button class="tab-btn" data-tab="completed">Past / Completed <span class="tab-count">189</span></button>
+            <button class="tab-btn" data-tab="cancelled">Cancelled <span class="tab-count">24</span></button>
+        </div>
+
+        <!-- Session Summary Bar -->
+        <div class="session-summary">
+            <div class="summary-item"><span class="summary-dot" style="background:#3b82f6"></span><strong>10</strong> sessions this week</div>
+            <div class="summary-item"><span class="summary-dot" style="background:#22c55e"></span><strong>6</strong> completed</div>
+            <div class="summary-item"><span class="summary-dot" style="background:#f59e0b"></span><strong>3</strong> upcoming</div>
+            <div class="summary-item"><span class="summary-dot" style="background:#eab308"></span><strong>1</strong> ongoing</div>
+            <div class="summary-item"><span class="summary-dot" style="background:#94a3b8"></span>All times in <strong>GST (+4)</strong></div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <div class="search-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" class="search-input" placeholder="Search sessions...">
+                </div>
+            </div>
+            <div class="toolbar-right">
+                <div class="view-toggle">
+                    <button class="view-toggle-btn active" id="btnListView">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                        List
+                    </button>
+                    <button class="view-toggle-btn" id="btnCalView">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        Calendar
+                    </button>
+                </div>
+                <button class="btn-sm btn-outline" id="btnExportCsv">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Export CSV
+                </button>
+                <button class="btn-sm btn-primary" id="btnNewSession">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Session
+                </button>
+            </div>
+        </div>
+
+        </div><!-- end sticky-inner -->
+    </div><!-- end sticky-zone -->
+
+    <!-- ─── SCROLLABLE CONTENT ─── -->
+    <div class="content-wrapper">
+
+        <div class="table-card">
+            <!-- List View -->
+            <div id="listView" class="list-view">
+                <div class="table-scroll">
+                    <table class="clients-table">
+                        <thead>
+                            <tr>
+                                <th style="width:5%"><span class="th-label">Sl No</span></th>
+                                <th style="width:20%">
+                                    <div class="th-filter-wrap">
+                                        <div class="th-filter-display" id="wrapClient">
+                                            <span class="th-label">Client</span>
+                                            <button class="th-filter-btn" data-col="client" aria-label="Filter Client"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+                                        </div>
+                                        <div class="th-filter-input-wrap" id="inputClient">
+                                            <input type="text" class="th-filter-input" placeholder="Search client...">
+                                            <button class="th-filter-close" data-col="client" aria-label="Close"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th style="width:18%">
+                                    <div class="th-filter-wrap">
+                                        <div class="th-filter-display" id="wrapTherapist">
+                                            <span class="th-label">Therapist</span>
+                                            <button class="th-filter-btn" data-col="therapist" aria-label="Filter Therapist"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+                                        </div>
+                                        <div class="th-filter-input-wrap" id="inputTherapist">
+                                            <select class="th-filter-select">
+                                                <option value="">All Therapists</option>
+                                                <option>Dr. Ajesh Anand</option>
+                                                <option>Dr. Sarah Smith</option>
+                                                <option>Dr. Emily Chen</option>
+                                            </select>
+                                            <button class="th-filter-close" data-col="therapist" aria-label="Close"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th style="width:20%"><span class="th-label">Date & Time</span></th>
+                                <th style="width:10%"><span class="th-label">Type</span></th>
+                                <th style="width:15%">
+                                    <div class="th-filter-wrap">
+                                        <div class="th-filter-display" id="wrapStatus">
+                                            <span class="th-label">Status</span>
+                                            <button class="th-filter-btn" data-col="status" aria-label="Filter Status"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+                                        </div>
+                                        <div class="th-filter-input-wrap" id="inputStatus">
+                                            <select class="th-filter-select">
+                                                <option value="">All Statuses</option>
+                                                <option value="upcoming">Upcoming</option>
+                                                <option value="ongoing">Ongoing</option>
+                                                <option value="completed">Completed</option>
+                                                <option value="cancelled">Cancelled</option>
+                                            </select>
+                                            <button class="th-filter-close" data-col="status" aria-label="Close"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th style="width:14%;text-align:center;"><span class="th-label">Actions</span></th>
+                            </tr>
+                        </thead>
+                        <tbody id="sessionsTableBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="pagination-container">
+                    <div class="pagination-info" id="paginationInfo">SHOWING 1-20 OF 342</div>
+                    <div class="pagination-nav">
+                        <button class="page-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+                        <button class="page-btn active">1</button>
+                        <button class="page-btn">2</button>
+                        <button class="page-btn">3</button>
+                        <button class="page-btn">4</button>
+                        <button class="page-btn">5</button>
+                        <button class="page-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <h3>No sessions found</h3>
+            <p>Try adjusting your search or filter criteria.</p>
+            </div>
+
+            <!-- Calendar View -->
+            <div id="calendarView" class="calendar-view">
+                <div class="cal-header">
+                    <div>
+                        <h3>Week 17 <span style="font-weight:400;color:var(--text-soft);margin-left:8px;">Apr 20 - Apr 26, 2026</span></h3>
+                        <div class="cal-stats" id="calStats" style="display:flex;gap:12px;margin-top:4px;"></div>
+                    </div>
+                    <div class="cal-nav">
+                        <button class="cal-nav-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+                        <button class="cal-nav-btn" style="padding:5px 14px;">Today</button>
+                        <button class="cal-nav-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+                    </div>
+                </div>
+                <div class="cal-grid" id="calGrid">
+                    <!-- Rendered dynamically -->
+                </div>
+                <!-- Calendar Empty State -->
+                <div class="cal-empty-state" id="calEmptyState" style="display:none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:48px;height:48px;color:#cbd5e1;margin-bottom:12px;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <h3>No sessions this week</h3>
+                    <p>Schedule a new session or navigate to a different week.</p>
+                </div>
+            </div>
+    </div>
+</div>
+
+<!-- New Session Modal -->
+<div class="modal-overlay" id="newSessionModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <div class="modal-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule New Session</div>
+            <button class="modal-close" id="closeNewSessionModal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group"><label class="form-label">Client</label><select class="form-input"><option>Select Client</option><option>Ajesh Anand</option><option>Nathaniel Jacob</option><option>Bethany Kay</option></select></div>
+            <div class="form-group"><label class="form-label">Therapist</label><select class="form-input"><option>Select Therapist</option><option>Dr. Ajesh Anand</option><option>Dr. Sarah Smith</option><option>Dr. Emily Chen</option></select></div>
+            <div class="form-row">
+                <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input"></div>
+                <div class="form-group"><label class="form-label">Time</label><input type="time" class="form-input"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label class="form-label">Duration</label><select class="form-input"><option>30 min</option><option>45 min</option><option>60 min</option></select></div>
+                <div class="form-group"><label class="form-label">Type</label><select class="form-input"><option>Video</option><option>Audio</option><option>Chat</option></select></div>
+            </div>
+        </div>
+        <div class="modal-footer"><button class="btn-sm btn-outline" id="cancelNewSession">Cancel</button><button class="btn-sm btn-primary">Schedule Session</button></div>
+    </div>
+</div>
+
+<script>
+    // Sidebar Toggle
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); });
+    }
+
+    // Table Data
+    const sessionsData = [
+        { id: 1, client: "Ajesh Anand", clientEmail: "ajeshanand@gmail.com", therapist: "Dr. Ajesh Anand", dateTime: "25/04/2026 10:00 Am", duration: "60 min", type: "Video", status: "upcoming", avatar: "https://i.pravatar.cc/150?u=ajesh" },
+        { id: 2, client: "Nathaniel Jacob", clientEmail: "nathanieljacob@gmail.com", therapist: "Dr. Sarah Smith", dateTime: "25/04/2026 11:00 Am", duration: "45 min", type: "Audio", status: "upcoming", avatar: "https://i.pravatar.cc/150?u=nathaniel" },
+        { id: 3, client: "Bethany Kay", clientEmail: "bethanykay@gmail.com", therapist: "Dr. Ajesh Anand", dateTime: "25/04/2026 02:00 Pm", duration: "60 min", type: "Video", status: "ongoing", avatar: "https://i.pravatar.cc/150?u=bethany" },
+        { id: 4, client: "Nancy Wheeler", clientEmail: "nancywheeler@gmail.com", therapist: "Dr. Sarah Smith", dateTime: "24/04/2026 09:00 Am", duration: "45 min", type: "Chat", status: "completed", avatar: "https://i.pravatar.cc/150?u=nancy" },
+        { id: 5, client: "Victor Martinez", clientEmail: "victormartinez@gmail.com", therapist: "Dr. Ajesh Anand", dateTime: "24/04/2026 03:00 Pm", duration: "60 min", type: "Video", status: "completed", avatar: "https://i.pravatar.cc/150?u=victor" },
+        { id: 6, client: "Jane Hopper", clientEmail: "janehopper@gmail.com", therapist: "Dr. Sarah Smith", dateTime: "23/04/2026 10:00 Am", duration: "45 min", type: "Audio", status: "cancelled", avatar: "https://i.pravatar.cc/150?u=jane" },
+        { id: 7, client: "Max Mayfield", clientEmail: "maxmayfield@gmail.com", therapist: "Dr. Ajesh Anand", dateTime: "26/04/2026 09:00 Am", duration: "60 min", type: "Video", status: "upcoming", avatar: "https://i.pravatar.cc/150?u=max" },
+        { id: 8, client: "Mike Wheeler", clientEmail: "mikewheel@gmail.com", therapist: "Dr. Sarah Smith", dateTime: "26/04/2026 11:00 Am", duration: "45 min", type: "Chat", status: "upcoming", avatar: "https://i.pravatar.cc/150?u=mike" },
+        { id: 9, client: "Will Byers", clientEmail: "willbyers@gmail.com", therapist: "Dr. Emily Chen", dateTime: "27/04/2026 02:00 Pm", duration: "60 min", type: "Video", status: "upcoming", avatar: "https://i.pravatar.cc/150?u=will" },
+        { id: 10, client: "Chrissy Cunningham", clientEmail: "chrissycunninhgham@gmail.com", therapist: "Dr. Sarah Smith", dateTime: "22/04/2026 04:00 Pm", duration: "45 min", type: "Audio", status: "completed", avatar: "https://i.pravatar.cc/150?u=chrissy" },
+        { id: 11, client: "Lucas Sinclair", clientEmail: "lucass@gmail.com", therapist: "Dr. Emily Chen", dateTime: "27/04/2026 10:00 Am", duration: "30 min", type: "Chat", status: "upcoming", avatar: "https://i.pravatar.cc/150?u=lucas" },
+        { id: 12, client: "Dustin Henderson", clientEmail: "dustinh@gmail.com", therapist: "Dr. Ajesh Anand", dateTime: "23/04/2026 01:00 Pm", duration: "60 min", type: "Video", status: "completed", avatar: "https://i.pravatar.cc/150?u=dustin" },
+        { id: 13, client: "Alex Rivera", clientEmail: "alexr@gmail.com", therapist: "Dr. Sarah Smith", dateTime: "22/04/2026 11:00 Am", duration: "45 min", type: "Audio", status: "completed", avatar: "https://i.pravatar.cc/150?u=alex" },
+        { id: 14, client: "Sam Okafor", clientEmail: "samok@gmail.com", therapist: "Dr. Emily Chen", dateTime: "26/04/2026 03:00 Pm", duration: "60 min", type: "Video", status: "upcoming", avatar: "https://i.pravatar.cc/150?u=sam" },
+        { id: 15, client: "Riley Thompson", clientEmail: "rileyt@gmail.com", therapist: "Dr. Ajesh Anand", dateTime: "24/04/2026 09:30 Am", duration: "45 min", type: "Chat", status: "cancelled", avatar: "https://i.pravatar.cc/150?u=riley" },
+        { id: 16, client: "Jordan Lee", clientEmail: "jordanl@gmail.com", therapist: "Dr. Sarah Smith", dateTime: "27/04/2026 04:00 Pm", duration: "60 min", type: "Video", status: "upcoming", avatar: "https://i.pravatar.cc/150?u=jordan" },
+        { id: 17, client: "Casey Morgan", clientEmail: "caseym@gmail.com", therapist: "Dr. Emily Chen", dateTime: "23/04/2026 02:00 Pm", duration: "30 min", type: "Audio", status: "completed", avatar: "https://i.pravatar.cc/150?u=casey" },
+        { id: 18, client: "Taylor Swift", clientEmail: "taylors@gmail.com", therapist: "Dr. Ajesh Anand", dateTime: "26/04/2026 01:00 Pm", duration: "45 min", type: "Chat", status: "upcoming", avatar: "https://i.pravatar.cc/150?u=taylor" },
+        { id: 19, client: "Morgan Blake", clientEmail: "morganb@gmail.com", therapist: "Dr. Sarah Smith", dateTime: "22/04/2026 03:00 Pm", duration: "60 min", type: "Video", status: "completed", avatar: "https://i.pravatar.cc/150?u=morgan" },
+        { id: 20, client: "Jamie Cooper", clientEmail: "janec@gmail.com", therapist: "Dr. Emily Chen", dateTime: "27/04/2026 11:00 Am", duration: "45 min", type: "Audio", status: "upcoming", avatar: "https://i.pravatar.cc/150?u=jamie" }
+    ];
+
+    let currentTab = 'all';
+    const filterState = { client: '', therapist: '', status: '' };
+
+    function getInitials(name) { return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase(); }
+
+    function renderTable(data) {
+        const tbody = document.getElementById('sessionsTableBody');
+        const emptyState = document.getElementById('emptyState');
+        const tableScroll = document.querySelector('.table-scroll');
+        tbody.innerHTML = '';
+        if (data.length === 0) { emptyState.classList.add('show'); if(tableScroll) tableScroll.style.display = 'none'; return; }
+        emptyState.classList.remove('show'); if(tableScroll) tableScroll.style.display = 'block';
+        data.forEach(s => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="color:#64748b;">${s.id}</td>
+                <td>
+                    <div class="user-cell">
+                        <img src="${s.avatar}" class="avatar" alt="${s.client}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                        <div class="avatar avatar-fallback" style="display:none;">${getInitials(s.client)}</div>
+                        <div class="user-details">
+                            <span class="user-name">${s.client}</span>
+                            <span class="user-email">${s.clientEmail}</span>
+                        </div>
+                    </div>
+                </td>
+                <td>${s.therapist}</td>
+                <td>${s.dateTime}</td>
+                <td><span class="type-badge type-${s.type.toLowerCase()}">${s.type}</span></td>
+                <td><span class="status-badge ${s.status}">${s.status.charAt(0).toUpperCase() + s.status.slice(1)}</span></td>
+                <td style="text-align:center;">
+                    <button class="action-btn" title="More">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function applyFilters() {
+        let filtered = sessionsData;
+        if (currentTab === 'ongoing') filtered = filtered.filter(s => s.status === 'ongoing');
+        else if (currentTab === 'upcoming') filtered = filtered.filter(s => s.status === 'upcoming');
+        else if (currentTab === 'completed') filtered = filtered.filter(s => s.status === 'completed');
+        else if (currentTab === 'cancelled') filtered = filtered.filter(s => s.status === 'cancelled');
+        if (filterState.client) filtered = filtered.filter(s => s.client.toLowerCase().includes(filterState.client) || s.clientEmail.toLowerCase().includes(filterState.client));
+        if (filterState.therapist) filtered = filtered.filter(s => s.therapist === filterState.therapist);
+        if (filterState.status) filtered = filtered.filter(s => s.status === filterState.status);
+        renderTable(filtered);
+    }
+
+    // Inline Filters
+    function openFilter(col) {
+        document.getElementById('wrap' + col.charAt(0).toUpperCase() + col.slice(1)).style.display = 'none';
+        document.getElementById('input' + col.charAt(0).toUpperCase() + col.slice(1)).classList.add('open');
+        const input = document.querySelector('#input' + col.charAt(0).toUpperCase() + col.slice(1) + ' input, #input' + col.charAt(0).toUpperCase() + col.slice(1) + ' select');
+        if (input) input.focus();
+    }
+    function closeFilter(col) {
+        document.getElementById('wrap' + col.charAt(0).toUpperCase() + col.slice(1)).style.display = 'flex';
+        document.getElementById('input' + col.charAt(0).toUpperCase() + col.slice(1)).classList.remove('open');
+        const input = document.querySelector('#input' + col.charAt(0).toUpperCase() + col.slice(1) + ' input, #input' + col.charAt(0).toUpperCase() + col.slice(1) + ' select');
+        if (input) input.value = '';
+        filterState[col] = '';
+        applyFilters();
+    }
+    document.querySelectorAll('.th-filter-btn').forEach(btn => { btn.addEventListener('click', () => openFilter(btn.dataset.col)); });
+    document.querySelectorAll('.th-filter-close').forEach(btn => { btn.addEventListener('click', () => closeFilter(btn.dataset.col)); });
+    document.querySelectorAll('.th-filter-input').forEach(el => { el.addEventListener('input', () => { const wrap = el.closest('.th-filter-input-wrap'); const col = wrap.id.replace('input', '').toLowerCase(); filterState[col] = el.value; applyFilters(); }); });
+    document.querySelectorAll('.th-filter-select').forEach(el => { el.addEventListener('change', () => { const wrap = el.closest('.th-filter-input-wrap'); const col = wrap.id.replace('input', '').toLowerCase(); filterState[col] = el.value; applyFilters(); }); });
+
+    // Tabs
+    document.querySelectorAll('.tab-btn').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentTab = tab.dataset.tab;
+            applyFilters();
+        });
+    });
+
+    // View Toggle
+    document.getElementById('btnListView').addEventListener('click', () => {
+        document.getElementById('listView').classList.remove('hidden');
+        document.getElementById('calendarView').classList.remove('active');
+        document.getElementById('btnListView').classList.add('active');
+        document.getElementById('btnCalView').classList.remove('active');
+    });
+    document.getElementById('btnCalView').addEventListener('click', () => {
+        document.getElementById('listView').classList.add('hidden');
+        document.getElementById('calendarView').classList.add('active');
+        document.getElementById('btnListView').classList.remove('active');
+        document.getElementById('btnCalView').classList.add('active');
+        renderCalendar();
+    });
+
+    // ─── Dynamic Calendar ───
+    const calDays = [
+        { name: 'Mon', date: 20, day: 1 },
+        { name: 'Tue', date: 21, day: 2, today: true },
+        { name: 'Wed', date: 22, day: 3 },
+        { name: 'Thu', date: 23, day: 4 },
+        { name: 'Fri', date: 24, day: 5 },
+        { name: 'Sat', date: 25, day: 6 },
+        { name: 'Sun', date: 26, day: 0 }
+    ];
+    const calTimes = ['09:00','10:00','11:00','12:00','01:00','02:00','03:00','04:00'];
+
+    function getFilteredSessions() {
+        let filtered = [...sessionsData];
+        if (currentTab === 'ongoing') filtered = filtered.filter(s => s.status === 'ongoing');
+        else if (currentTab === 'upcoming') filtered = filtered.filter(s => s.status === 'upcoming');
+        else if (currentTab === 'completed') filtered = filtered.filter(s => s.status === 'completed');
+        else if (currentTab === 'cancelled') filtered = filtered.filter(s => s.status === 'cancelled');
+        if (filterState.client) filtered = filtered.filter(s => s.client.toLowerCase().includes(filterState.client) || s.clientEmail.toLowerCase().includes(filterState.client));
+        if (filterState.therapist) filtered = filtered.filter(s => s.therapist === filterState.therapist);
+        if (filterState.status) filtered = filtered.filter(s => s.status === filterState.status);
+        return filtered;
+    }
+
+    function parseSessionDate(dateStr) {
+        const parts = dateStr.split(' ');
+        const dateParts = parts[0].split('/');
+        const timeParts = parts[1].split(':');
+        const ampm = parts[2];
+        let hour = parseInt(timeParts[0]);
+        if (ampm === 'Pm' && hour !== 12) hour += 12;
+        if (ampm === 'Am' && hour === 12) hour = 0;
+        return { day: parseInt(dateParts[1]), hour: hour };
+    }
+
+    function renderCalendar() {
+        const filtered = getFilteredSessions();
+        const grid = document.getElementById('calGrid');
+        const emptyState = document.getElementById('calEmptyState');
+        const stats = document.getElementById('calStats');
+        if (filtered.length === 0) { grid.style.display = 'none'; emptyState.style.display = 'flex'; stats.innerHTML = ''; return; }
+        grid.style.display = 'grid'; emptyState.style.display = 'none';
+        const counts = { upcoming: 0, ongoing: 0, completed: 0, cancelled: 0 };
+        filtered.forEach(s => { counts[s.status]++; });
+        stats.innerHTML = `<span class="cal-stat-item"><span class="cal-stat-dot" style="background:#3b82f6"></span><strong>${counts.upcoming}</strong> upcoming</span><span class="cal-stat-item"><span class="cal-stat-dot" style="background:#eab308"></span><strong>${counts.ongoing}</strong> ongoing</span><span class="cal-stat-item"><span class="cal-stat-dot" style="background:#22c55e"></span><strong>${counts.completed}</strong> completed</span><span class="cal-stat-item"><span class="cal-stat-dot" style="background:#94a3b8"></span><strong>${filtered.length}</strong> total</span>`;
+        const dayCounts = [0,0,0,0,0,0,0];
+        filtered.forEach(s => { const d = parseSessionDate(s.dateTime); const dayInfo = calDays.find(cd => cd.date === d.day); if (dayInfo) dayCounts[dayInfo.day]++; });
+        let html = '<div class="cal-head">Time</div>';
+        calDays.forEach(d => {
+            const isToday = d.today ? ' style="background:#e0f2fe;color:#1e40af;font-weight:700;"' : '';
+            const todayLabel = d.today ? '<span class="cal-today-label">Today</span>' : '';
+            const count = dayCounts[d.day] > 0 ? `<span class="cal-day-count">(${dayCounts[d.day]})</span>` : '';
+            html += `<div class="cal-head"${isToday}>${d.name} ${d.date}${todayLabel}${count}</div>`;
+        });
+        html += '<div class="cal-col" style="background:#f8fafc;">';
+        calTimes.forEach(t => { html += `<div class="cal-time">${t}</div>`; });
+        html += '</div>';
+        calDays.forEach(d => {
+            const isToday = d.today ? ' today' : '';
+            html += `<div class="cal-col${isToday}">`;
+            calTimes.forEach(() => { html += '<div class="cal-slot"></div>'; });
+            filtered.forEach(s => {
+                const parsed = parseSessionDate(s.dateTime);
+                if (parsed.day === d.date) {
+                    const timeIndex = calTimes.indexOf(parsed.hour + ':00');
+                    if (timeIndex >= 0) {
+                        html += `<div class="cal-event-session session-${s.status}" style="top:${timeIndex * 60}px;height:58px;"><span class="session-client">${s.client}</span><span class="session-therapist">${s.therapist}</span></div>`;
+                    }
+                }
+            });
+            html += '</div>';
+        });
+        grid.innerHTML = html;
+    }
+
+    const origApplyFilters = applyFilters;
+    applyFilters = function() { origApplyFilters(); if (document.getElementById('calendarView').classList.contains('active')) { renderCalendar(); } };
+
+    // New Session Modal
+    const newModal = document.getElementById('newSessionModal');
+    document.getElementById('btnNewSession').addEventListener('click', () => newModal.classList.add('active'));
+    document.getElementById('closeNewSessionModal').addEventListener('click', () => newModal.classList.remove('active'));
+    document.getElementById('cancelNewSession').addEventListener('click', () => newModal.classList.remove('active'));
+    newModal.addEventListener('click', (e) => { if (e.target === newModal) newModal.classList.remove('active'); });
+
+    // Heali Dismiss
+    const healiInsight = document.querySelector('.heali-insight');
+    const healiDismiss = document.querySelector('.heali-insight-dismiss');
+    if (healiDismiss && healiInsight) { healiDismiss.addEventListener('click', () => { healiInsight.style.display = 'none'; }); }
+
+    // Init
+    renderTable(sessionsData);
+</script>
+</body>
+</html>

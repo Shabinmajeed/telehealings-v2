@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Care — Telehealings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; justify-content: center; align-items: center; background-color: #f0f2f5; }
+    .mobile-app-container { height: 100%; width: 100%; background-color: #fbfcfd; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+
+    @keyframes slideFadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulseDot { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+    @keyframes starPop { 0% { transform: scale(1); } 40% { transform: scale(1.35); } 100% { transform: scale(1); } }
+    @keyframes subtleRingExpand { 0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4), 0 4px 12px rgba(0,0,0,0.1); } 100% { box-shadow: 0 0 0 12px rgba(245, 158, 11, 0), 0 4px 12px rgba(0,0,0,0.1); } }
+
+    .care-container { background-color: #fbfcfd; display: flex; flex-direction: column; height: 100vh; position: relative; overflow: hidden; }
+    .content-wrapper { position: relative; z-index: 1; padding: 10px 20px 0 20px; display: flex; flex-direction: column; flex: 1; overflow-y: hidden; overflow-x: hidden; }
+
+    /* Header */
+    .fixed-header { background: linear-gradient(180deg, #e7f2ff 0%, #2366bd 100%); border-radius: 0 0 50% 50% / 0 0 35px 35px; padding: 18px 20px 24px; z-index: 20; flex-shrink: 0; position: relative; box-shadow: 0 6px 16px rgba(0,0,0,0.04); }
+    .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin: 0; }
+    .header-titles { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; margin-right: 15px; }
+    .header-top h1 { font-size: 26px; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.5px; }
+    .discover-subtitle { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.85); margin: 0; line-height: 1.4; max-width: 240px; }
+    .heali-subtle { width: 36px; height: auto; opacity: 0.9; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.08)); }
+
+    /* Tabs */
+    .discover-tabs { display: flex; gap: 24px; margin-bottom: 20px; padding: 0 4px; }
+    .discover-tab { font-size: 15px; font-weight: 500; color: #64748b; padding-bottom: 8px; cursor: pointer; transition: color 0.2s ease; }
+    .discover-tab.active { font-weight: 700; color: #1e5ab8; border-bottom: 2px solid #1e5ab8; }
+
+    /* Carousel */
+    .carousel-container { display: flex; gap: 0; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none; margin: 0 -20px; padding: 10px calc(50% - 144px) 30px calc(50% - 144px); flex: 1; align-items: stretch; animation: slideFadeUp 0.6s ease-out forwards; cursor: grab; }
+    .carousel-container.dragging { scroll-snap-type: none; cursor: grabbing; }
+    .carousel-container::-webkit-scrollbar { display: none; }
+
+    .carousel-card { flex: 0 0 320px; scroll-snap-align: center; position: relative; margin: 0 -16px; background: #fff; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.12); transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.4s ease, filter 0.4s ease; will-change: transform, opacity, filter; opacity: 0.6; filter: blur(3px); transform: scale(0.85); user-select: none; }
+    .carousel-card.card-active { z-index: 3; opacity: 1; filter: blur(0); transform: scale(1); box-shadow: 0 0 0 2px rgba(59,130,246,0.3), 0 10px 30px rgba(0,0,0,0.15); }
+    .main-card-img { width: 100%; height: 100%; object-fit: cover; -webkit-user-drag: none; }
+
+    /* Star Button */
+    .star-btn { position: absolute; top: 16px; left: 16px; width: 40px; height: 40px; background: rgba(255,255,255,0.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); color: #94a3b8; cursor: pointer; transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease; z-index: 10; }
+    .star-btn:active { transform: scale(0.85); }
+    .star-btn svg { transition: fill 0.3s ease, color 0.3s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .star-btn.favorited { color: #f59e0b; animation: subtleRingExpand 0.5s ease-out; }
+    .star-btn.favorited svg { fill: #f59e0b; animation: starPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+    /* Card Content */
+    .main-card-content { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.5) 60%, transparent 100%); padding: 60px 20px 60px 20px; display: flex; flex-direction: column; align-items: flex-start; text-align: left; transition: opacity 0.3s ease; }
+    .carousel-card:not(.card-active) .main-card-content, .carousel-card:not(.card-active) .star-btn { opacity: 0; pointer-events: none; }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
+    .tag { background: rgba(255,255,255,0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 16px; font-size: 11px; font-weight: 400; color: #ffffff; white-space: nowrap; }
+
+    .therapist-title { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; width: 100%; }
+    .therapist-title h2 { font-size: 25px; font-weight: 600; color: #ffffff; margin: 0; flex: 0 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .quote { font-size: 13px; font-style: italic; color: #cbd5e1; line-height: 1.5; margin-bottom: 12px; padding: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .book-btn { width: 100%; background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: #fff; border-radius: 14px; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 12px; border: none; cursor: pointer; box-shadow: 0 8px 20px -4px rgba(37,99,235,0.5); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .book-btn:active { transform: scale(0.97); box-shadow: 0 4px 10px -2px rgba(37,99,235,0.4); }
+    .book-btn-text { text-align: left; flex: 1; min-width: 0; }
+    .book-title { font-size: 13px; font-weight: 600; display: block; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .book-sub { font-size: 9px; font-weight: 300; color: #a4c2ee; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* =====     /* Carousel Dots */
+    .carousel-dots { display: flex; justify-content: center; gap: 8px; margin-top: 16px; margin-bottom: 16px; }
+    .carousel-dot { width: 8px; height: 8px; border-radius: 50%; background: #cbd5e1; transition: all 0.3s ease; cursor: pointer; }
+    .carousel-dot.active { background: #387bd5; width: 24px; border-radius: 4px; }
+
+    /* Swipe Hint */
+    .swipe-hint { text-align: center; font-size: 11px; color: #94a3b8; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+FLOATING BOTTOM NAV ===== */
+    .more-menu-overlay { position: absolute; inset: 0; z-index: 9; display: none; background: transparent; }
+    .more-menu-overlay.open { display: block; }
+    .bottom-nav {
+      position: absolute; bottom: 0; left: 16px; right: 16px;
+      max-width: 360px; margin: 0 auto 25px auto;
+      padding: 12px 0; z-index: 10;
+      background: rgba(248, 251, 255, 0.85);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border-radius: 20px; border: 1px solid rgba(56, 123, 213, 0.3);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 -8px 24px rgba(59, 130, 246, 0.05), 0 10px 30px rgba(0, 0, 0, 0.04);
+      display: flex; flex-direction: column; gap: 0;
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      transform: translateZ(0); will-change: transform, backdrop-filter, height;
+    }
+    .bottom-nav.expanded { padding-top: 16px; padding-bottom: 16px; gap: 16px; background: rgba(248, 251, 255, 0.95); box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 -16px 40px rgba(59, 130, 246, 0.12), 0 20px 50px rgba(0, 0, 0, 0.08); }
+    .nav-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 20px; }
+    .nav-top-row { height: 0; opacity: 0; pointer-events: none; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); transform: translateY(10px); }
+    .bottom-nav.expanded .nav-top-row { height: 44px; opacity: 1; pointer-events: auto; transform: translateY(0); }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #8E9AA0; cursor: pointer; text-decoration: none; flex: 1; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); -webkit-tap-highlight-color: transparent; }
+    .nav-item.spacer { flex: 0 0 70px; pointer-events: none; }
+    .nav-item.active, .bottom-nav.expanded .nav-item[data-nav="more"] { font-weight: 600; color: #387bd5; }
+    .nav-icon { width: 24px; height: 24px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .nav-item.active .nav-icon { transform: translateY(-2px); }
+    .nav-label { font-size: 0.7rem; font-weight: inherit; letter-spacing: 0.03em; white-space: nowrap; }
+    .nav-center-absolute { position: absolute; left: 50%; top: 20px; transform: translate(-50%, -50%); z-index: 15; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
+    .bottom-nav.expanded .nav-center-absolute { top: 50%; }
+    .nav-center-btn { width: 60px; height: 60px; background: #FFFFFF; border-radius: 50%; box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05), 0 8px 20px rgba(59, 130, 246, 0.12); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(56, 123, 213, 0.3); }
+    .nav-center-btn:active { transform: scale(0.92); }
+    .nav-center-btn img { width: 32px; height: auto; object-fit: contain; }
+    #bottom-nav-placeholder { flex-shrink: 0; height: 0; }
+
+    /* ===== BOOKING MODAL ===== */
+    .booking-modal-overlay { position: absolute; inset: 0; background: rgba(15,23,42,0.5); z-index: 1000; display: flex; flex-direction: column; justify-content: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; backdrop-filter: blur(2px); }
+    .booking-modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .booking-modal-content { background-color: #8291a4; height: auto; max-height: 95%; border-top-left-radius: 32px; border-top-right-radius: 32px; padding: 24px; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; flex-direction: column; box-shadow: 0 -10px 40px rgba(0,0,0,0.2); }
+    .booking-modal-overlay.open .booking-modal-content { transform: translateY(0); }
+    .booking-header { display: flex; align-items: center; color: #fff; font-size: 18px; font-weight: 700; margin-bottom: 24px; cursor: pointer; }
+    .booking-header svg { margin-right: 12px; }
+    .booking-card { background: #fff; border-radius: 20px; padding: 20px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .booking-card-title { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 8px; }
+    .booking-card-main { font-size: 22px; font-weight: 800; color: #0f172a; margin-bottom: 8px; }
+    .booking-card-sub { font-size: 14px; color: #475569; }
+    .booking-section-title { display: flex; justify-content: space-between; align-items: center; color: #fff; font-size: 13px; font-weight: 700; margin-bottom: 16px; border-bottom: 2px solid rgba(255,255,255,0.4); padding-bottom: 5px; }
+    .date-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 5px; margin-bottom: 10px; scrollbar-width: none; }
+    .date-scroll::-webkit-scrollbar { display: none; }
+    .date-box { background: #fff; min-width: 65px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60px; flex-shrink: 0; cursor: pointer; transition: all 0.2s ease; }
+    .date-box.active { background: #3b82f6; }
+    .date-box.active .date-day, .date-box.active .date-num { color: #fff; }
+    .date-day { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 8px; }
+    .date-num { font-size: 20px; font-weight: 800; color: #0f172a; }
+    .options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 5px; }
+    .option-btn { background: #fff; border: none; border-radius: 12px; padding: 14px 8px; font-size: 14px; font-weight: 600; color: #334155; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease; }
+    .option-btn.active { background: #3b82f6; color: #fff; }
+    .option-btn svg { stroke: #64748b; }
+    .option-btn.active svg { stroke: #fff; }
+    .confirm-btn { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #fff; border: none; border-radius: 16px; padding: 18px; font-size: 16px; font-weight: 700; display: flex; justify-content: center; align-items: center; gap: 12px; cursor: pointer; margin-top: 32px; width: 100%; box-shadow: 0 8px 20px rgba(37,99,235,0.3); }
+    .confirm-btn:active { transform: scale(0.98); }
+  </style>
+<style>
+    /* ===== HEALI CHAT MODAL ===== */
+    .heali-chat-overlay { position: absolute; inset: 0; background: rgba(15,23,42,0.4); backdrop-filter: blur(4px); z-index: 9999; display: flex; flex-direction: column; justify-content: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding: 0 16px; }
+    .heali-chat-overlay.open { opacity: 1; pointer-events: auto; }
+    .heali-chat-container { background: #fff; width: 100%; height: 75vh; max-height: 700px; border-radius: 28px; display: flex; flex-direction: column; transform: translateY(120%); transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 10px 40px rgba(0,0,0,0.2); position: relative; margin-bottom: 95px; }
+    .heali-chat-container::after { content: ''; position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); border-width: 16px 16px 0; border-style: solid; border-color: #fff transparent transparent transparent; }
+    .heali-chat-overlay.open .heali-chat-container { transform: translateY(0); }
+    .heali-chat-header { display: flex; align-items: center; padding: 20px 24px; border-bottom: 1px solid #f1f5f9; }
+    .heali-chat-avatar { width: 44px; height: 44px; background: #f0f8ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 14px; border: 1.5px solid #cbe0f9; color: #387bd5; }
+    .heali-chat-title-block { flex: 1; }
+    .heali-chat-title { font-size: 18px; font-weight: 800; color: #1a293b; margin: 0; }
+    .heali-chat-status { font-size: 12px; color: #10b981; font-weight: 600; display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+    .heali-chat-status::before { content: ''; width: 6px; height: 6px; background: #10b981; border-radius: 50%; }
+    .heali-chat-close { width: 36px; height: 36px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #64748b; transition: background 0.2s; }
+    .heali-chat-close:active { background: #e2e8f0; }
+    .heali-chat-messages { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; background: #fbfcfd; }
+    .heali-chat-messages::-webkit-scrollbar { display: none; }
+    .chat-bubble-wrapper { display: flex; flex-direction: column; max-width: 85%; animation: slideFadeUp 0.3s ease-out forwards; }
+    .chat-bubble-wrapper.ai { align-self: flex-start; }
+    .chat-bubble-wrapper.user { align-self: flex-end; align-items: flex-end; }
+    .chat-bubble { padding: 14px 18px; border-radius: 20px; font-size: 15px; line-height: 1.5; position: relative; word-wrap: break-word; }
+    .chat-bubble-wrapper.ai .chat-bubble { background: #fff; color: #334155; border: 1px solid #e2e8f0; border-bottom-left-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+    .chat-bubble-wrapper.user .chat-bubble { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #fff; border-bottom-right-radius: 4px; box-shadow: 0 4px 12px rgba(37,99,235,0.15); }
+    .chat-time { font-size: 11px; color: #94a3b8; margin-top: 6px; padding: 0 4px; font-weight: 500; }
+    .heali-chat-input-area { padding: 16px 24px; background: #fff; border-top: 1px solid #f1f5f9; display: flex; gap: 12px; align-items: flex-end; border-radius: 0 0 28px 28px; }
+    .heali-chat-input { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 24px; padding: 14px 18px; font-size: 16px; outline: none; resize: none; max-height: 120px; min-height: 50px; font-family: inherit; color: #1a293b; transition: border-color 0.2s; }
+    .heali-chat-input:focus { border-color: #387bd5; background: #fff; }
+    .heali-chat-input::placeholder { color: #94a3b8; }
+    .heali-chat-send { width: 50px; height: 50px; border-radius: 50%; background: #387bd5; color: #fff; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: transform 0.2s ease; box-shadow: 0 4px 12px rgba(56,123,213,0.25); }
+    .heali-chat-send:active { transform: scale(0.95); }
+    .typing-indicator { display: flex; gap: 5px; padding: 8px 4px; }
+    .typing-dot { width: 6px; height: 6px; background: #94a3b8; border-radius: 50%; animation: typingBounce 1.4s infinite ease-in-out both; }
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes typingBounce { 0%,80%,100% { transform: scale(0.6); opacity: 0.6; } 40% { transform: scale(1); opacity: 1; } }
+</style>
+</head>
+<body>
+  <div class="mobile-app-container care-container">
+    <!-- Fixed Sticky Header -->
+    <div class="fixed-header">
+      <div class="header-top">
+        <div class="header-titles">
+          <h1>Care</h1>
+          <p class="discover-subtitle">Which area would you like to focus on today, Ajesh?</p>
+        </div>
+        <img class="heali-subtle" src="../assets/Heali.png" alt="Heali Mascot" onerror="this.style.display='none'">
+      </div>
+    </div>
+
+    <!-- Main Scrollable Content -->
+    <div class="content-wrapper">
+      <!-- Tabs -->
+      <div class="discover-tabs">
+        <div class="discover-tab active">Find Support</div>
+        <div class="discover-tab">My Appointments</div>
+        <div class="discover-tab">My Care</div>
+      </div>
+
+            <div class="swipe-hint"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>Swipe to explore therapists</div>
+
+      <!-- Carousel Container -->
+      <div class="carousel-container" id="therapist-carousel">
+        <!-- Card 1 -->
+        <div class="carousel-card card-active">
+          <img class="main-card-img" src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=800&q=80" alt="Dr. John" onerror="this.style.display='none'">
+          <div class="star-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></div>
+          <div class="main-card-content">
+            <div class="quote">"Healing takes time, and asking for help is a courageous first step."</div>
+            <div class="therapist-title">
+              <h2>John .D</h2>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg><span style="font-size:10px;font-weight:600;color:#60a5fa;margin-left:-4px">Verified</span>
+            </div>
+            <div class="tags"><span class="tag">Stress</span><span class="tag">Anxiety</span><span class="tag">8 Year</span></div>
+            <button class="book-btn" onclick="openBookingModal(1)">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <div class="book-btn-text"><span class="book-title">Book an Appointment</span><span class="book-sub">Next Availability Today At 04:00 Pm</span></div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="carousel-card">
+          <img class="main-card-img" src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=800&q=80" alt="Dr. Smitha" onerror="this.style.display='none'">
+          <div class="star-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></div>
+          <div class="main-card-content">
+            <div class="quote">"You don't have to have everything figured out right now—just showing up for yourself today is more than enough."</div>
+            <div class="therapist-title">
+              <h2>Smitha .S</h2>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg><span style="font-size:10px;font-weight:600;color:#60a5fa;margin-left:-4px">Verified</span>
+            </div>
+            <div class="tags"><span class="tag">Anxiety</span><span class="tag">Depression</span><span class="tag">10 Year</span></div>
+            <button class="book-btn" onclick="openBookingModal(2)">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <div class="book-btn-text"><span class="book-title">Book an Appointment</span><span class="book-sub">Next Availability Tomorrow At 10:00 Am</span></div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="carousel-card">
+          <img class="main-card-img" src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=800&q=80" alt="Dr. Sarah" onerror="this.style.display='none'">
+          <div class="star-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></div>
+          <div class="main-card-content">
+            <div class="quote">"Every journey is unique. We'll navigate yours together to find clarity."</div>
+            <div class="therapist-title">
+              <h2>Sarah .M</h2>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg><span style="font-size:10px;font-weight:600;color:#60a5fa;margin-left:-4px">Verified</span>
+            </div>
+            <div class="tags"><span class="tag">Trauma</span><span class="tag">Couples</span><span class="tag">5 Year</span></div>
+            <button class="book-btn" onclick="openBookingModal(3)">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <div class="book-btn-text"><span class="book-title">Book an Appointment</span><span class="book-sub">Next Availability Friday At 01:00 Pm</span></div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Card 4: Explore More -->
+        <div class="carousel-card" onclick="window.location.href='therapist-list.html'" style="cursor: pointer;">
+          <div style="width:100%;height:100%;background:linear-gradient(135deg,#e7f2ff 0%,#2366bd 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center;">
+            <div style="width:64px;height:64px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </div>
+            <h3 style="color:#fff;font-size:20px;font-weight:700;margin:0 0 8px;">Explore More Therapists</h3>
+            <p style="color:rgba(255,255,255,0.85);font-size:13px;margin:0;line-height:1.5;">Browse our full directory with filters for specialty, language, and availability.</p>
+            <div style="margin-top:20px;padding:10px 24px;background:#fff;border-radius:20px;color:#1e5ab8;font-size:14px;font-weight:600;">View All Therapists →</div>
+          </div>
+        </div>
+      </div>
+      <!-- Carousel Dots -->
+      <div class="carousel-dots" id="carouselDots">
+        <div class="carousel-dot active" data-index="0"></div>
+        <div class="carousel-dot" data-index="1"></div>
+        <div class="carousel-dot" data-index="2"></div>
+        <div class="carousel-dot" data-index="3"></div>
+      </div>
+    </div>
+
+    <!-- Bottom Nav Placeholder -->
+    <div id="bottom-nav-placeholder"></div>
+
+  <!-- Heali Chat Modal -->
+  <div class="heali-chat-overlay" id="healiChatModal">
+    <div class="heali-chat-container" onclick="event.stopPropagation()">
+      <div class="heali-chat-header">
+        <div class="heali-chat-avatar"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2a2 2 0 0 1 2 2c0 1.1-.9 2-2 2a2 2 0 0 1-2-2c0-1.1.9-2 2-2z"></path><path d="M16 8h-8a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2z"></path><path d="M9 16v4a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-4"></path></svg></div>
+        <div class="heali-chat-title-block"><h3 class="heali-chat-title">Heali AI</h3><div class="heali-chat-status">Online</div></div>
+        <div class="heali-chat-close" onclick="closeHealiChat()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>
+      </div>
+      <div class="heali-chat-messages" id="healiChatMessages">
+        <div class="chat-bubble-wrapper ai"><div class="chat-bubble">Hi there! I'm Heali. How can I support your wellness journey today?</div><div class="chat-time">Just now</div></div>
+      </div>
+      <div class="heali-chat-input-area">
+        <textarea class="heali-chat-input" id="healiChatInput" placeholder="Message Heali..." rows="1"></textarea>
+        <button class="heali-chat-send" onclick="sendHealiMessage()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
+      </div>
+    </div>
+  </div>
+  <script>
+    function openHealiChat() { var m = document.getElementById('healiChatModal'); if(m) m.classList.add('open'); }
+    function closeHealiChat() { var m = document.getElementById('healiChatModal'); if(m) m.classList.remove('open'); }
+    function sendHealiMessage() {
+      var input = document.getElementById('healiChatInput');
+      var container = document.getElementById('healiChatMessages');
+      var text = input.value.trim();
+      if (!text) return;
+      container.insertAdjacentHTML('beforeend', '<div class="chat-bubble-wrapper user"><div class="chat-bubble">'+text.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div><div class="chat-time">Just now</div></div>');
+      input.value = ''; input.style.height = '50px';
+      container.scrollTop = container.scrollHeight;
+      var tid = 'typing-'+Date.now();
+      container.insertAdjacentHTML('beforeend', '<div class="chat-bubble-wrapper ai" id="'+tid+'"><div class="chat-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div></div>');
+      container.scrollTop = container.scrollHeight;
+      setTimeout(function(){
+        var el = document.getElementById(tid); if(el) el.remove();
+        var lower = text.toLowerCase();
+        var resp = "Thank you for sharing that with me. I'm here to support you. Is there anything specific you'd like to explore today?";
+        if(lower.includes('book')||lower.includes('appointment')) resp = "I can help with that! Head over to the <strong>Care</strong> tab to browse therapists and book a session.";
+        else if(lower.includes('sad')||lower.includes('stress')||lower.includes('anx')) resp = "I hear you. Would you like to try a quick 3-minute guided breathing exercise to help center yourself?";
+        else if(lower.includes('hi')||lower.includes('hello')) resp = "Hello! How are you feeling today?";
+        else if(lower.includes('thank')) resp = "You're very welcome! I'm always here if you need to talk.";
+        container.insertAdjacentHTML('beforeend', '<div class="chat-bubble-wrapper ai"><div class="chat-bubble">'+resp+'</div><div class="chat-time">Just now</div></div>');
+        container.scrollTop = container.scrollHeight;
+      }, 1500+Math.random()*1000);
+    }
+    document.getElementById('healiChatModal').addEventListener('click', closeHealiChat);
+    document.getElementById('healiChatInput').addEventListener('keydown', function(e) { if(e.key==='Enter'&&!e.shiftKey) { e.preventDefault(); sendHealiMessage(); } });
+  </script>
+
+  </div>
+
+  <script>
+    // Therapist data (in production: from API)
+    const therapistsData = {
+      1: { name: 'Dr. John .D', fee: 1500 },
+      2: { name: 'Dr. Smitha .S', fee: 1800 },
+      3: { name: 'Dr. Sarah .M', fee: 1200 }
+    };
+
+    // Booking Modal
+    let selectedTherapistId = null;
+    function openBookingModal(therapistId) {
+      selectedTherapistId = therapistId || 1;
+      const therapist = therapistsData[selectedTherapistId] || therapistsData[1];
+      const existing = document.getElementById('bookingModal');
+      if (existing) {
+        // Update existing modal with selected therapist
+        document.getElementById('therapistNameDisplay').textContent = therapist.name;
+        document.getElementById('therapistFeeDisplay').textContent = '₹ ' + therapist.fee;
+        existing.classList.add('open');
+        return;
+      }
+      const modalHTML = `<div class="booking-modal-overlay" id="bookingModal" onclick="closeBookingModal()"><div class="booking-modal-content" onclick="event.stopPropagation()">
+        <div class="booking-header" onclick="closeBookingModal()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>Back</div>
+        <div class="booking-card"><div class="booking-card-title">Session Details</div><div class="booking-card-main" id="therapistNameDisplay">${therapist.name}</div><div class="booking-card-sub">50 minutes • <span id="therapistFeeDisplay">₹ ${therapist.fee}</span></div></div>
+        <div class="booking-section-title"><span>Select Date</span><span style="font-weight:500;opacity:0.9">June 2026</span></div>
+        <div class="date-scroll"><div class="date-box"><div class="date-day">Mon</div><div class="date-num">16</div></div><div class="date-box active"><div class="date-day">Tue</div><div class="date-num">17</div></div><div class="date-box"><div class="date-day">Wed</div><div class="date-num">18</div></div><div class="date-box"><div class="date-day">Thu</div><div class="date-num">19</div></div><div class="date-box"><div class="date-day">Fri</div><div class="date-num">20</div></div></div>
+        <div class="booking-section-title"><span style="display:flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>Time Slot</span></div>
+        <div class="options-grid"><button class="option-btn active">09:00 AM</button><button class="option-btn">10:00 AM</button><button class="option-btn">11:00 AM</button><button class="option-btn">02:00 PM</button><button class="option-btn">03:00 PM</button><button class="option-btn">04:00 PM</button></div>
+        <div class="booking-section-title"><span>Session Type</span></div>
+        <div class="options-grid"><button class="option-btn active"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>Video</button><button class="option-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>Audio</button></div>
+        <button class="confirm-btn" onclick="confirmBooking()">Confirm Appointment <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></button>
+      </div></div>`;
+      document.querySelector('.mobile-app-container').insertAdjacentHTML('beforeend', modalHTML);
+      setupModalSelections();
+    }
+    function closeBookingModal() { const m = document.getElementById('bookingModal'); if(m) m.classList.remove('open'); }
+    function setupModalSelections() {
+      document.querySelectorAll('#bookingModal .date-box').forEach(b => { b.addEventListener('click', function() { this.parentElement.querySelectorAll('.date-box').forEach(x=>x.classList.remove('active')); this.classList.add('active'); }); });
+      document.querySelectorAll('#bookingModal .options-grid').forEach(grid => { grid.querySelectorAll('.option-btn').forEach(b => { b.addEventListener('click', function() { this.parentElement.querySelectorAll('.option-btn').forEach(x=>x.classList.remove('active')); this.classList.add('active'); }); }); });
+    }
+    function confirmBooking() {
+      const therapist = therapistsData[selectedTherapistId] || therapistsData[1];
+      const selectedDate = document.querySelector('#bookingModal .date-box.active');
+      const selectedTime = document.querySelector('#bookingModal .options-grid:first-of-type .option-btn.active');
+      const selectedType = document.querySelector('#bookingModal .options-grid:last-of-type .option-btn.active');
+      const bookingData = {
+        therapistId: selectedTherapistId,
+        therapistName: therapist.name,
+        fee: therapist.fee,
+        date: selectedDate ? selectedDate.querySelector('.date-num').textContent : '17',
+        day: selectedDate ? selectedDate.querySelector('.date-day').textContent : 'Tue',
+        time: selectedTime ? selectedTime.textContent.trim() : '09:00 AM',
+        sessionType: selectedType ? (selectedType.textContent.trim() === 'Audio' ? 'audio' : 'video') : 'video',
+        bookedAt: new Date().toISOString()
+      };
+      localStorage.setItem('lastBooking', JSON.stringify(bookingData));
+      // Also add to appointments list
+      const existingAppts = JSON.parse(localStorage.getItem('userAppointments') || '[]');
+      existingAppts.unshift({
+        id: 'TH-' + Math.floor(1000 + Math.random() * 9000),
+        therapist: therapist.name,
+        specialty: 'Clinical Psychologist',
+        status: 'upcoming',
+        date: bookingData.day + ', ' + bookingData.date,
+        time: bookingData.time,
+        type: bookingData.sessionType.charAt(0).toUpperCase() + bookingData.sessionType.slice(1),
+        avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=150&q=80'
+      });
+      localStorage.setItem('userAppointments', JSON.stringify(existingAppts));
+      closeBookingModal();
+      window.location.href = 'session-confirm.html';
+    }
+    // Bottom Nav Injection
+    const bottomNavTemplate = `
+    <div class="more-menu-overlay" id="moreMenuOverlay" onclick="closeMoreMenu()"></div>
+    <nav class="bottom-nav" id="bottomNav">
+      <div class="nav-row nav-top-row">
+        <div class="nav-item" onclick="closeMoreMenu()"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"></line><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"></line><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"></line><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"></line></svg><span class="nav-label">Support</span></div>
+        <div class="nav-item" onclick="window.location.href='settings.html'"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg><span class="nav-label">Settings</span></div>
+        <div class="nav-item spacer"></div>
+        <div class="nav-item" onclick="window.location.href='messages.html'"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span class="nav-label">Messages</span></div>
+        <div class="nav-item" data-nav="profile" onclick="window.location.href='profile.html'"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><span class="nav-label">Profile</span></div>
+      </div>
+      <div class="nav-row nav-bottom-row">
+        <a href="home.html" class="nav-item" data-nav="home"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 10.5V20a2 2 0 0 0 2 2h4v-6h6v6h4a2 2 0 0 0 2-2v-9.5"></path><path d="M2 12l10-9 10 9"></path></svg><span class="nav-label">Home</span></a>
+        <a href="care.html" class="nav-item active" data-nav="care"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20.5l-8.5-8.5a5.5 5.5 0 0 1 7.78-7.78L12 5.28l.72-1.06a5.5 5.5 0 0 1 7.78 7.78L12 20.5z"></path><path d="M12 8.5v5m-2.5-2.5h5"></path></svg><span class="nav-label">Care</span></a>
+        <div class="nav-item spacer"></div>
+        <a href="discover.html" class="nav-item" data-nav="discover"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z"></path><path d="M3.6 9h16.8M3.6 15h16.8"></path><path d="M12 3c-2.5 3.5-4 7-4 9s1.5 5.5 4 9c2.5-3.5 4-7 4-9s-1.5-5.5-4-9z"></path></svg><span class="nav-label">Discover</span></a>
+        <div class="nav-item" data-nav="more" onclick="openHealiChat()"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6h16M4 12h16M4 18h10"></path></svg><span class="nav-label">More</span></div>
+      </div>
+      <div class="nav-center-absolute"><button class="nav-center-btn" aria-label="Talk to Heali AI"><img src="../assets/Heali.png" alt="Heali Mascot" onerror="this.style.display='none'"></button></div>
+    </nav>`;
+
+    document.getElementById('bottom-nav-placeholder').innerHTML = bottomNavTemplate;
+
+    // Bottom nav expand
+    window.toggleMoreMenu = function() { const n = document.getElementById('bottomNav'), o = document.getElementById('moreMenuOverlay'); if (n.classList.contains('expanded')) { window.closeMoreMenu(); } else { n.classList.add('expanded'); o.classList.add('open'); } };
+    window.closeMoreMenu = function() { document.getElementById('bottomNav').classList.remove('expanded'); document.getElementById('moreMenuOverlay').classList.remove('open'); };
+
+    // Tab switching
+    document.querySelectorAll('.discover-tab').forEach(tab => {
+      tab.addEventListener('click', function() { document.querySelectorAll('.discover-tab').forEach(t => t.classList.remove('active')); this.classList.add('active'); });
+    });
+
+    // Carousel
+    const carouselContainer = document.getElementById('therapist-carousel');
+    const cardsList = document.querySelectorAll('.carousel-card');
+
+    const observerOptions = { root: carouselContainer, rootMargin: '0px', threshold: 0.5 };
+    const carouselObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('card-active');
+        else entry.target.classList.remove('card-active');
+      });
+    }, observerOptions);
+    cardsList.forEach(card => carouselObserver.observe(card));
+    // Carousel dots sync
+    carouselObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const index = Array.from(cardsList).indexOf(entry.target);
+        if (entry.isIntersecting) {
+          entry.target.classList.add('card-active');
+          document.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === index));
+        } else {
+          entry.target.classList.remove('card-active');
+        }
+      });
+    }, observerOptions);
+
+    // Dot click navigation
+    document.querySelectorAll('.carousel-dot').forEach(dot => {
+      dot.addEventListener('click', function() {
+        const idx = parseInt(this.dataset.index);
+        const card = cardsList[idx];
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      });
+    });
+
+
+    // Center first card initially
+    window.addEventListener('load', () => { if (cardsList.length > 0) carouselContainer.scrollLeft = 0; });
+
+    // Mouse drag to scroll
+    let isDown = false, startX, scrollLeft, hasDragged = false;
+    carouselContainer.addEventListener('mousedown', (e) => { isDown = true; hasDragged = false; carouselContainer.classList.add('dragging'); startX = e.pageX - carouselContainer.offsetLeft; scrollLeft = carouselContainer.scrollLeft; });
+    carouselContainer.addEventListener('mouseleave', () => { isDown = false; carouselContainer.classList.remove('dragging'); });
+    carouselContainer.addEventListener('mouseup', () => { isDown = false; carouselContainer.classList.remove('dragging'); });
+    carouselContainer.addEventListener('mousemove', (e) => { if (!isDown) return; e.preventDefault(); const x = e.pageX - carouselContainer.offsetLeft; const walk = (x - startX) * 1.5; if (Math.abs(walk) > 5) hasDragged = true; carouselContainer.scrollLeft = scrollLeft - walk; });
+    carouselContainer.addEventListener('click', (e) => { if (hasDragged) { e.preventDefault(); e.stopPropagation(); } }, true);
+
+    // Favorite buttons
+    document.querySelectorAll('.star-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) { e.stopPropagation(); this.classList.toggle('favorited'); });
+    });
+
+    // Display user name
+    const userName = localStorage.getItem('userName');
+    if (userName) document.querySelector('.discover-subtitle').textContent = 'Which area would you like to focus on today, ' + userName + '?';
+  </script>
+</body>
+</html>

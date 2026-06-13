@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telehealings — Communications</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2a73d4; --primary-hover: #2361b5; --primary-dark: #0745b1;
+            --surface: #ffffff;
+            --text-main: #111111; --text-muted: #4b4b4b; --text-soft: #64748b; --text-dark: #0f172a;
+            --border: #e2e8f0; --border-light: #f1f5f9;
+            --success: #22c55e; --danger: #ef4444; --warning: #f59e0b;
+            --radius: 8px; --radius-md: 12px; --radius-lg: 16px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --sidebar-width: 280px; --sidebar-collapsed: 88px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 16px; -webkit-font-smoothing: antialiased; height: 100%; }
+        body { font-family: var(--font); color: var(--text-main); line-height: 1.5; height: 100%; display: flex; overflow: hidden; background: linear-gradient(110deg, #ffffff 0%, #eef5fc 35%, #7aaaf6 100%); }
+        a { color: inherit; text-decoration: none; }
+        button { font-family: var(--font); cursor: pointer; border: none; outline: none; background: none; }
+        ul, li { list-style: none; }
+        img { display: block; }
+
+        /* ─── SIDEBAR ─── */
+        .sidebar { width: var(--sidebar-width); height: 100%; padding: 30px 20px; display: flex; flex-direction: column; border-right: 1px solid rgba(0,0,0,0.05); background: var(--surface); flex-shrink: 0; position: relative; transition: width 0.3s ease, padding 0.3s ease; overflow: visible; z-index: 100; }
+        .brand { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 30px; padding: 0 10px; box-sizing: border-box; }
+        .brand-left { display: flex; align-items: center; gap: 12px; }
+        .brand-logo { width: 36px; height: 36px; }
+        .brand-name-text { font-size: 20px; font-weight: 700; color: #000; }
+        .sidebar-toggle-btn { color: var(--text-soft); cursor: pointer; padding: 4px; border-radius: 6px; display: flex; align-items: flex-start; justify-content: center; transition: all 0.2s; }
+        .sidebar-toggle-btn:hover { background: var(--border-light); color: var(--text-main); }
+        .sidebar-toggle-btn svg { transition: transform 0.3s ease; }
+        .search-box { position: relative; margin-bottom: 20px; }
+        .search-box input { width: 100%; padding: 12px 12px 12px 40px; border-radius: 20px; border: 1px solid var(--border); background: #f8fafc; font-family: inherit; font-size: 14px; outline: none; box-sizing: border-box; transition: border-color 0.2s; }
+        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(42,115,212,0.1); }
+        .search-box svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--text-soft); }
+        .nav-menu { display: flex; flex-direction: column; gap: 2px; flex-grow: 1; overflow-y: auto; overflow-x: hidden; margin-bottom: 20px; }
+        .nav-item { display: flex; align-items: center; gap: 14px; padding: 10px 16px; border-radius: var(--radius); color: #475569; font-weight: 600; font-size: 15px; transition: all 0.2s; white-space: nowrap; }
+        .nav-item:hover { background: var(--border-light); color: var(--text-main); }
+        .nav-item.active { background: #1c52b8; color: #fff; }
+        .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+        .nav-item.active svg { color: #fff; }
+        .nav-text { overflow: hidden; }
+        .nav-separator { height: 1px; background-color: var(--border); margin: 2px 16px; flex-shrink: 0; }
+        .user-profile { background: #fff; padding: 16px; border-radius: var(--radius-md); display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-top: auto; border: 1px solid var(--border-light); cursor: pointer; position: relative; outline: none; }
+        .user-profile img { width: 75px; height: 75px; border-radius: 50%; margin-top: -45px; margin-bottom: 10px; object-fit: cover; border: 4px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.08); background-color: #fff; }
+        .user-profile h4 { font-size: 14px; margin: 0 0 2px 0; color: var(--text-main); }
+        .user-profile p { font-size: 12px; color: var(--text-soft); margin: 0; }
+        .profile-dropdown { display: none; position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); width: 220px; background: #fff; border-radius: var(--radius-md); box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border); flex-direction: column; padding: 8px 0; z-index: 1000; }
+        .user-profile:focus .profile-dropdown, .user-profile:focus-within .profile-dropdown { display: flex; }
+        .sidebar.collapsed .profile-dropdown { left: 100%; bottom: 8px; transform: none; margin-left: 16px; }
+        .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; color: #475569; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+        .dropdown-item:hover { background: #f8fafc; color: var(--text-main); }
+        .dropdown-item svg { width: 16px; height: 16px; }
+        .dropdown-divider { height: 1px; background-color: var(--border-light); margin: 4px 0; }
+        .logout-item { color: #e11d48; }
+        .logout-item:hover { background: #fff1f2; color: #be123c; }
+        .sidebar.collapsed { width: var(--sidebar-collapsed); padding: 30px 10px; }
+        .sidebar.collapsed .nav-text, .sidebar.collapsed .user-profile h4, .sidebar.collapsed .user-profile p { display: none; }
+        .sidebar.collapsed .brand { flex-direction: row !important; padding: 0 !important; justify-content: center !important; gap: 2px; }
+        .sidebar.collapsed .brand-left span { display: none; }
+        .sidebar.collapsed .sidebar-toggle-btn svg { transform: rotate(180deg); }
+        .sidebar.collapsed .search-box input { display: none; }
+        .sidebar.collapsed .search-box { width: 40px; height: 40px; background: #f8fafc; border-radius: 50%; display: flex; align-items: flex-start; justify-content: center; margin: 0 auto 20px auto; cursor: pointer; }
+        .sidebar.collapsed .search-box svg { position: static; transform: none; }
+        .sidebar.collapsed .nav-item { padding: 12px; justify-content: center; }
+        .sidebar.collapsed .user-profile { padding: 10px; background: transparent; box-shadow: none; border: none; }
+        .sidebar.collapsed .user-profile img { margin-top: 0; margin-bottom: 0; width: 40px; height: 40px; border: none; box-shadow: none; }
+
+        /* ─── MAIN CONTENT ─── */
+        .page-shell { flex: 1; padding: 0 32px 16px; overflow-y: auto; background: transparent; min-width: 0; }
+        .content-wrapper { width: 100%; max-width: 100%; margin: 0 auto; display: flex; flex-direction: column; padding-bottom: 40px; min-height: 0; }
+        .sidebar:not(.collapsed) ~ .page-shell .content-wrapper { max-width: 1200px; }
+
+        /* Sticky Zone */
+        .sticky-zone { position: sticky; top: 0; z-index: 50; background: linear-gradient(110deg, #ffffff 0%, #eef5fc 35%, #7aaaf6 100%); padding: 0 32px 6px; margin: 0 -32px; }
+        .sticky-inner { max-width: 100%; }
+        .sidebar:not(.collapsed) ~ .page-shell .sticky-inner { max-width: 1200px; margin: 0 auto; }
+
+        /* Header */
+        .page-header { display: flex; justify-content: space-between; align-items: center; padding-top: 40px; margin-bottom: 12px; }
+        .header-left { display: flex; align-items: center; }
+        .header-right { display: flex; align-items: center; gap: 12px; }
+        .header-tab { font-size: 20px; font-weight: 700; color: var(--text-dark); position: relative; padding: 0 0 8px 0; border-bottom: 2px solid var(--border); }
+        .header-tab::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 3px; background: var(--text-dark); border-radius: 2px 2px 0 0; }
+        .header-mascot { height: 32px; flex-shrink: 0; }
+
+        /* Heali Inline */
+        .heali-inline { display: flex; align-items: center; gap: 8px; }
+        .heali-insight { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #bfdbfe; border-radius: 8px; flex-shrink: 0; }
+        .heali-insight-icon { width: 24px; height: 24px; border-radius: 50%; background: #2563eb; color: #fff; display: flex; align-items: flex-start; justify-content: center; flex-shrink: 0; }
+        .heali-insight-icon svg { width: 12px; height: 12px; }
+        .heali-insight-content { display: flex; flex-direction: column; gap: 0; }
+        .heali-insight-label { font-size: 9px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.3px; line-height: 1.2; }
+        .heali-insight-text { font-size: 11px; color: #1e40af; line-height: 1.3; white-space: nowrap; }
+        .heali-insight-dismiss { background: none; border: none; color: #93c5fd; cursor: pointer; padding: 2px; border-radius: 4px; display: flex; align-items: flex-start; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+        .heali-insight-dismiss:hover { background: rgba(37,99,235,0.1); color: #2563eb; }
+
+        /* Tabs Nav */
+        .tabs-nav { display: flex; gap: 24px; border-bottom: 1px solid var(--border); margin-bottom: 0; }
+        .tab-btn { background: transparent; border: none; padding: 10px 4px; font-size: 14px; font-weight: 600; color: var(--text-soft); cursor: pointer; position: relative; transition: color 0.2s; }
+        .tab-btn:hover { color: var(--text-dark); }
+        .tab-btn.active { color: var(--primary); }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: var(--primary); border-radius: 2px 2px 0 0; }
+        .tab-content { display: none; flex-direction: column; }
+        .tab-content.active { display: flex; }
+
+        /* Small Buttons */
+        .btn-sm { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
+        .btn-sm svg { width: 14px; height: 14px; }
+        .btn-sm.btn-outline { border: 1px solid var(--border); background: var(--surface); color: var(--text-soft); }
+        .btn-sm.btn-outline:hover { border-color: #94a3b8; color: var(--text-dark); background: #f8fafc; }
+        .btn-sm.btn-primary { background: var(--primary); color: #fff; }
+        .btn-sm.btn-primary:hover { background: var(--primary-hover); }
+
+        /* ─── CHAT CONTAINER ─── */
+        .chat-container { display: flex; flex: 1; height: calc(100vh - 200px); background: var(--surface); border-radius: var(--radius-lg); box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid var(--border); overflow: hidden; }
+
+        /* Chat Sidebar */
+        .chat-sidebar { width: 320px; border-right: 1px solid var(--border); display: flex; flex-direction: column; background: #f8fafc; flex-shrink: 0; }
+        .chat-search-header { padding: 16px; border-bottom: 1px solid var(--border); }
+        .chat-search-header .search-wrap { position: relative; width: 100%; }
+        .chat-search-header .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text-soft); }
+        .chat-search-header .search-input { width: 100%; padding: 8px 10px 8px 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-size: 13px; outline: none; box-sizing: border-box; }
+        .chat-filters { display: flex; gap: 6px; margin-top: 10px; overflow-x: auto; }
+        .chat-filter-btn { background: #f1f5f9; border: 1px solid transparent; color: #475569; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+        .chat-filter-btn:hover { background: #e2e8f0; }
+        .chat-filter-btn.active { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+
+        .chat-list { flex: 1; overflow-y: auto; }
+        .chat-item { display: flex; padding: 14px 16px; gap: 10px; cursor: pointer; border-bottom: 1px solid var(--border-light); transition: background 0.2s; }
+        .chat-item:hover { background: #f1f5f9; }
+        .chat-item.active { background: #eff6ff; border-left: 3px solid var(--primary); padding-left: 13px; }
+        .chat-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; }
+        .chat-item-content { flex: 1; min-width: 0; }
+        .chat-item-header { display: flex; justify-content: space-between; margin-bottom: 2px; align-items: center; }
+        .chat-item-name { font-weight: 600; font-size: 13px; color: var(--text-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chat-item-time { font-size: 11px; color: var(--text-soft); white-space: nowrap; }
+        .chat-item-bottom { display: flex; justify-content: space-between; align-items: center; }
+        .chat-item-preview { font-size: 12px; color: var(--text-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+        .unread-badge { background: #ef4444; color: #fff; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 99px; }
+
+        /* Chat Main */
+        .chat-main { flex: 1; display: flex; flex-direction: column; background: var(--surface); min-width: 0; height: 100%; }
+        .chat-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .chat-header-info { display: flex; align-items: center; gap: 12px; }
+        .chat-header-name { font-weight: 700; font-size: 15px; color: var(--text-dark); }
+        .chat-header-role { font-size: 12px; color: var(--text-soft); }
+        .escalation-tag { background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; display: flex; align-items: flex-start; gap: 2px; }
+        .escalation-tag svg { width: 12px; height: 12px; }
+        .chat-header-actions { display: flex; gap: 8px; }
+        .thread-action-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text-main); padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: flex-start; gap: 2px; transition: all 0.2s; }
+        .thread-action-btn:hover { background: #f1f5f9; }
+        .thread-action-btn.danger { color: #dc2626; border-color: #fca5a5; }
+        .thread-action-btn.danger:hover { background: #fef2f2; }
+
+        .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; background: #fafafa; min-height: 400px; }
+        .message { min-width: 60%; max-width: 75%; display: flex; flex-direction: column; }
+        .message.received { align-self: flex-start; }
+        .message.sent { align-self: flex-end; }
+        .message-bubble { padding: 10px 14px; border-radius: 10px; font-size: 13px; line-height: 1.5; box-shadow: 0 1px 2px rgba(0,0,0,0.05); min-height: 36px; display: flex; align-items: center; }
+        .received .message-bubble { background: var(--surface); color: #334155; border: 1px solid #e2e8f0; border-top-left-radius: 4px; }
+        .sent .message-bubble { background: #2563eb; color: #fff; border-top-right-radius: 4px; }
+        .message-time { font-size: 10px; color: #94a3b8; margin-top: 4px; }
+        .sent .message-time { text-align: right; }
+
+        .chat-input-area { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: center; background: var(--surface); }
+        .chat-attach-btn { background: transparent; color: var(--text-soft); border: none; cursor: pointer; padding: 6px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .chat-attach-btn:hover { background: #f1f5f9; }
+        .chat-input { flex: 1; padding: 10px 16px; border-radius: 20px; border: 1px solid var(--border); outline: none; font-size: 13px; transition: border 0.2s; background: #f8fafc; }
+        .chat-input:focus { border-color: var(--primary); background: var(--surface); }
+        .chat-send-btn { background: #2563eb; color: #fff; border: none; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+        .chat-send-btn:hover { background: #1d4ed8; }
+
+        /* ─── TICKETS TAB ─── */
+        .table-card { background: var(--surface); border-radius: var(--radius-lg); padding: 24px 32px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); display: flex; flex-direction: column; border: 1px solid var(--border); }
+        .clients-table { width: 100%; border-collapse: collapse; }
+        .clients-table th { text-align: left; font-size: 12px; font-weight: 500; color: var(--text-soft); padding: 8px 12px 8px 0; border-bottom: 1px solid var(--border-light); text-transform: uppercase; }
+        .clients-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-light); font-size: 13px; color: #334155; vertical-align: middle; }
+        .clients-table tr:last-child td { border-bottom: none; }
+        .clients-table tbody tr:hover { background: #f8fafc; }
+
+        .ticket-id { font-family: 'SF Mono', 'Consolas', monospace; font-size: 12px; color: #475569; background: #f8fafc; padding: 3px 6px; border-radius: 4px; border: 1px solid #e2e8f0; }
+        .ticket-subject { font-weight: 600; color: var(--text-dark); }
+        .ticket-preview { font-size: 12px; color: var(--text-soft); margin-top: 2px; display: block; }
+        .status-badge { display: inline-flex; align-items: flex-start; justify-content: center; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; min-width: 80px; text-align: center; }
+        .status-open { background: #fee2e2; color: #991b1b; }
+        .status-pending { background: #fef9c3; color: #854d0e; }
+        .status-resolved { background: #dcfce7; color: #166534; }
+        .user-cell { display: flex; align-items: flex-start; gap: 10px; }
+        .avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: var(--border-light); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0; }
+        .avatar-fallback { background: #3b82f6; }
+        .user-details { display: flex; flex-direction: column; }
+        .user-name { font-weight: 600; color: var(--text-dark); font-size: 13px; }
+        .user-role { font-size: 11px; color: var(--text-soft); }
+
+        .link-btn { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 6px; padding: 5px 10px; font-size: 11px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: flex-start; gap: 2px; transition: all 0.2s; }
+        .link-btn:hover { background: #dbeafe; }
+        .link-btn.disabled { background: #f1f5f9; color: #94a3b8; border-color: #e2e8f0; cursor: not-allowed; }
+
+        .toolbar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+        .toolbar-left, .toolbar-right { display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+        .search-wrap { position: relative; width: 220px; }
+        .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text-soft); }
+        .search-input { width: 100%; padding: 8px 12px 8px 34px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface); font-size: 13px; outline: none; transition: border-color 0.2s; }
+        .search-input:focus { border-color: var(--primary); }
+
+        .empty-state { display: none; flex-direction: column; align-items: flex-start; justify-content: center; padding: 60px 20px; text-align: center; }
+        .empty-state.show { display: flex; }
+        .empty-state h3 { font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 6px; }
+        .empty-state p { font-size: 14px; color: var(--text-soft); }
+
+        .pagination-container { display: flex; justify-content: space-between; align-items: flex-start; padding-top: 16px; border-top: 1px solid var(--border-light); margin-top: 16px; }
+        .pagination-info { font-size: 12px; font-weight: 700; color: #94a3b8; letter-spacing: 0.05em; text-transform: uppercase; }
+        .pagination-nav { display: flex; gap: 8px; }
+        .page-btn { width: 32px; height: 32px; display: flex; align-items: flex-start; justify-content: center; border-radius: var(--radius); border: none; background: #f1f5f9; color: #334155; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .page-btn:hover { background: #e2e8f0; }
+        .page-btn.active { background: #2563eb; color: #fff; }
+        .page-btn svg { width: 16px; height: 16px; }
+
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: flex; align-items: flex-start; justify-content: center; z-index: 2000; opacity: 0; visibility: hidden; transition: all 0.2s; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-card { background: #fff; width: 450px; max-width: 90%; border-radius: var(--radius-lg); box-shadow: 0 20px 40px rgba(0,0,0,0.1); transform: scale(0.95); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; overflow: hidden; }
+        .modal-overlay.active .modal-card { transform: scale(1); }
+        .modal-header { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; background: #f8fafc; }
+        .modal-title { font-size: 15px; font-weight: 700; color: var(--text-dark); display: flex; align-items: center; gap: 8px; }
+        .modal-close { background: transparent; border: none; cursor: pointer; color: var(--text-soft); padding: 4px; border-radius: 50%; }
+        .modal-close:hover { background: #e2e8f0; color: var(--text-dark); }
+        .modal-body { padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-label { font-size: 12px; font-weight: 600; color: #475569; }
+        .form-input { width: 100%; padding: 9px 11px; border-radius: var(--radius); border: 1px solid var(--border); font-size: 13px; font-family: inherit; outline: none; transition: border 0.2s; box-sizing: border-box; }
+        .form-input:focus { border-color: var(--primary); }
+        .modal-footer { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; background: #fafafa; }
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+    <!-- Same sidebar as other pages -->
+    <div class="brand">
+        <div class="brand-left"><img src="../assets/logo.png" class="brand-logo"><span class="nav-text brand-name-text">Telehealings</span></div>
+        <button class="sidebar-toggle-btn" id="sidebarToggle" title="Toggle Sidebar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+    </div>
+    <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search"></div>
+    <nav class="nav-menu">
+        <a href="dashboard.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span class="nav-text">Dashboard</span></a>
+        <a href="therapist.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nav-text">Therapist</span></a>
+        <a href="clients.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-text">Clients</span></a>
+        <div class="nav-separator"></div>
+        <a href="schedule.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="nav-text">Sessions & Schedule</span></a>
+        <a href="content-management.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span class="nav-text">Content Management</span></a>
+        <a href="communications.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="nav-text">Communications</span></a>
+        <a href="compliance.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span class="nav-text">Compliance</span></a>
+        <div class="nav-separator"></div>
+        <a href="financials.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12"/><path d="M6 8h12"/><path d="m6 13 8.5 8"/><path d="M6 13h3"/><path d="M9 13c6.667 0 6.667-10 0-10"/></svg><span class="nav-text">Financials</span></a>
+        <a href="analytics.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span class="nav-text">Analytics & Reporting</span></a>
+        <a href="Promotion.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><span class="nav-text">Promotion & Offers</span></a>
+    </nav>
+    <div class="user-profile" tabindex="0"><img src="../assets/user-profile.jpg"><h4>Dr. Ajesh Anand</h4><p>Admin</p>
+        <div class="profile-dropdown"><a href="#" class="dropdown-item">My Profile</a><div class="dropdown-divider"></div><a href="#" class="dropdown-item">Settings</a><div class="dropdown-divider"></div><a href="index.html" class="dropdown-item logout-item">Logout</a></div>
+    </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<div class="page-shell">
+    <div class="content-wrapper">
+
+        <!-- Sticky Zone: Header + Tabs -->
+        <div class="sticky-zone">
+            <div class="sticky-inner">
+                <header class="page-header">
+                    <div class="header-left"><div class="header-tab">Communications & Escalations</div></div>
+                    <div class="header-right">
+                        <div class="heali-inline">
+                            <div class="heali-insight">
+                                <div class="heali-insight-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/></svg></div>
+                                <div class="heali-insight-content"><span class="heali-insight-label">Heali Insight</span><span class="heali-insight-text">3 escalated threads require attention. <strong>Max Mayfield</strong> waiting 48+ hrs.</span></div>
+                                <button class="heali-insight-dismiss" title="Dismiss"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                            </div>
+                            <img src="../assets/Heali.png" class="header-mascot" alt="Mascot">
+                        </div>
+                    </div>
+                </header>
+                <div class="tabs-nav">
+                    <button class="tab-btn active" data-target="tab-messages">Messages</button>
+                    <button class="tab-btn" data-target="tab-tickets">Support Tickets</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Messages -->
+        <div id="tab-messages" class="tab-content active">
+            <div class="chat-container">
+                <!-- Chat Sidebar -->
+                <div class="chat-sidebar">
+                    <div class="chat-search-header">
+                        <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" class="search-input" placeholder="Search messages..."></div>
+                        <div class="chat-filters">
+                            <button class="chat-filter-btn active">All</button>
+                            <button class="chat-filter-btn">Open (1)</button>
+                            <button class="chat-filter-btn">Pending (1)</button>
+                            <button class="chat-filter-btn">Resolved (1)</button>
+                        </div>
+                    </div>
+                    <div class="chat-list" id="chatList"></div>
+                </div>
+                <!-- Chat Main -->
+                <div class="chat-main">
+                    <div class="chat-header">
+                        <div class="chat-header-info">
+                            <div class="avatar avatar-fallback" id="chatAvatar" style="width:36px;height:36px;font-size:13px;">NJ</div>
+                            <div><div class="chat-header-name" id="chatName">Nathaniel Jacob</div><div class="chat-header-role">Client</div></div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div class="escalation-tag" id="escalationTag" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Escalated</div>
+                            <div class="chat-header-actions">
+                                <button class="thread-action-btn" title="Resolve"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Resolve</button>
+                                <button class="thread-action-btn danger" title="Escalate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>Escalate</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <div class="chat-input-area">
+                        <button class="chat-attach-btn" title="Attach file"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
+                        <input type="text" class="chat-input" placeholder="Type a message..." id="chatInput">
+                        <button class="chat-send-btn" id="chatSendBtn" title="Send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Support Tickets -->
+        <div id="tab-tickets" class="tab-content">
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" class="search-input" placeholder="Search tickets..."></div>
+                </div>
+                <div class="toolbar-right">
+                    <button class="btn-sm btn-outline" id="btnExportTickets"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Export CSV</button>
+                    <button class="btn-sm btn-primary" id="btnNewTicket"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Ticket</button>
+                </div>
+            </div>
+            <div class="table-card">
+                <table class="clients-table">
+                    <thead><tr><th style="width:5%">Sl No</th><th style="width:12%">Ticket ID</th><th style="width:25%">Subject</th><th style="width:18%">User</th><th style="width:12%">Date</th><th style="width:10%">Priority</th><th style="width:10%">Status</th><th style="width:8%;text-align:center;"></th></tr></thead>
+                    <tbody id="ticketsTableBody"></tbody>
+                </table>
+                <div class="empty-state" id="emptyState"><h3>No tickets found</h3><p>Try adjusting your search or filter criteria.</p></div>
+                <div class="pagination-container"><div class="pagination-info">SHOWING 1-5 OF 24</div><div class="pagination-nav"><button class="page-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button><button class="page-btn active">1</button><button class="page-btn">2</button><button class="page-btn">3</button><button class="page-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button></div></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- New Ticket Modal -->
+<div class="modal-overlay" id="newTicketModal">
+    <div class="modal-card">
+        <div class="modal-header"><div class="modal-title">Create New Ticket</div><button class="modal-close" id="closeTicketModal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+        <div class="modal-body">
+            <div class="form-group"><label class="form-label">Subject</label><input type="text" class="form-input" placeholder="Brief description of the issue"></div>
+            <div class="form-group"><label class="form-label">User</label><select class="form-input"><option>Select User</option><option>Nathaniel Jacob (Client)</option><option>Dr. Sarah Smith (Therapist)</option><option>Jane Hopper (Client)</option></select></div>
+            <div class="form-group"><label class="form-label">Priority</label><select class="form-input"><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select></div>
+            <div class="form-group"><label class="form-label">Description</label><textarea class="form-input" rows="3" placeholder="Detailed description..."></textarea></div>
+        </div>
+        <div class="modal-footer"><button class="btn-sm btn-outline" id="cancelTicketBtn">Cancel</button><button class="btn-sm btn-primary">Create Ticket</button></div>
+    </div>
+</div>
+
+<script>
+    // Sidebar Toggle
+    document.getElementById('sidebarToggle').addEventListener('click', () => { document.getElementById('sidebar').classList.toggle('collapsed'); });
+
+    // Chat Data
+    const chatData = [
+        { id: 1, name: "Nathaniel Jacob", role: "Client", avatar: "NJ", time: "10:30 AM", preview: "I need to reschedule my session...", unread: 2, escalated: true, active: true,
+          messages: [
+            { type: "received", text: "Hi, I need to reschedule my session with Dr. Smith. Something urgent came up.", time: "10:28 AM" },
+            { type: "sent", text: "Hello Nathaniel, I understand. Let me check Dr. Smith's availability for you. What days work best?", time: "10:30 AM" },
+            { type: "received", text: "I was hoping for tomorrow afternoon, but I'm flexible. Also, I wanted to ask about the premium subscription — does it cover emergency sessions?", time: "10:32 AM" },
+            { type: "sent", text: "Tomorrow at 2 PM is available. I've held that slot for you. Regarding premium — yes, it includes 2 emergency sessions per month. Would you like me to add that to your plan?", time: "10:35 AM" },
+            { type: "received", text: "That sounds perfect. Yes, please add the premium plan. How do I pay for the upgrade?", time: "10:38 AM" }
+          ]},
+        { id: 2, name: "Dr. Sarah Smith", role: "Therapist", avatar: "SS", time: "09:15 AM", preview: "Patient Max Mayfield has been missing...", unread: 0, escalated: false, active: false,
+          messages: [
+            { type: "received", text: "Patient Max Mayfield has been missing sessions for 2 weeks. I've tried reaching out but no response.", time: "09:10 AM" },
+            { type: "sent", text: "Thank you for flagging this, Dr. Smith. I'll reach out to Max directly and update you on the status.", time: "09:15 AM" }
+          ]},
+        { id: 3, name: "Jane Hopper", role: "Client", avatar: "JH", time: "Yesterday", preview: "Thank you for the refund processing...", unread: 0, escalated: false, active: false,
+          messages: [
+            { type: "received", text: "Thank you for processing the refund. The amount has been credited to my account.", time: "Yesterday" },
+            { type: "sent", text: "You're welcome, Jane! Is there anything else I can help you with?", time: "Yesterday" }
+          ]},
+        { id: 4, name: "Mike Wheeler", role: "Client", avatar: "MW", time: "Yesterday", preview: "Can I switch my therapist? I feel like...", unread: 1, escalated: false, active: false,
+          messages: [
+            { type: "received", text: "Can I switch my therapist? I feel like the current match isn't working well for me.", time: "Yesterday" }
+          ]},
+        { id: 5, name: "Dr. Emily Chen", role: "Therapist", avatar: "EC", time: "Mon", preview: "Weekly availability update for next week...", unread: 0, escalated: false, active: false,
+          messages: [
+            { type: "received", text: "Here's my availability for next week: Mon-Wed 9 AM to 5 PM, Thu 10 AM to 3 PM, Fri off.", time: "Mon" },
+            { type: "sent", text: "Thanks Dr. Chen! I've updated the schedule accordingly.", time: "Mon" }
+          ]}
+    ];
+
+    let activeChat = chatData[0];
+
+    function renderChatList() {
+        const list = document.getElementById('chatList');
+        list.innerHTML = '';
+        chatData.forEach(chat => {
+            const div = document.createElement('div');
+            div.className = 'chat-item' + (chat.active ? ' active' : '');
+            div.innerHTML = `
+                <div class="avatar avatar-fallback" style="background:${chat.escalated ? '#ef4444' : '#3b82f6'}">${chat.avatar}</div>
+                <div class="chat-item-content">
+                    <div class="chat-item-header"><span class="chat-item-name">${chat.name}</span><span class="chat-item-time">${chat.time}</span></div>
+                    <div class="chat-item-bottom"><span class="chat-item-preview">${chat.preview}</span>${chat.unread > 0 ? `<span class="unread-badge">${chat.unread}</span>` : ''}</div>
+                </div>`;
+            div.addEventListener('click', () => { chatData.forEach(c => c.active = false); chat.active = true; activeChat = chat; renderChatList(); renderChatWindow(); });
+            list.appendChild(div);
+        });
+    }
+
+    function renderChatWindow() {
+        document.getElementById('chatName').textContent = activeChat.name;
+        document.getElementById('chatAvatar').textContent = activeChat.avatar;
+        document.getElementById('escalationTag').style.display = activeChat.escalated ? 'flex' : 'none';
+        const msgs = document.getElementById('chatMessages');
+        msgs.innerHTML = '';
+        activeChat.messages.forEach(m => {
+            const div = document.createElement('div');
+            div.className = 'message ' + m.type;
+            div.innerHTML = `<div class="message-bubble">${m.text}</div><div class="message-time">${m.time}</div>`;
+            msgs.appendChild(div);
+        });
+        msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    renderChatList();
+    renderChatWindow();
+
+    // Chat Send
+    document.getElementById('chatSendBtn').addEventListener('click', () => {
+        const input = document.getElementById('chatInput');
+        if (input.value.trim()) {
+            activeChat.messages.push({ type: "sent", text: input.value, time: "Just now" });
+            activeChat.preview = input.value;
+            activeChat.time = "Just now";
+            input.value = '';
+            renderChatWindow();
+            renderChatList();
+        }
+    });
+    document.getElementById('chatInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') document.getElementById('chatSendBtn').click(); });
+
+    // Tickets Data
+    const ticketsData = [
+        { id: 1, ticketId: "TKT-10045", subject: "Unable to join video session", preview: "I keep getting an error when trying to join...", user: "Nathaniel Jacob", role: "Client", date: "25/04/2026", priority: "High", status: "Open" },
+        { id: 2, ticketId: "TKT-10044", subject: "Refund not processed", preview: "I cancelled my session 3 days ago but...", user: "Jane Hopper", role: "Client", date: "24/04/2026", priority: "Medium", status: "Pending" },
+        { id: 3, ticketId: "TKT-10043", subject: "Therapist no-show", preview: "Dr. Smith didn't show up for our scheduled...", user: "Max Mayfield", role: "Client", date: "23/04/2026", priority: "Critical", status: "Open" },
+        { id: 4, ticketId: "TKT-10042", subject: "Billing discrepancy", preview: "I was charged twice for the same session...", user: "Victor Martinez", role: "Client", date: "22/04/2026", priority: "Medium", status: "Resolved" },
+        { id: 5, ticketId: "TKT-10041", subject: "Account access issue", preview: "I can't log into my account after...", user: "Bethany Kay", role: "Client", date: "21/04/2026", priority: "Low", status: "Resolved" }
+    ];
+
+    function renderTickets() {
+        const tbody = document.getElementById('ticketsTableBody');
+        tbody.innerHTML = '';
+        ticketsData.forEach(t => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="color:#64748b;">${t.id}</td>
+                <td><span class="ticket-id">${t.ticketId}</span></td>
+                <td><span class="ticket-subject">${t.subject}</span><span class="ticket-preview">${t.preview}</span></td>
+                <td><div class="user-cell"><div class="avatar avatar-fallback">${t.user.split(' ').map(n=>n[0]).join('')}</div><div class="user-details"><span class="user-name">${t.user}</span><span class="user-role">${t.role}</span></div></div></td>
+                <td>${t.date}</td>
+                <td><span class="status-badge" style="background:${t.priority === 'Critical' ? '#fee2e2' : t.priority === 'High' ? '#fed7aa' : t.priority === 'Medium' ? '#fef9c3' : '#f1f5f9'};color:${t.priority === 'Critical' ? '#991b1b' : t.priority === 'High' ? '#9a3412' : t.priority === 'Medium' ? '#854d0e' : '#475569'};">${t.priority}</span></td>
+                <td><span class="status-badge status-${t.status.toLowerCase()}">${t.status}</span></td>
+                <td style="text-align:center;"><button class="link-btn">View</button></td>`;
+            tbody.appendChild(tr);
+        });
+    }
+    renderTickets();
+
+    // Tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.target).classList.add('active');
+        });
+    });
+
+    // New Ticket Modal
+    const ticketModal = document.getElementById('newTicketModal');
+    document.getElementById('btnNewTicket').addEventListener('click', () => ticketModal.classList.add('active'));
+    document.getElementById('closeTicketModal').addEventListener('click', () => ticketModal.classList.remove('active'));
+    document.getElementById('cancelTicketBtn').addEventListener('click', () => ticketModal.classList.remove('active'));
+    ticketModal.addEventListener('click', (e) => { if (e.target === ticketModal) ticketModal.classList.remove('active'); });
+
+    // Heali Dismiss
+    const healiInsight = document.querySelector('.heali-insight');
+    const healiDismiss = document.querySelector('.heali-insight-dismiss');
+    if (healiDismiss && healiInsight) { healiDismiss.addEventListener('click', () => { healiInsight.style.display = 'none'; }); }
+</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Medical & Medication — Telehealings</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; }
+    .mobile-app-container { height: 100%; width: 100%; background: #fff; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+    @keyframes slideFadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+    .top-section { background: linear-gradient(180deg, #e7f2ff 0%, #2366bd 100%); border-radius: 0 0 50% 50% / 0 0 35px 35px; padding: 18px 20px 24px; flex-shrink: 0; }
+    .header-row { display: flex; justify-content: space-between; align-items: center; }
+    .back-btn { width: 40px; display: flex; cursor: pointer; color: #ffffff; flex-shrink: 0; }
+    .header-title { flex: 1; text-align: center; color: #ffffff; font-size: 22px; font-weight: 700; margin: 0; }
+    .mascot { width: 40px; display: flex; justify-content: flex-end; flex-shrink: 0; }
+    .mascot img { width: 32px; height: auto; object-fit: contain; }
+    .stepper-row { display: flex; justify-content: center; gap: 6px; margin-top: 12px; }
+    .stepper-row .step { flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.3); max-width: 60px; }
+    .stepper-row .step.active { background: #ffffff; }
+
+    .form-section { flex: 1; padding: 20px 24px 40px; display: flex; flex-direction: column; animation: slideFadeUp 0.5s ease-out; background: #fff; z-index: 2; overflow-y: auto; }
+
+    .page-title { font-size: 26px; font-weight: 800; color: #000; margin-bottom: 8px; margin-top: 8px; }
+    .page-description { font-size: 14px; color: #475569; line-height: 1.5; margin-bottom: 24px; }
+
+    .question-block { margin-bottom: 20px; }
+    .question-title { font-size: 17px; font-weight: 700; color: #000; margin-bottom: 16px; }
+    .sub-question-title { font-size: 14px; margin-bottom: 14px; font-weight: 600; color: #1a293b; }
+
+    .radio-card { display: flex; align-items: center; padding: 16px; border: 1.5px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; background: #fff; }
+    .radio-card:hover { border-color: #93c5fd; background: #f8fafc; }
+    .radio-card:active { transform: scale(0.98); }
+    .radio-card.selected { border-color: #3b82f6; background: rgba(59,130,246,0.06); }
+    .radio-circle { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #cbd5e1; margin-right: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+    .radio-card.selected .radio-circle { border-color: #3b82f6; }
+    .radio-card.selected .radio-circle::after { content: ''; width: 12px; height: 12px; background: #3b82f6; border-radius: 50%; }
+    .radio-label { font-size: 15px; font-weight: 400; color: #334155; }
+    .radio-card.selected .radio-label { color: #0f172a; font-weight: 600; }
+
+    .inline-radio-group { display: flex; gap: 32px; }
+    .simple-radio { display: flex; align-items: center; cursor: pointer; }
+    .simple-radio .radio-circle { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #cbd5e1; margin-right: 10px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .simple-radio.selected .radio-circle { border-color: #3b82f6; }
+    .simple-radio.selected .radio-circle::after { content: ''; width: 12px; height: 12px; background: #3b82f6; border-radius: 50%; }
+    .simple-radio .radio-label { font-size: 15px; color: #334155; }
+    .simple-radio.selected .radio-label { color: #0f172a; font-weight: 600; }
+
+    .custom-input { width: 100%; height: 52px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; font-weight: 400; color: #1a293b; outline: none; transition: all 0.3s; box-sizing: border-box; margin-bottom: 12px; }
+    .custom-input::placeholder { color: #64748b; }
+    .custom-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+    select.custom-input { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px; color: #94a3b8; }
+    select.custom-input option { color: #1a293b; }
+
+    .divider { height: 1px; background: #e2e8f0; margin-top: 12px; margin-bottom: 24px; width: 100%; }
+
+    .btn-primary { width: 100%; background: linear-gradient(135deg, #387bd5 0%, #1e5ab8 100%); color: #fff; border: none; border-radius: 25px; padding: 16px 24px; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; font-family: inherit; margin-top: 16px; margin-bottom: 24px; box-shadow: 0 8px 20px rgba(56, 123, 213, 0.25); }
+    .btn-primary:active { transform: scale(0.97); }
+  </style>
+</head>
+<body>
+  <div class="mobile-app-container medical-container">
+    <div class="top-section">
+      <div class="header-row">
+        <div class="back-btn" onclick="window.history.back()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></div>
+        <h1 class="header-title">Medical Profile</h1>
+        <div class="mascot"><img src="../assets/Heali.png" alt="Heali" onerror="this.style.display='none'"></div>
+      </div>
+      <div class="stepper-row"><div class="step"></div><div class="step"></div><div class="step active"></div><div class="step"></div></div>
+    </div>
+    <div class="form-section">
+      <h2 class="page-title">Medical & Medication</h2>
+      <p class="page-description">Please provide accurate information regarding your current health status and any substances used. This data is encrypted and strictly confidential.</p>
+
+      <div class="question-block">
+        <div class="question-title">Any ongoing medical conditions</div>
+        <div class="radio-card" onclick="this.classList.toggle('selected')"><div class="radio-circle"></div><span class="radio-label">Diabetes</span></div>
+        <div class="radio-card" onclick="this.classList.toggle('selected')"><div class="radio-circle"></div><span class="radio-label">Hypertension</span></div>
+        <div class="radio-card" onclick="this.classList.toggle('selected')"><div class="radio-circle"></div><span class="radio-label">Asthma</span></div>
+        <div class="radio-card" onclick="this.classList.toggle('selected')"><div class="radio-circle"></div><span class="radio-label">Heart Condition</span></div>
+        <input type="text" class="custom-input" placeholder="Other conditions (please specify)...">
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="question-block">
+        <div class="question-title">Substance use (alcohol, smoking, drugs)</div>
+        <div style="margin-top:16px;margin-bottom:24px">
+          <div class="sub-question-title" style="color:#000;font-weight:700">Tobacco Use</div>
+          <div class="inline-radio-group">
+            <div class="simple-radio" onclick="selectSimpleRadio(this)"><div class="radio-circle"></div><span class="radio-label">Never</span></div>
+            <div class="simple-radio" onclick="selectSimpleRadio(this)"><div class="radio-circle"></div><span class="radio-label">Former</span></div>
+            <div class="simple-radio" onclick="selectSimpleRadio(this)"><div class="radio-circle"></div><span class="radio-label">Current</span></div>
+          </div>
+        </div>
+        <div style="margin-bottom:24px">
+          <div class="sub-question-title" style="color:#64748b;font-weight:600">Alcohol Consumption</div>
+          <select class="custom-input" onchange="this.style.color='#1a293b'">
+            <option value="" disabled selected>Select frequency...</option>
+            <option value="none">None</option>
+            <option value="socially">Socially (1-2 times per week)</option>
+            <option value="frequently">Frequently (3+ times per week)</option>
+            <option value="daily">Daily</option>
+          </select>
+        </div>
+        <div style="margin-bottom:8px">
+          <div class="sub-question-title" style="color:#64748b;font-weight:600">Other Substances</div>
+          <input type="text" class="custom-input" placeholder="Any recreational drug use? (Optional)">
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">Current Medications</div>
+        <div class="question-subtitle">Please list any medications you are currently taking. This helps your therapist provide the best care.</div>
+        <input type="text" class="custom-input" id="medications" placeholder="e.g., Sertraline 50mg, Clonazepam 0.5mg">
+      </div>
+
+      <button class="btn-primary" onclick="window.location.href='medical-profile-4.html'">Save & Next <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></button>
+    </div>
+  </div>
+  <script>
+    function selectSimpleRadio(el) {
+      el.parentElement.querySelectorAll('.simple-radio').forEach(r => r.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+  </script>
+</body>
+</html>

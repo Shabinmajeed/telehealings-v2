@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TeleHealings Design System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { min-height: 100%; scroll-behavior: smooth; }
+    body { margin: 0; min-height: 100vh; padding: 32px 20px 48px; background: radial-gradient(circle at top, rgba(56,123,213,0.08), transparent 40%), #f0f2f5; color: #1a293b; overflow: auto; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+
+    .guide-shell { width: min(1200px, 100%); margin: 0 auto; background: #ffffff; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #e2e8f0; }
+    .guide-header { display: grid; gap: 18px; padding: 40px 44px 32px; background: linear-gradient(180deg, rgba(56, 123, 213, 0.18) 0%, rgba(226, 239, 250, 1) 100%); border-bottom: 1px solid rgba(209, 213, 219, 0.8); }
+    .hero-top { display: grid; gap: 16px; }
+    .hero-top h1 { margin: 0; font-size: clamp(2rem, 2.2vw, 2.8rem); line-height: 1.05; }
+    .hero-top p { margin: 0; max-width: 820px; color: #64748b; line-height: 1.75; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .hero-actions a { color: #387bd5; text-decoration: none; font-weight: 600; }
+    .hero-actions a::after { content: '›'; display: inline-block; margin-left: 8px; }
+
+    .guide-content { padding: 36px 44px 44px; display: grid; gap: 44px; }
+    .section { display: grid; gap: 18px; }
+    .section h2 { margin: 0; font-size: 1.35rem; font-weight: 700; }
+    .section > p { margin: 0; color: #64748b; line-height: 1.75; }
+
+    /* Tokens */
+    .token-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+    .token-card { border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; background: #ffffff; display: grid; gap: 12px; }
+    .color-swatch { border-radius: 12px; height: 90px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.04); }
+    .swatch-label { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; font-weight: 700; }
+    .token-value { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #64748b; }
+
+    /* Typography */
+    .type-sample { display: grid; gap: 12px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px; background: #f8fafc; }
+    .type-sample h1 { font-size: 24px; font-weight: 700; }
+    .type-sample h2 { font-size: 20px; font-weight: 600; }
+    .type-sample h3 { font-size: 16px; font-weight: 600; }
+    .type-sample p { margin: 0; font-size: 15px; line-height: 1.5; }
+    .type-sample small { font-size: 13px; color: #64748b; }
+
+    /* Spacing */
+    .spacing-grid { display: flex; align-items: flex-end; gap: 18px; flex-wrap: wrap; }
+    .spacing-box { min-width: 100px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; text-align: center; padding: 18px 12px; font-size: 14px; font-weight: 600; }
+
+    /* Components */
+    .component-row { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); align-items: start; }
+    .component-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px; display: grid; gap: 16px; min-height: 200px; }
+    .component-card h3 { margin: 0; font-size: 1rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; font-size: 12px; }
+
+    /* Buttons */
+    .button-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .btn-primary { background: #387bd5; color: #fff; border: none; border-radius: 20px; padding: 10px 24px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-outline { background: transparent; color: #387bd5; border: 1px solid #387bd5; border-radius: 20px; padding: 10px 24px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-circle { width: 40px; height: 40px; background: #387bd5; color: #fff; border: none; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: inherit; }
+    .btn-danger { background: #ef4444; color: #fff; border: none; border-radius: 20px; padding: 10px 24px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+
+    /* Demo Card */
+    .demo-card { border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; padding: 20px; background: #ffffff; }
+    .demo-card h3 { margin: 0 0 14px; font-size: 1rem; }
+    .demo-card p { margin: 0; font-size: 14px; color: #64748b; line-height: 1.5; }
+
+    /* Form */
+    .demo-form { display: grid; gap: 16px; }
+    .demo-form label { display: grid; gap: 8px; font-weight: 700; color: #1a293b; font-size: 14px; }
+    .demo-form input { border: 1px solid #d1d5db; background: #f8fafc; border-radius: 16px; height: 48px; padding: 0 16px; font-size: 15px; color: #1a293b; outline: none; transition: border-color 0.2s ease, box-shadow 0.2s ease; font-family: inherit; }
+    .demo-form input:focus { border-color: #387bd5; background: #ffffff; box-shadow: 0 0 0 4px rgba(59,130,246,0.12); }
+
+    /* Chips */
+    .demo-chip { display: inline-flex; align-items: center; justify-content: center; height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid #e2e8f0; background: #f8fafc; color: #1a293b; font-size: 13px; font-weight: 600; }
+
+    /* Toggle */
+    .toggle-demo { display: flex; align-items: center; gap: 12px; }
+    .toggle-switch { position: relative; width: 44px; height: 24px; background-color: #cbd5e1; border-radius: 12px; cursor: pointer; transition: background-color 0.3s ease; }
+    .toggle-switch.active { background-color: #387bd5; }
+    .toggle-knob { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background-color: #ffffff; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
+    .toggle-switch.active .toggle-knob { transform: translateX(20px); }
+
+    /* Note */
+    .guide-note { border-left: 4px solid #387bd5; padding-left: 16px; color: #1a293b; background: #f7fbff; border-radius: 8px; font-size: 14px; line-height: 1.75; padding: 12px 16px; }
+    .guide-note strong { display: block; margin-bottom: 6px; }
+
+    /* Alert */
+    .alert-sample { display: grid; gap: 12px; }
+    .alert-card { padding: 18px; border-radius: 16px; border: 1px solid transparent; }
+    .alert-card.info { background: rgba(59, 130, 246, 0.08); }
+    .alert-card.success { background: rgba(16, 185, 129, 0.08); }
+    .alert-card.warning { background: rgba(245, 158, 11, 0.08); }
+    .alert-card strong { display: block; margin-bottom: 8px; font-size: 15px; }
+    .alert-card p { margin: 0; font-size: 13px; color: #64748b; }
+
+    /* Accessibility */
+    .section ul { margin: 0; padding-left: 20px; color: #1a293b; line-height: 1.75; }
+    .section ul li { margin-bottom: 8px; }
+
+    /* Footer */
+    .footer-row { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: center; padding: 24px 44px 28px; border-top: 1px solid #e2e8f0; color: #64748b; font-size: 14px; }
+    .guide-link { color: #387bd5; text-decoration: none; font-weight: 600; }
+
+    @media (max-width: 840px) {
+      .guide-header, .guide-content, .footer-row { padding-left: 24px; padding-right: 24px; }
+    }
+    @media (max-width: 620px) {
+      .guide-header { padding: 28px 20px 24px; }
+      .guide-content { padding: 28px 20px; }
+      .component-card, .token-card, .demo-card { min-height: auto; }
+    }
+  </style>
+</head>
+<body>
+  <article class="guide-shell">
+    <header class="guide-header">
+      <div class="hero-top">
+        <h1>TeleHealings Design System</h1>
+        <p>Modernize the interface by using consistent tokens, purposeful spacing, and reusable components. This guide reflects the current style foundation while improving clarity, accessibility, and visual polish.</p>
+      </div>
+      <div class="hero-actions">
+        <a href="#design-tokens">Design tokens</a>
+        <a href="#typography">Typography</a>
+        <a href="#spacing">Spacing</a>
+        <a href="#components">Components</a>
+        <a href="#accessibility">Accessibility</a>
+      </div>
+    </header>
+
+    <div class="guide-content">
+      <!-- Design Tokens -->
+      <section class="section" id="design-tokens">
+        <h2>Design tokens</h2>
+        <p>These are the foundational variables used across the project. They keep brand, layout, and UI state consistent across pages.</p>
+        <div class="token-grid">
+          <div class="token-card">
+            <div class="color-swatch" style="background: #387bd5;"></div>
+            <div class="swatch-label"><span>Primary</span><span>#387bd5</span></div>
+            <div class="token-value">--color-primary</div>
+          </div>
+          <div class="token-card">
+            <div class="color-swatch" style="background: #1e5ab8;"></div>
+            <div class="swatch-label"><span>Primary Dark</span><span>#1e5ab8</span></div>
+            <div class="token-value">--color-primary-dark</div>
+          </div>
+          <div class="token-card">
+            <div class="color-swatch" style="background: #ffffff;"></div>
+            <div class="swatch-label"><span>Surface</span><span>#ffffff</span></div>
+            <div class="token-value">--color-surface</div>
+          </div>
+          <div class="token-card">
+            <div class="color-swatch" style="background: #f0f2f5;"></div>
+            <div class="swatch-label"><span>Page BG</span><span>#f0f2f5</span></div>
+            <div class="token-value">--color-page-bg</div>
+          </div>
+          <div class="token-card">
+            <div class="color-swatch" style="background: #fbfcfd;"></div>
+            <div class="swatch-label"><span>App BG</span><span>#fbfcfd</span></div>
+            <div class="token-value">--color-app-bg</div>
+          </div>
+          <div class="token-card">
+            <div class="color-swatch" style="background: #1a293b;"></div>
+            <div class="swatch-label"><span>Text</span><span>#1a293b</span></div>
+            <div class="token-value">--color-text</div>
+          </div>
+          <div class="token-card">
+            <div class="color-swatch" style="background: #64748b;"></div>
+            <div class="swatch-label"><span>Muted</span><span>#64748b</span></div>
+            <div class="token-value">--color-muted</div>
+          </div>
+          <div class="token-card">
+            <div class="color-swatch" style="background: #e2e8f0;"></div>
+            <div class="swatch-label"><span>Border</span><span>#e2e8f0</span></div>
+            <div class="token-value">--color-border</div>
+          </div>
+          <div class="token-card">
+            <div class="color-swatch" style="background: #ef4444;"></div>
+            <div class="swatch-label"><span>Danger</span><span>#ef4444</span></div>
+            <div class="token-value">--color-danger</div>
+          </div>
+          <div class="token-card">
+            <div class="color-swatch" style="background: #10b981;"></div>
+            <div class="swatch-label"><span>Success</span><span>#10b981</span></div>
+            <div class="token-value">--color-success</div>
+          </div>
+          <div class="token-card">
+            <div class="color-swatch" style="background: #f59e0b;"></div>
+            <div class="swatch-label"><span>Warning</span><span>#f59e0b</span></div>
+            <div class="token-value">--color-warning</div>
+          </div>
+          <div class="token-card">
+            <div class="color-swatch" style="background: #e2effb;"></div>
+            <div class="swatch-label"><span>Light Blue</span><span>#e2effb</span></div>
+            <div class="token-value">--color-light-blue</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Typography -->
+      <section class="section" id="typography">
+        <h2>Typography</h2>
+        <p>Use these text styles to show clear hierarchy and preserve readability across the product.</p>
+        <div class="type-sample">
+          <h1>Heading 1 • 28px / 800</h1>
+          <h2>Heading 2 • 22px / 700</h2>
+          <h3>Heading 3 • 18px / 700</h3>
+          <p>Body text uses 15px with 1.5 line height for readable copy. The muted text style is ideal for supportive labels and captions.</p>
+          <small>Small text uses 13px for meta labels, helper text, and less important details.</small>
+        </div>
+      </section>
+
+      <!-- Spacing -->
+      <section class="section" id="spacing">
+        <h2>Spacing</h2>
+        <p>Spacing is an 8px-based scale that keeps layout consistent. Use the semantic variables instead of hard-coded values.</p>
+        <div class="spacing-grid">
+          <div class="spacing-box">XS<br><strong>4px</strong></div>
+          <div class="spacing-box">S<br><strong>8px</strong></div>
+          <div class="spacing-box">M<br><strong>12px</strong></div>
+          <div class="spacing-box">L<br><strong>16px</strong></div>
+          <div class="spacing-box">XL<br><strong>20px</strong></div>
+          <div class="spacing-box">XXL<br><strong>24px</strong></div>
+        </div>
+      </section>
+
+      <!-- Components -->
+      <section class="section" id="components">
+        <h2>Core components</h2>
+        <p>Reusable UI pieces from the current pages. These are the building blocks for onboarding, booking, and profile screens.</p>
+        <div class="component-row">
+          <div class="component-card">
+            <h3>Buttons</h3>
+            <div class="button-row">
+              <button class="btn-primary">Primary</button>
+              <button class="btn-outline">Outline</button>
+              <button class="btn-danger">Danger</button>
+            </div>
+            <div class="button-row">
+              <button class="btn-circle">→</button>
+            </div>
+            <div class="guide-note"><strong>Usage:</strong> Primary buttons are the strongest CTA. Outline buttons are ideal for secondary actions. Danger for destructive actions.</div>
+          </div>
+
+          <div class="component-card">
+            <h3>Forms</h3>
+            <div class="demo-form">
+              <label>Email<input type="text" placeholder="your@email.com"></label>
+              <label>Password<input type="password" placeholder="••••••••"></label>
+            </div>
+            <div class="guide-note"><strong>Usage:</strong> Inputs should be tall, well-spaced, and easy to tap. Use clear labels and strong focus outlines.</div>
+          </div>
+
+          <div class="component-card">
+            <h3>Cards & Chips</h3>
+            <div class="demo-card">
+              <h3>Content card</h3>
+              <p>A clean surface with rounded corners and soft elevation.</p>
+              <div style="margin-top: 12px"><span class="demo-chip">Featured</span><span class="demo-chip" style="background:#eff6ff;color:#387bd5;border-color:#bfdbfe">Active</span></div>
+            </div>
+            <div class="guide-note"><strong>Usage:</strong> Use cards to group related information. Chips for labels, tags, and statuses.</div>
+          </div>
+
+          <div class="component-card">
+            <h3>Toggles</h3>
+            <div class="toggle-demo">
+              <div class="toggle-switch active" onclick="this.classList.toggle('active')"><div class="toggle-knob"></div></div>
+              <span style="font-size:14px;font-weight:600">Push Notifications</span>
+            </div>
+            <div class="toggle-demo" style="margin-top: 12px">
+              <div class="toggle-switch" onclick="this.classList.toggle('active')"><div class="toggle-knob"></div></div>
+              <span style="font-size:14px;font-weight:600">Dark Mode</span>
+            </div>
+            <div class="guide-note"><strong>Usage:</strong> Use toggles for binary on/off settings. Active state uses brand blue.</div>
+          </div>
+
+          <div class="component-card">
+            <h3>Alerts</h3>
+            <div class="alert-sample">
+              <div class="alert-card info"><strong>Info</strong><p>This is an informational message for the user.</p></div>
+              <div class="alert-card success"><strong>Success</strong><p>Your action was completed successfully.</p></div>
+              <div class="alert-card warning"><strong>Warning</strong><p>Please review before proceeding.</p></div>
+            </div>
+          </div>
+
+          <div class="component-card">
+            <h3>Bottom Nav</h3>
+            <div style="background:rgba(248,251,255,0.85);backdrop-filter:blur(16px);border-radius:16px;border:1px solid rgba(56,123,213,0.3);padding:12px 20px;display:flex;justify-content:space-around;align-items:center">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#387bd5"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span style="font-size:10px;font-weight:600">Home</span></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#8E9AA0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20.5l-8.5-8.5a5.5 5.5 0 0 1 7.78-7.78L12 5.28l.72-1.06a5.5 5.5 0 0 1 7.78 7.78L12 20.5z"></path></svg><span style="font-size:10px;font-weight:600">Care</span></div>
+              <div style="width:44px;height:44px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(56,123,213,0.3);box-shadow:0 4px 12px rgba(59,130,246,0.1)"><img src="../assets/Heali.png" alt="Heali" style="width:24px;height:auto" onerror="this.style.display='none'"></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#8E9AA0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z"></path></svg><span style="font-size:10px;font-weight:600">Discover</span></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#8E9AA0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"></path></svg><span style="font-size:10px;font-weight:600">More</span></div>
+            </div>
+            <div class="guide-note"><strong>Usage:</strong> Floating glass-style nav with center Heali button. Expands on "More" tap.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Accessibility -->
+      <section class="section" id="accessibility">
+        <h2>Accessibility</h2>
+        <p>Modern interface design should also be inclusive. These rules help ensure the experience works for everyone.</p>
+        <ul>
+          <li>Keep text contrast high enough for readability (minimum 4.5:1 ratio).</li>
+          <li>Use focus-visible outlines for keyboard users.</li>
+          <li>Keep interactive targets at least 44px tall.</li>
+          <li>Use semantic HTML and clear labels for form controls.</li>
+          <li>Provide sufficient color contrast for all states (hover, active, disabled).</li>
+          <li>Support screen readers with proper ARIA labels and roles.</li>
+        </ul>
+      </section>
+    </div>
+
+    <footer class="footer-row">
+      <div>Design system reference for TeleHealings.</div>
+      <div><a class="guide-link" href="#">View markdown reference</a></div>
+    </footer>
+  </article>
+</body>
+</html>

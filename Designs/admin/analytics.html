@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telehealings — Analytics & Reporting</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{--primary:#2a73d4;--primary-hover:#2361b5;--primary-dark:#0745b1;--surface:#ffffff;--text-main:#111111;--text-muted:#4b4b4b;--text-soft:#64748b;--text-dark:#0f172a;--border:#e2e8f0;--border-light:#f1f5f9;--success:#22c55e;--danger:#ef4444;--warning:#f59e0b;--radius:8px;--radius-md:12px;--radius-lg:16px;--font:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;--sidebar-width:280px;--sidebar-collapsed:88px}
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        html{font-size:16px;-webkit-font-smoothing:antialiased;height:100%}
+        body{font-family:var(--font);color:var(--text-main);line-height:1.5;height:100%;display:flex;overflow:hidden;background:linear-gradient(110deg,#fff 0%,#eef5fc 35%,#7aaaf6 100%)}
+        a{color:inherit;text-decoration:none}
+        button{font-family:var(--font);cursor:pointer;border:none;outline:none;background:none}
+        ul,li{list-style:none}img{display:block}
+        .sidebar{width:var(--sidebar-width);height:100%;padding:30px 20px;display:flex;flex-direction:column;border-right:1px solid rgba(0,0,0,0.05);background:var(--surface);flex-shrink:0;position:relative;transition:width 0.3s ease,padding 0.3s ease;overflow:visible;z-index:100}
+        .brand{display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:30px;padding:0 10px;box-sizing:border-box}
+        .brand-left{display:flex;align-items:center;gap:12px}.brand-logo{width:36px;height:36px}.brand-name-text{font-size:20px;font-weight:700;color:#000}
+        .sidebar-toggle-btn{color:var(--text-soft);cursor:pointer;padding:4px;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+        .sidebar-toggle-btn:hover{background:var(--border-light);color:var(--text-main)}
+        .sidebar-toggle-btn svg{transition:transform 0.3s ease}
+        .search-box{position:relative;margin-bottom:20px}
+        .search-box input{width:100%;padding:12px 12px 12px 40px;border-radius:20px;border:1px solid var(--border);background:#f8fafc;font-family:inherit;font-size:14px;outline:none;box-sizing:border-box;transition:border-color 0.2s}
+        .search-box input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(42,115,212,0.1)}
+        .search-box svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--text-soft)}
+        .nav-menu{display:flex;flex-direction:column;gap:2px;flex-grow:1;overflow-y:auto;overflow-x:hidden;margin-bottom:20px}
+        .nav-item{display:flex;align-items:center;gap:14px;padding:10px 16px;border-radius:var(--radius);color:#475569;font-weight:600;font-size:15px;transition:all 0.2s;white-space:nowrap;text-decoration:none}
+        .nav-item:hover{background:var(--border-light);color:var(--text-main)}.nav-item.active{background:#1c52b8;color:#fff}
+        .nav-item svg{width:20px;height:20px;flex-shrink:0}.nav-item.active svg{color:#fff}
+        .nav-text{overflow:hidden}
+        .badge{margin-left:auto;background:#f04438;color:#fff;font-size:11px;padding:2px 6px;border-radius:10px;font-weight:700}
+        .nav-separator{height:1px;background-color:var(--border);margin:2px 16px;flex-shrink:0}
+        .user-profile{background:#fff;padding:16px;border-radius:var(--radius-md);display:flex;flex-direction:column;align-items:center;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,0.05);margin-top:auto;border:1px solid var(--border-light);cursor:pointer;position:relative;outline:none}
+        .user-profile img{width:75px;height:75px;border-radius:50%;margin-top:-45px;margin-bottom:10px;object-fit:cover;border:4px solid #fff;box-shadow:0 4px 10px rgba(0,0,0,0.08);background-color:#fff}
+        .user-profile h4{font-size:14px;margin:0 0 2px 0;color:var(--text-main)}
+        .user-profile p{font-size:12px;color:var(--text-soft);margin:0}
+        .profile-dropdown{display:none;position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);width:220px;background:#fff;border-radius:var(--radius-md);box-shadow:0 10px 30px rgba(0,0,0,0.1);border:1px solid var(--border);flex-direction:column;padding:8px 0;z-index:1000}
+        .user-profile:focus .profile-dropdown,.user-profile:focus-within .profile-dropdown{display:flex}
+        .sidebar.collapsed .profile-dropdown{left:100%;bottom:8px;transform:none;margin-left:16px}
+        .dropdown-item{display:flex;align-items:center;gap:12px;padding:10px 16px;color:#475569;font-size:14px;font-weight:500;transition:all 0.2s}
+        .dropdown-item:hover{background:#f8fafc;color:var(--text-main)}.dropdown-item svg{width:16px;height:16px}
+        .dropdown-divider{height:1px;background-color:var(--border-light);margin:4px 0}
+        .logout-item{color:#e11d48}.logout-item:hover{background:#fff1f2;color:#be123c}
+        .sidebar.collapsed{width:var(--sidebar-collapsed);padding:30px 10px}
+        .sidebar.collapsed .nav-text,.sidebar.collapsed .badge,.sidebar.collapsed .user-profile h4,.sidebar.collapsed .user-profile p{display:none}
+        .sidebar.collapsed .brand{flex-direction:row!important;padding:0!important;justify-content:center!important;gap:2px}
+        .sidebar.collapsed .brand-left span{display:none}
+        .sidebar.collapsed .sidebar-toggle-btn svg{transform:rotate(180deg)}
+        .sidebar.collapsed .search-box input{display:none}
+        .sidebar.collapsed .search-box{width:40px;height:40px;background:#f8fafc;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px auto;cursor:pointer}
+        .sidebar.collapsed .search-box svg{position:static;transform:none}
+        .sidebar.collapsed .nav-item{padding:12px;justify-content:center}
+        .sidebar.collapsed .user-profile{padding:10px;background:transparent;box-shadow:none;border:none}
+        .sidebar.collapsed .user-profile img{margin-top:0;margin-bottom:0;width:40px;height:40px;border:none;box-shadow:none}
+        .page-shell{flex:1;padding:0 32px 16px;overflow-y:auto;background:transparent;min-width:0}
+        .content-wrapper{width:100%;max-width:100%;margin:0 auto;display:flex;flex-direction:column;gap:16px;padding-bottom:40px}
+        .sidebar:not(.collapsed)~.page-shell .content-wrapper{max-width:1100px}
+        .sticky-zone{position:sticky;top:0;z-index:50;background:linear-gradient(110deg,#fff 0%,#eef5fc 35%,#7aaaf6 100%);padding:0 32px 6px;margin:0 -32px}
+        .sticky-inner{max-width:100%}.sidebar:not(.collapsed)~.page-shell .sticky-inner{max-width:1100px;margin:0 auto}
+        .page-header{display:flex;justify-content:space-between;align-items:center;padding-top:40px;margin-bottom:12px}
+        .header-tab{font-size:20px;font-weight:700;color:var(--text-dark);position:relative;padding:0 0 8px 0;border-bottom:2px solid var(--border)}
+        .header-tab::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:3px;background:var(--text-dark);border-radius:2px 2px 0 0}
+        .header-mascot{height:32px;flex-shrink:0}
+        .heali-inline{display:flex;align-items:center;gap:8px}
+        .heali-insight{display:flex;align-items:center;gap:8px;padding:6px 12px;background:linear-gradient(135deg,#eff6ff 0%,#dbeafe 100%);border:1px solid #bfdbfe;border-radius:8px;flex-shrink:0}
+        .heali-insight-icon{width:24px;height:24px;border-radius:50%;background:#2563eb;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .heali-insight-icon svg{width:12px;height:12px}
+        .heali-insight-content{display:flex;flex-direction:column;gap:0}
+        .heali-insight-label{font-size:9px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:0.3px;line-height:1.2}
+        .heali-insight-text{font-size:11px;color:#1e40af;line-height:1.3;white-space:nowrap}
+        .heali-insight-text strong{font-weight:700;color:#1e3a8a}
+        .heali-insight-dismiss{background:none;border:none;color:#93c5fd;cursor:pointer;padding:2px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s}
+        .heali-insight-dismiss:hover{background:rgba(37,99,235,0.1);color:#2563eb}
+        .btn-sm{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none}
+        .btn-sm svg{width:14px;height:14px}
+        .btn-sm.btn-outline{border:1px solid var(--border);background:var(--surface);color:var(--text-soft)}
+        .btn-sm.btn-outline:hover{border-color:#94a3b8;color:var(--text-dark);background:#f8fafc}
+        .btn-sm.btn-primary{background:var(--primary);color:#fff}
+        .btn-sm.btn-primary:hover{background:var(--primary-hover)}
+        .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+        .kpi-card{background:var(--surface);border-radius:12px;padding:18px 20px;box-shadow:0 2px 8px rgba(0,0,0,.04);border:1px solid var(--border-light)}
+        .kpi-label{font-size:12px;color:var(--text-soft);font-weight:500;margin-bottom:6px}
+        .kpi-value{font-size:24px;font-weight:700;color:var(--text-dark)}
+        .kpi-change{font-size:12px;font-weight:600;margin-top:4px}
+        .kpi-change.up{color:#16a34a}.kpi-change.down{color:#dc2626}
+        .chart-row{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+        .chart-card{background:var(--surface);border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.04);border:1px solid var(--border-light)}
+        .chart-title{font-size:14px;font-weight:700;color:var(--text-dark);margin-bottom:16px}
+        .chart-placeholder{height:200px;background:linear-gradient(135deg,#f8fafc 0%,#f1f5f9 100%);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-soft);font-size:13px}
+    </style>
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+    <div class="brand"><div class="brand-left"><img src="../assets/logo.png" class="brand-logo"><span class="nav-text brand-name-text">Telehealings</span></div><button class="sidebar-toggle-btn" id="sidebarToggle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button></div>
+    <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search"></div>
+    <nav class="nav-menu">
+        <a href="dashboard.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span class="nav-text">Dashboard</span></a>
+        <a href="therapist.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nav-text">Therapist</span></a>
+        <a href="clients.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-text">Clients</span></a>
+        <div class="nav-separator"></div>
+        <a href="schedule.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="nav-text">Sessions & Schedule</span></a>
+        <a href="content-management.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span class="nav-text">Content Management</span></a>
+        <a href="communications.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="nav-text">Communications</span></a>
+        <a href="compliance.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span class="nav-text">Compliance</span></a>
+        <div class="nav-separator"></div>
+        <a href="financials.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12"/><path d="M6 8h12"/><path d="m6 13 8.5 8"/><path d="M6 13h3"/><path d="M9 13c6.667 0 6.667-10 0-10"/></svg><span class="nav-text">Financials</span></a>
+        <a href="analytics.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span class="nav-text">Analytics & Reporting</span></a>
+        <a href="Promotion.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><span class="nav-text">Promotion & Offers</span></a>
+    </nav>
+    <div class="user-profile" tabindex="0"><img src="../assets/user-profile.jpg"><h4>Dr. Ajesh Anand</h4><p>Admin</p>
+        <div class="profile-dropdown"><a href="#" class="dropdown-item">My Profile</a><div class="dropdown-divider"></div><a href="#" class="dropdown-item">Settings</a><div class="dropdown-divider"></div><a href="index.html" class="dropdown-item logout-item">Logout</a></div>
+    </div>
+</aside>
+<div class="page-shell">
+    <div class="sticky-zone">
+        <div class="sticky-inner">
+            <header class="page-header">
+                <div class="header-left"><div class="header-tab">Analytics & Reporting</div></div>
+                <div class="header-right">
+                    <div class="heali-inline">
+                        <div class="heali-insight">
+                            <div class="heali-insight-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/></svg></div>
+                            <div class="heali-insight-content"><span class="heali-insight-label">Heali Insight</span><span class="heali-insight-text">Revenue up <strong>23%</strong> this month. Peak booking time: <strong>Tuesday 2-4 PM</strong>.</span></div>
+                            <button class="heali-insight-dismiss"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                        </div>
+                        <img src="../assets/Heali.png" class="header-mascot">
+                    </div>
+                </div>
+            </header>
+            <div style="display:flex;justify-content:flex-end;gap:10px;margin-bottom:16px">
+                <button class="btn-sm btn-outline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>This Month</button>
+                <button class="btn-sm btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Export Report</button>
+            </div>
+        </div>
+    </div>
+    <div class="content-wrapper">
+        <div class="kpi-grid">
+            <div class="kpi-card"><div class="kpi-label">Total Revenue</div><div class="kpi-value">₹4,28,500</div><div class="kpi-change up">↑ 23% vs last month</div></div>
+            <div class="kpi-card"><div class="kpi-label">Active Users</div><div class="kpi-value">1,847</div><div class="kpi-change up">↑ 12% vs last month</div></div>
+            <div class="kpi-card"><div class="kpi-label">Sessions Completed</div><div class="kpi-value">342</div><div class="kpi-change up">↑ 8% vs last month</div></div>
+            <div class="kpi-card"><div class="kpi-label">Avg. Rating</div><div class="kpi-value">4.8</div><div class="kpi-change down">↓ 0.1 vs last month</div></div>
+        </div>
+        <div class="chart-row">
+            <div class="chart-card"><div class="chart-title">Revenue Trend (Last 6 Months)</div><div class="chart-placeholder">📊 Revenue chart visualization</div></div>
+            <div class="chart-card"><div class="chart-title">Session Distribution</div><div class="chart-placeholder">🥧 Pie chart visualization</div></div>
+        </div>
+        <div class="chart-row" style="grid-template-columns:1fr 1fr">
+            <div class="chart-card"><div class="chart-title">User Growth</div><div class="chart-placeholder">📈 Line chart visualization</div></div>
+            <div class="chart-card"><div class="chart-title">Therapist Performance</div><div class="chart-placeholder">📊 Bar chart visualization</div></div>
+        </div>
+    </div>
+</div>
+<script>
+document.getElementById('sidebarToggle').addEventListener('click',()=>{document.getElementById('sidebar').classList.toggle('collapsed')});
+const healiInsight=document.querySelector('.heali-insight');const healiDismiss=document.querySelector('.heali-insight-dismiss');if(healiDismiss&&healiInsight)healiDismiss.addEventListener('click',()=>{healiInsight.style.display='none'});
+</script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Risk & Safety — Telehealings</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; }
+    .mobile-app-container { height: 100%; width: 100%; background: #fff; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+    @keyframes slideFadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .top-section { background: linear-gradient(180deg, #e7f2ff 0%, #2366bd 100%); border-radius: 0 0 50% 50% / 0 0 35px 35px; padding: 18px 20px 24px; flex-shrink: 0; }
+    .header-row { display: flex; justify-content: space-between; align-items: center; }
+    .back-btn { width: 40px; display: flex; cursor: pointer; color: #ffffff; flex-shrink: 0; }
+    .header-title { flex: 1; text-align: center; color: #ffffff; font-size: 22px; font-weight: 700; margin: 0; }
+    .mascot { width: 40px; display: flex; justify-content: flex-end; flex-shrink: 0; }
+    .mascot img { width: 32px; height: auto; object-fit: contain; }
+    .stepper-row { display: flex; justify-content: center; gap: 6px; margin-top: 12px; }
+    .stepper-row .step { flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.3); max-width: 60px; }
+    .stepper-row .step.active { background: #ffffff; }
+
+    .form-section { flex: 1; padding: 20px 24px 40px; display: flex; flex-direction: column; animation: slideFadeUp 0.5s ease-out; background: #fff; z-index: 2; overflow-y: auto; }
+
+    .page-title { font-size: 26px; font-weight: 800; color: #000; margin-bottom: 8px; margin-top: 8px; }
+    .page-description { font-size: 14px; color: #475569; line-height: 1.5; margin-bottom: 16px; }
+
+    .info-box { background: #e0e7ff; border: 1px solid #3b82f6; border-radius: 12px; padding: 16px; display: flex; gap: 12px; margin-bottom: 24px; align-items: flex-start; }
+    .info-box-icon { color: #2563eb; flex-shrink: 0; margin-top: 2px; }
+    .info-box-content h4 { margin: 0 0 6px; font-size: 15px; font-weight: 700; color: #000; }
+    .info-box-content p { margin: 0; font-size: 14px; color: #475569; line-height: 1.5; }
+
+    .question-block { margin-bottom: 20px; }
+    .question-title { font-size: 16px; font-weight: 700; color: #000; margin-bottom: 16px; }
+
+    .binary-group { display: flex; gap: 12px; }
+    .binary-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: #fff; border: 1px solid #cbd5e1; color: #334155; }
+    .binary-btn.selected { border: 2px solid #2563eb; color: #2563eb; padding: 11px; background: rgba(37,99,235,0.04); }
+    .binary-group.has-selection .binary-btn:not(.selected) { opacity: 0.4; }
+
+    .btn-primary { width: 100%; background: linear-gradient(135deg, #387bd5 0%, #1e5ab8 100%); color: #fff; border: none; border-radius: 25px; padding: 16px 24px; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; font-family: inherit; margin-top: 16px; margin-bottom: 24px; box-shadow: 0 8px 20px rgba(56, 123, 213, 0.25); }
+    .btn-primary:active { transform: scale(0.97); }
+
+    /* Success Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); animation: fadeIn 0.3s ease; }
+    .modal-content { background: #fff; border-radius: 20px; padding: 32px 24px; text-align: center; width: 80%; max-width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); animation: slideFadeUp 0.3s ease; }
+    .success-icon { width: 64px; height: 64px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
+  </style>
+</head>
+<body>
+  <div class="mobile-app-container medical-container">
+    <div class="top-section">
+      <div class="header-row">
+        <div class="back-btn" onclick="window.history.back()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></div>
+        <h1 class="header-title">Medical Profile</h1>
+        <div class="mascot"><img src="../assets/Heali.png" alt="Heali" onerror="this.style.display='none'"></div>
+      </div>
+      <div class="stepper-row"><div class="step"></div><div class="step"></div><div class="step"></div><div class="step active"></div></div>
+    </div>
+    <div class="form-section">
+      <h2 class="page-title">Risk & Safety</h2>
+      <p class="page-description">To provide you with the best care, we need to ask some sensitive questions about your safety. This information is kept confidential between you and your healthcare team.</p>
+
+      <div class="info-box">
+        <div class="info-box-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="#2563eb" stroke="#2563eb" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10" stroke="#fff" fill="none" stroke-width="2"></polyline></svg></div>
+        <div class="info-box-content"><h4>Confidentiality Commitment</h4><p>Your responses are encrypted and only accessible to your medical provider to ensure a safe treatment plan.</p></div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">Have you had thoughts of harming yourself?</div>
+        <div class="binary-group" id="q1">
+          <div class="binary-btn" onclick="selectBinary(this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 11 15 16 9"></polyline></svg>Yes</div>
+          <div class="binary-btn" onclick="selectBinary(this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>No</div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">Any History of self-harm?</div>
+        <div class="binary-group" id="q2">
+          <div class="binary-btn" onclick="selectBinary(this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 11 15 16 9"></polyline></svg>Yes</div>
+          <div class="binary-btn" onclick="selectBinary(this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>No</div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">Thoughts of harming others?</div>
+        <div class="binary-group" id="q3">
+          <div class="binary-btn" onclick="selectBinary(this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 11 15 16 9"></polyline></svg>Yes</div>
+          <div class="binary-btn" onclick="selectBinary(this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>No</div>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="completeProfile()">Save & Next <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></button>
+    </div>
+  </div>
+
+  <!-- Crisis Resources Modal (shown if any risk answer is Yes) -->
+  <div id="crisisModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content" style="max-width: 340px;">
+      <div class="success-icon" style="background: #ef4444;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div>
+      <h3 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#0f172a">We're Here to Help</h3>
+      <p style="margin:0 0 16px;font-size:14px;color:#64748b;line-height:1.5">Your responses indicate you may be going through a difficult time. Please know that help is available.</p>
+      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:16px;margin-bottom:20px;text-align:left;">
+        <p style="font-size:13px;font-weight:700;color:#991b1b;margin:0 0 8px;">Crisis Resources:</p>
+        <p style="font-size:13px;color:#7f1d1d;margin:0 0 4px;">📞 iCall: 9152987821</p>
+        <p style="font-size:13px;color:#7f1d1d;margin:0 0 4px;">📞 Vandrevala Foundation: 1860-2662-345</p>
+        <p style="font-size:13px;color:#7f1d1d;margin:0;">📞 AASRA: 91-9820466726</p>
+      </div>
+      <p style="font-size:12px;color:#94a3b8;margin:0 0 16px;">Your therapist will be notified and will reach out to you. Your safety is our priority.</p>
+      <button class="btn-primary" style="margin:0;" onclick="closeCrisisModal()">I Understand</button>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+    <div class="modal-content">
+      <div class="success-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+      <h3 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#0f172a">Profile Saved!</h3>
+      <p style="margin:0;font-size:14px;color:#64748b;line-height:1.5">Your medical profile has been successfully updated.</p>
+    </div>
+  </div>
+
+  <script>
+    function selectBinary(btn) {
+      const group = btn.parentElement;
+      group.querySelectorAll('.binary-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      group.classList.add('has-selection');
+      btn.closest('.question-block').classList.add('answered');
+    }
+    function completeProfile() {
+      const groups = document.querySelectorAll('.binary-group');
+      let allAnswered = true;
+      let hasRisk = false;
+      groups.forEach(g => {
+        if (!g.classList.contains('has-selection')) {
+          g.closest('.question-block').classList.add('unanswered');
+          allAnswered = false;
+        } else {
+          // Check if any "Yes" (first button) is selected
+          const selectedBtn = g.querySelector('.binary-btn.selected');
+          if (selectedBtn && selectedBtn.querySelector('.radio-label').textContent.trim() === 'Yes') {
+            hasRisk = true;
+          }
+        }
+      });
+      if (!allAnswered) {
+        document.querySelectorAll('.question-block.unanswered').forEach(q => {
+          q.style.animation = 'none'; q.offsetHeight; q.style.animation = 'shake 0.3s ease';
+        });
+        return;
+      }
+      // Store medical data (placeholder for API call)
+      const medicalData = {
+        selfHarmThoughts: document.querySelector('#q1 .binary-btn.selected')?.querySelector('.radio-label')?.textContent.trim() === 'Yes',
+        selfHarmHistory: document.querySelector('#q2 .binary-btn.selected')?.querySelector('.radio-label')?.textContent.trim() === 'Yes',
+        harmOthersThoughts: document.querySelector('#q3 .binary-btn.selected')?.querySelector('.radio-label')?.textContent.trim() === 'Yes',
+        hasRiskFlags: hasRisk
+      };
+      localStorage.setItem('medicalRiskData', JSON.stringify(medicalData));
+
+      if (hasRisk) {
+        document.getElementById('crisisModal').style.display = 'flex';
+      } else {
+        document.getElementById('successModal').style.display = 'flex';
+        setTimeout(() => { window.location.href = 'home.html'; }, 2000);
+      }
+    }
+
+    function closeCrisisModal() {
+      document.getElementById('crisisModal').style.display = 'none';
+      document.getElementById('successModal').style.display = 'flex';
+      setTimeout(() => { window.location.href = 'home.html'; }, 2000);
+    }
+    const style = document.createElement('style');
+    style.textContent = '@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} } .question-block.unanswered { border-left: 3px solid #ef4444; padding-left: 12px; margin-left: -15px; border-radius: 0 8px 8px 0; }';
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>

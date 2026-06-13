@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Home — Therapy Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; justify-content: center; align-items: center; background-color: #f0f2f5; }
+
+    .mobile-app-container { height: 100%; width: 100%; background-color: #fbfcfd; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+
+    @keyframes slideFadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulseDot { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+    @keyframes floatBob { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-6px); } }
+
+    /* ===== HEADER WITH BLUE WAVE ===== */
+    .top-section {
+      background: linear-gradient(180deg, #e7f2ff 0%, #2366bd 100%);
+      border-radius: 0 0 50% 50% / 0 0 35px 35px;
+      padding: 18px 20px 24px;
+      margin-bottom: 5px;
+      flex-shrink: 0;
+    }
+
+    /* ===== CONTENT WRAPPER ===== */
+    .content-wrapper { position: relative; z-index: 1; padding: 10px 20px 120px 20px; display: flex; flex-direction: column; flex: 1; overflow-y: auto; gap: 16px; }
+
+    /* Header Row */
+    .header-row { display: flex; width: 95%; justify-content: space-between; align-items: center; margin-bottom: 0; }
+    .user-profile { display: flex; align-items: center; gap: 12px; }
+    .avatar { width: 44px; height: 44px; border-radius: 50%; background-color: #d1b894; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,0.3); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .user-name-box { display: flex; align-items: center; gap: 6px; cursor: pointer; position: relative; }
+    .user-dropdown { position: absolute; top: calc(100% + 15px); left: -10px; background: rgba(255,255,255,0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 16px; box-shadow: 0 8px 24px rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); width: 130px; display: flex; flex-direction: column; opacity: 0; pointer-events: none; transform: translateY(-10px); transition: opacity 0.2s ease, transform 0.2s ease; z-index: 100; }
+    .user-dropdown.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+    .dropdown-item { padding: 12px 16px; font-size: 14px; font-weight: 600; color: #1a293b; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s ease; border-radius: 14px; margin: 2px; text-decoration: none; }
+    .dropdown-item:active { background: rgba(255,255,255,0.95); }
+    .dropdown-item.logout { color: #ef4444; }
+    .user-name { font-size: 18px; font-weight: 700; color: #1a293b; }
+    .notification-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; color: #1e5ab8; }
+    .notification-dot { position: absolute; top: 8px; right: 8px; width: 10px; height: 10px; background-color: #ef4444; border: 2px solid #ffffff; border-radius: 50%; animation: pulseDot 2s infinite; }
+
+    /* Verify Banner */
+    .verify-banner { background: transparent; flex-shrink: 0; border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(56,123,213,0.15); animation: slideFadeUp 0.5s ease-out 0.1s forwards; opacity: 0; margin-bottom: 8px; }
+    .verify-left { display: flex; align-items: center; gap: 12px; flex: 1; }
+    .verify-left svg { color: #1e5ab8; width: 24px; height: 24px; flex-shrink: 0; }
+    .verify-text { font-size: 13px; line-height: 1.4; font-weight: 500; color: #64748b; }
+    .verify-btn { font-size: 14px; font-weight: 700; color: #387bd5; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap; transition: transform 0.2s ease; }
+    .verify-btn:active { transform: translateX(4px); }
+
+    /* Cards */
+    .card { background: #ffffff; flex-shrink: 0; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; border: none; box-shadow: 0 12px 35px rgba(0,0,0,0.03); position: relative; opacity: 0; animation: slideFadeUp 0.5s ease-out forwards; transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: pointer; }
+    .card:active { transform: scale(0.98); }
+
+    /* Greeting */
+    .greeting-section { display: flex; flex-shrink: 0; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0 16px 0; animation: slideFadeUp 0.5s ease-out 0.2s forwards; opacity: 0; }
+    .greeting-heali { width: 56px; height: auto; flex-shrink: 0; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.08)); }
+    .greeting-content h2 { font-size: 24px; font-weight: 700; color: #1a293b; margin-bottom: 6px; letter-spacing: -0.5px; }
+    .greeting-content p { font-size: 13px; color: #64748b; line-height: 1.5; }
+
+    /* Mood Card */
+    .mood-card { animation-delay: 0.3s; }
+    .mood-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .mood-header h3 { font-size: 18px; font-weight: 700; color: #1a293b; letter-spacing: -0.3px; }
+    .close-icon { position: absolute; top: 16px; right: 16px; padding: 8px; cursor: pointer; color: #64748b; background: #f8fafc; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+    .mood-faces { display: flex; justify-content: space-between; align-items: center; padding: 0 5px; }
+    .mood-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .mood-icon-wrapper { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; background: #f8fafc; color: #94a3b8; }
+    .mood-item.selected .mood-icon-wrapper { transform: scale(1.15); box-shadow: 0 4px 12px rgba(0,0,0,0.05); background: #e2effb; color: #387bd5; }
+    .mood-icon { width: 24px; height: 24px; }
+    .mood-label { font-size: 11px; font-weight: 600; color: #64748b; }
+    .mood-item.selected .mood-label { color: #1a293b; }
+
+    /* Journal */
+    .journal-section { display: none; flex-direction: column; margin-top: 20px; padding-top: 20px; border-top: 1px solid #f1f5f9; animation: slideFadeUp 0.3s ease-out forwards; }
+    .journal-section.active { display: flex; }
+    .journal-prompt { font-size: 13px; color: #64748b; margin-bottom: 12px; font-weight: 500; }
+    .journal-textarea { width: 100%; height: 80px; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; font-family: inherit; font-size: 14px; color: #1a293b; resize: none; outline: none; transition: border-color 0.2s ease, box-shadow 0.2s ease; margin-bottom: 12px; background: #f8fafc; }
+    .journal-textarea:focus { border-color: #387bd5; background: #ffffff; box-shadow: 0 0 0 3px rgba(56,123,213,0.1); }
+    .journal-save-btn { align-self: flex-end; background: #387bd5; color: #ffffff; border: none; border-radius: 20px; padding: 8px 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: transform 0.2s ease, background-color 0.2s ease; }
+    .journal-save-btn:active { transform: scale(0.96); }
+
+    /* Appointment Card */
+    .appt-card { background: #ffffff; flex-shrink: 0; border-radius: 20px; padding: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; animation: slideFadeUp 0.5s ease-out 0.4s forwards; opacity: 0; }
+    .appt-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .appt-status { background: #e2effb; color: #1e5ab8; font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .appt-id { font-size: 12px; font-weight: 600; color: #94a3b8; }
+    .therapist-info { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+    .therapist-avatar { width: 54px; height: 54px; border-radius: 50%; object-fit: cover; background-color: #f1f5f9; }
+    .therapist-details { flex: 1; }
+    .therapist-details h3 { font-size: 18px; font-weight: 700; color: #1a293b; margin: 0 0 4px 0; }
+    .therapist-details p { font-size: 13px; color: #64748b; margin: 0; font-weight: 500; }
+    .appt-time-info { display: flex; background: #f8fafc; border-radius: 16px; padding: 16px; gap: 12px; margin-bottom: 24px; }
+    .time-block { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+    .time-divider { width: 1.5px; background: #e2e8f0; margin: 0 8px; }
+    .time-label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+    .time-value { font-size: 14px; font-weight: 700; color: #1a293b; }
+    .join-btn { width: 100%; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #ffffff; border: none; border-radius: 16px; padding: 16px; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; box-shadow: 0 8px 20px rgba(37,99,235,0.3); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .join-btn:active { transform: scale(0.97); box-shadow: 0 4px 10px rgba(37,99,235,0.15); }
+
+    /* Recommended Section */
+    .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px; margin-bottom: 4px; padding: 0 4px; animation: slideFadeUp 0.5s ease-out 0.5s forwards; opacity: 0; }
+    .section-header h2 { font-size: 19px; font-weight: 700; color: #1a293b; margin: 0; }
+    .section-header a { font-size: 13px; font-weight: 600; color: #387bd5; text-decoration: none; }
+    .content-row { display: flex; flex-shrink: 0; gap: 16px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; margin: 0 -20px 30px -20px; padding: 0 20px; animation: slideFadeUp 0.5s ease-out 0.6s forwards; --stagger-delay: 0.1s; opacity: 0; }
+    .content-row::-webkit-scrollbar { display: none; }
+    .content-card { flex: 0 0 160px; display: flex; flex-direction: column; cursor: pointer; transition: transform 0.2s ease, opacity 0.3s ease; opacity: 0; transform: translateY(10px); }
+    .content-img-box { width: 100%; height: 110px; border-radius: 16px; overflow: hidden; margin-bottom: 10px; position: relative; }
+    .content-img-box img { width: 100%; height: 100%; object-fit: cover; }
+    .play-icon-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; }
+    .play-icon-overlay svg { color: #fff; fill: #fff; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+    .content-card-title { font-size: 14px; font-weight: 600; color: #1a293b; line-height: 1.3; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .content-card.visible { opacity: 1; transform: translateY(0); }
+    .content-card:active { transform: scale(0.95); }
+    .content-card-meta { font-size: 11px; font-weight: 500; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ===== FLOATING BOTTOM NAV ===== */
+    .more-menu-overlay { position: absolute; inset: 0; z-index: 9; display: none; background: transparent; }
+    .more-menu-overlay.open { display: block; }
+
+    .bottom-nav {
+      position: absolute; bottom: 0;
+      left: 16px; right: 16px;
+      max-width: 360px;
+      margin: 0 auto 25px auto;
+      padding: 12px 0;
+      z-index: 10;
+      background: rgba(248, 251, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 20px;
+      border: 1px solid rgba(56, 123, 213, 0.3);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 -8px 24px rgba(59, 130, 246, 0.05), 0 10px 30px rgba(0, 0, 0, 0.04);
+      display: flex; flex-direction: column; gap: 0;
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      transform: translateZ(0);
+      will-change: transform, backdrop-filter, height;
+    }
+    .bottom-nav.expanded { padding-top: 16px; padding-bottom: 16px; gap: 16px; background: rgba(248, 251, 255, 0.95); box-shadow: 0 -16px 40px rgba(59, 130, 246, 0.12), 0 20px 50px rgba(0, 0, 0, 0.08); }
+
+    .nav-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 20px; }
+    .nav-top-row { height: 0; opacity: 0; pointer-events: none; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); transform: translateY(10px); }
+    .bottom-nav.expanded .nav-top-row { height: 44px; opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #8E9AA0; cursor: pointer; text-decoration: none; flex: 1; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); -webkit-tap-highlight-color: transparent; }
+    .nav-item.spacer { flex: 0 0 70px; pointer-events: none; }
+    .nav-item.active, .bottom-nav.expanded .nav-item[data-nav="more"] { font-weight: 600; color: #387bd5; }
+    .nav-icon { width: 24px; height: 24px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .nav-item.active .nav-icon { transform: translateY(-2px); }
+    .nav-label { font-size: 0.7rem; font-weight: inherit; letter-spacing: 0.03em; white-space: nowrap; }
+
+    /* Center Mascot Button */
+    .nav-center-absolute { position: absolute; left: 50%; top: 20px; transform: translate(-50%, -50%); z-index: 15; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
+    .bottom-nav.expanded .nav-center-absolute { top: 50%; }
+    .nav-center-btn { width: 60px; height: 60px; background: #FFFFFF; border-radius: 50%; box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05), 0 8px 20px rgba(59, 130, 246, 0.12); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(56, 123, 213, 0.3); }
+    .nav-center-btn:active { transform: scale(0.92); }
+    .nav-center-btn img { width: 32px; height: auto; object-fit: contain; }
+
+    /* ===== NOTIFICATION PANEL ===== */
+    .notification-overlay { position: absolute; inset: 0; background: rgba(15,23,42,0.2); z-index: 1000; display: block; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+    .notification-overlay.open { opacity: 1; pointer-events: auto; }
+    .notification-panel { position: absolute; top: 75px; right: 20px; width: 300px; max-width: calc(100% - 40px); max-height: 400px; background: #ffffff; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); border: 1px solid #f1f5f9; transform: translateY(-10px) scale(0.95); transform-origin: top right; transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease; display: flex; flex-direction: column; opacity: 0; overflow: hidden; }
+    .notification-overlay.open .notification-panel { transform: translateY(0) scale(1); opacity: 1; }
+    .notif-header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; }
+    .notif-title { font-size: 18px; font-weight: 700; color: #1a293b; margin: 0; }
+    .notif-clear { font-size: 13px; font-weight: 600; color: #94a3b8; background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: background 0.2s, color 0.2s; }
+    .notif-clear:active { background: #f1f5f9; color: #64748b; }
+    .notif-list { flex: 1; overflow-y: auto; padding: 0; margin: 0; list-style: none; }
+    .notif-item { padding: 16px 20px; border-bottom: 1px solid #f8fafc; display: flex; gap: 12px; cursor: pointer; position: relative; transition: background 0.2s ease; }
+    .notif-item:active { background: #f8fafc; }
+    .notif-item.unread { background: #f4f8fd; }
+    .notif-item.unread::before { content: ''; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 6px; height: 6px; background: #3b82f6; border-radius: 50%; }
+    .notif-icon { width: 40px; height: 40px; border-radius: 50%; background: #e2effb; color: #387bd5; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .notif-content { flex: 1; }
+    .notif-text { font-size: 13px; color: #1a293b; margin-bottom: 6px; line-height: 1.4; }
+    .notif-text strong { font-weight: 700; }
+    .notif-time { font-size: 11px; color: #94a3b8; font-weight: 500; }
+    .notif-empty { display: none; padding: 40px 24px; text-align: center; color: #94a3b8; font-size: 14px; }
+    .notif-empty.show { display: block; }
+
+    /* Bottom nav placeholder */
+    #bottom-nav-placeholder { flex-shrink: 0; height: 0; }
+
+    /* ===== HEALI CHAT MODAL ===== */
+    .heali-chat-overlay { position: absolute; inset: 0; background: rgba(15,23,42,0.4); backdrop-filter: blur(4px); z-index: 9999; display: flex; flex-direction: column; justify-content: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding: 0 16px; }
+    .heali-chat-overlay.open { opacity: 1; pointer-events: auto; }
+    .heali-chat-container { background: #fff; width: 100%; height: 75vh; max-height: 700px; border-radius: 28px; display: flex; flex-direction: column; transform: translateY(120%); transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 10px 40px rgba(0,0,0,0.2); position: relative; margin-bottom: 95px; }
+    .heali-chat-container::after { content: ''; position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); border-width: 16px 16px 0; border-style: solid; border-color: #fff transparent transparent transparent; }
+    .heali-chat-overlay.open .heali-chat-container { transform: translateY(0); }
+    .heali-chat-header { display: flex; align-items: center; padding: 20px 24px; border-bottom: 1px solid #f1f5f9; }
+    .heali-chat-avatar { width: 44px; height: 44px; background: #f0f8ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 14px; border: 1.5px solid #cbe0f9; color: #387bd5; }
+    .heali-chat-title-block { flex: 1; }
+    .heali-chat-title { font-size: 18px; font-weight: 800; color: #1a293b; margin: 0; }
+    .heali-chat-status { font-size: 12px; color: #10b981; font-weight: 600; display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+    .heali-chat-status::before { content: ''; width: 6px; height: 6px; background: #10b981; border-radius: 50%; }
+    .heali-chat-close { width: 36px; height: 36px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #64748b; transition: background 0.2s; }
+    .heali-chat-close:active { background: #e2e8f0; }
+    .heali-chat-messages { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; background: #fbfcfd; }
+    .heali-chat-messages::-webkit-scrollbar { display: none; }
+    .chat-bubble-wrapper { display: flex; flex-direction: column; max-width: 85%; animation: slideFadeUp 0.3s ease-out forwards; }
+    .chat-bubble-wrapper.ai { align-self: flex-start; }
+    .chat-bubble-wrapper.user { align-self: flex-end; align-items: flex-end; }
+    .chat-bubble { padding: 14px 18px; border-radius: 20px; font-size: 15px; line-height: 1.5; position: relative; word-wrap: break-word; }
+    .chat-bubble-wrapper.ai .chat-bubble { background: #fff; color: #334155; border: 1px solid #e2e8f0; border-bottom-left-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+    .chat-bubble-wrapper.user .chat-bubble { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #fff; border-bottom-right-radius: 4px; box-shadow: 0 4px 12px rgba(37,99,235,0.15); }
+    .chat-time { font-size: 11px; color: #94a3b8; margin-top: 6px; padding: 0 4px; font-weight: 500; }
+    .heali-chat-input-area { padding: 16px 24px; background: #fff; border-top: 1px solid #f1f5f9; display: flex; gap: 12px; align-items: flex-end; border-radius: 0 0 28px 28px; }
+    .heali-chat-input { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 24px; padding: 14px 18px; font-size: 16px; outline: none; resize: none; max-height: 120px; min-height: 50px; font-family: inherit; color: #1a293b; transition: border-color 0.2s; }
+    .heali-chat-input:focus { border-color: #387bd5; background: #fff; }
+    .heali-chat-input::placeholder { color: #94a3b8; }
+    .heali-chat-send { width: 50px; height: 50px; border-radius: 50%; background: #387bd5; color: #fff; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: transform 0.2s ease; box-shadow: 0 4px 12px rgba(56,123,213,0.25); }
+    .heali-chat-send:active { transform: scale(0.95); }
+    .typing-indicator { display: flex; gap: 5px; padding: 8px 4px; }
+    .typing-dot { width: 6px; height: 6px; background: #94a3b8; border-radius: 50%; animation: typingBounce 1.4s infinite ease-in-out both; }
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes typingBounce { 0%,80%,100% { transform: scale(0.6); opacity: 0.6; } 40% { transform: scale(1); opacity: 1; } }
+  </style>
+</head>
+<body>
+  <div class="mobile-app-container home-container">
+    <!-- Header with Blue Wave -->
+    <div class="top-section">
+      <div class="header-row">
+        <div class="user-profile">
+          <div class="avatar">
+            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80" alt="User Profile" onerror="this.style.display='none'">
+          </div>
+          <div class="user-name-box" id="userProfileBtn">
+            <span class="user-name" id="displayName">Ajesh Anand</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            <div class="user-dropdown" id="userDropdown">
+              <div class="dropdown-item" onclick="window.location.href='profile.html'">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                My Profile
+              </div>
+              <div class="dropdown-item logout" onclick="window.location.href='index.html'">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                Log out
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="notification-btn" id="notifBtn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <div class="notification-dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Scrollable Content -->
+    <div class="content-wrapper">
+      <!-- Verify Banner (shown only if not verified) -->
+      <div class="verify-banner" id="verifyBanner">
+        <div class="verify-left">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+          <span class="verify-text">Please verify your account to<br>book Therapists.</span>
+        </div>
+        <div class="verify-btn" onclick="window.location.href='phone-verify.html'">Verify <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+      </div>
+
+      <!-- Greeting Section -->
+      <div class="greeting-section">
+        <div class="greeting-content">
+          <h2 id="greetingText">Good morning, Ajesh Anand</h2>
+          <p id="greetingSubtitle">We're here to help you manage your stress today. Take a moment for yourself.</p>
+        </div>
+        <img src="../assets/Heali.png" alt="Heali" class="greeting-heali" onerror="this.style.display='none'">
+      </div>
+
+      <!-- This Week Stats (dynamic) -->
+      <div class="stats-row" style="display:flex;gap:12px;margin-bottom:8px">
+        <div class="stat-card" style="flex:1;background:#ffffff;border-radius:16px;padding:16px;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,0.03)">
+          <div class="stat-value" style="font-size:24px;font-weight:700;color:#1e5ab8" id="statSessions">0</div>
+          <div class="stat-label" style="font-size:11px;font-weight:600;color:#64748b;margin-top:4px">Sessions</div>
+        </div>
+        <div class="stat-card" style="flex:1;background:#ffffff;border-radius:16px;padding:16px;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,0.03)">
+          <div class="stat-value" style="font-size:24px;font-weight:700;color:#16a34a" id="statProgress">0%</div>
+          <div class="stat-label" style="font-size:11px;font-weight:600;color:#64748b;margin-top:4px">Progress</div>
+        </div>
+        <div class="stat-card" style="flex:1;background:#ffffff;border-radius:16px;padding:16px;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,0.03)">
+          <div class="stat-value" style="font-size:24px;font-weight:700;color:#7c3aed" id="statStreak">0</div>
+          <div class="stat-label" style="font-size:11px;font-weight:600;color:#64748b;margin-top:4px">Days Streak</div>
+        </div>
+      </div>
+
+      <!-- Heali Insight (dynamic) -->
+      <div class="heali-insight" id="healiInsightCard" style="background:linear-gradient(135deg,#eff6ff 0%,#dbeafe 100%);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <img src="../assets/Heali.png" alt="Heali" style="width:28px;height:28px;flex-shrink:0" onerror="this.style.display='none'">
+        <p style="font-size:12px;color:#1e40af;line-height:1.4;margin:0" id="healiInsightText"><strong>Heali suggests:</strong> Try a 5-minute breathing exercise today to start your morning right.</p>
+      </div>
+
+      <!-- Mood Card -->
+      <div class="card mood-card">
+        <div class="mood-header">
+          <h3>How Are You Feeling today?</h3>
+          <svg class="close-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </div>
+        <div class="mood-faces">
+          <div class="mood-item" data-mood="energized"><div class="mood-icon-wrapper"><svg class="mood-icon" viewBox="0 0 36 36"><circle cx="18" cy="18" r="18" fill="currentColor"/><path d="M10 14 Q12 11 14 14" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M22 14 Q24 11 26 14" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M10 20 Q18 28 26 20 Z" fill="#ffffff"/></svg></div><span class="mood-label">Energized</span></div>
+          <div class="mood-item" data-mood="calm"><div class="mood-icon-wrapper"><svg class="mood-icon" viewBox="0 0 36 36"><circle cx="18" cy="18" r="18" fill="currentColor"/><circle cx="12" cy="14" r="2.5" fill="#ffffff"/><circle cx="24" cy="14" r="2.5" fill="#ffffff"/><path d="M12 22 Q18 26 24 22" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg></div><span class="mood-label">Calm</span></div>
+          <div class="mood-item" data-mood="okay"><div class="mood-icon-wrapper"><svg class="mood-icon" viewBox="0 0 36 36"><circle cx="18" cy="18" r="18" fill="currentColor"/><circle cx="12" cy="14" r="2" fill="#ffffff"/><circle cx="24" cy="14" r="2" fill="#ffffff"/><line x1="13" y1="22" x2="23" y2="22" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/></svg></div><span class="mood-label">Okay</span></div>
+          <div class="mood-item" data-mood="sad"><div class="mood-icon-wrapper"><svg class="mood-icon" viewBox="0 0 36 36"><circle cx="18" cy="18" r="18" fill="currentColor"/><circle cx="12" cy="14" r="2" fill="#ffffff"/><circle cx="24" cy="14" r="2" fill="#ffffff"/><path d="M12 24 Q18 20 24 24" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg></div><span class="mood-label">Sad</span></div>
+          <div class="mood-item" data-mood="stressed"><div class="mood-icon-wrapper"><svg class="mood-icon" viewBox="0 0 36 36"><circle cx="18" cy="18" r="18" fill="currentColor"/><path d="M10 12 L14 14" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/><path d="M26 12 L22 14" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/><circle cx="12" cy="16" r="2" fill="#ffffff"/><circle cx="24" cy="16" r="2" fill="#ffffff"/><path d="M12 25 Q18 21 24 25" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg></div><span class="mood-label">Stressed</span></div>
+        </div>
+        <div class="journal-section" id="journal-section">
+          <p class="journal-prompt">Would you like to add a note about how you're feeling? (Optional)</p>
+          <textarea class="journal-textarea" placeholder="Type your thoughts here..."></textarea>
+          <button class="journal-save-btn">Save Entry</button>
+        </div>
+      </div>
+
+      <!-- Appointment Card -->
+      <div class="appt-card">
+        <div class="appt-header"><span class="appt-status">Upcoming</span><span class="appt-id">#TH-9482</span></div>
+        <div class="therapist-info">
+          <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=150&q=80" class="therapist-avatar" alt="Dr. John" onerror="this.style.display='none'">
+          <div class="therapist-details"><h3>John .D</h3><p>Clinical Psychologist</p></div>
+        </div>
+        <div class="appt-time-info">
+          <div class="time-block"><span class="time-label">Date</span><span class="time-value">Tomorrow, Oct 24</span></div>
+          <div class="time-divider"></div>
+          <div class="time-block"><span class="time-label">Time</span><span class="time-value">04:00 PM</span>
+            <span class="time-countdown" style="font-size:10px;color:#387bd5;font-weight:600;margin-top:2px">Starts in 14h 32m</span></div>
+        </div>
+        <button class="join-btn" onclick="window.location.href='delivery-precheck.html'"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>Join Session</button>
+      </div>
+
+      <!-- Empty Appointment State (hidden by default) -->
+      <div class="no-appt-card" style="display:none;background:#ffffff;border-radius:20px;padding:32px 20px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,0.04);border:1px solid #f1f5f9">
+        <div style="width:56px;height:56px;background:#f8fafc;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        </div>
+        <h3 style="font-size:16px;font-weight:700;color:#1a293b;margin-bottom:8px">No upcoming sessions</h3>
+        <p style="font-size:13px;color:#64748b;margin-bottom:20px;line-height:1.5">Book a session with a certified therapist to start your wellness journey.</p>
+        <button style="background:#387bd5;color:#fff;border:none;border-radius:24px;padding:12px 28px;font-size:14px;font-weight:600;cursor:pointer" onclick="window.location.href='care.html'">Book a Session</button>
+      </div>
+
+      <!-- Recommended Section -->
+      <div class="section-header"><h2>Recommended for you</h2><a href="discover.html">See all</a></div>
+      <div class="content-row">
+        <div class="content-card">
+          <div class="content-img-box"><img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=400&q=80" alt="Yoga" onerror="this.style.display='none'"><div class="play-icon-overlay"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div></div>
+          <h4 class="content-card-title">Yoga for Desk Workers</h4><span class="content-card-meta">Video • 12 min</span>
+        </div>
+        <div class="content-card">
+          <div class="content-img-box"><img src="https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=400&q=80" alt="Article" onerror="this.style.display='none'"></div>
+          <h4 class="content-card-title">Understanding Your Anxiety Triggers</h4><span class="content-card-meta">Article • 5 min read</span>
+        </div>
+        <div class="content-card">
+          <div class="content-img-box"><img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=400&q=80" alt="Meditation" onerror="this.style.display='none'"><div class="play-icon-overlay"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div></div>
+          <h4 class="content-card-title">5-Minute Morning Meditation</h4><span class="content-card-meta">Audio • 5 min</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Nav Placeholder -->
+    <div id="bottom-nav-placeholder"></div>
+
+    <!-- Notification Overlay -->
+    <div class="notification-overlay" id="notificationOverlay">
+      <div class="notification-panel" onclick="event.stopPropagation()">
+        <div class="notif-header"><h3 class="notif-title">Notifications</h3><button class="notif-clear" id="clearNotifBtn">Clear</button></div>
+        <div class="notif-list" id="notifList">
+          <div class="notif-item unread"><div class="notif-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div><div class="notif-content"><div class="notif-text"><strong>Reminder:</strong> Your appointment with John is tomorrow at 04:00 PM.</div><div class="notif-time">2 hours ago</div></div></div>
+          <div class="notif-item unread"><div class="notif-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div><div class="notif-content"><div class="notif-text"><strong>Security:</strong> Your phone number was successfully verified.</div><div class="notif-time">5 hours ago</div></div></div>
+        </div>
+        <div class="notif-empty" id="notifEmpty">No new notifications.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Bottom Nav Injection
+    const bottomNavTemplate = `
+    <div class="more-menu-overlay" id="moreMenuOverlay" onclick="closeMoreMenu()"></div>
+    <nav class="bottom-nav" id="bottomNav">
+      <div class="nav-row nav-top-row">
+        <div class="nav-item" onclick="closeMoreMenu()"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"></line><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"></line><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"></line><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"></line></svg><span class="nav-label">Support</span></div>
+        <div class="nav-item" onclick="window.location.href='settings.html'"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg><span class="nav-label">Settings</span></div>
+        <div class="nav-item spacer"></div>
+        <div class="nav-item" onclick="window.location.href='messages.html'"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span class="nav-label">Messages</span></div>
+        <div class="nav-item" data-nav="profile" onclick="window.location.href='profile.html'"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><span class="nav-label">Profile</span></div>
+      </div>
+      <div class="nav-row nav-bottom-row">
+        <a href="home.html" class="nav-item active" data-nav="home"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 10.5V20a2 2 0 0 0 2 2h4v-6h6v6h4a2 2 0 0 0 2-2v-9.5"></path><path d="M2 12l10-9 10 9"></path></svg><span class="nav-label">Home</span></a>
+        <a href="care.html" class="nav-item" data-nav="care"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20.5l-8.5-8.5a5.5 5.5 0 0 1 7.78-7.78L12 5.28l.72-1.06a5.5 5.5 0 0 1 7.78 7.78L12 20.5z"></path><path d="M12 8.5v5m-2.5-2.5h5"></path></svg><span class="nav-label">Care</span></a>
+        <div class="nav-item spacer"></div>
+        <a href="discover.html" class="nav-item" data-nav="discover"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z"></path><path d="M3.6 9h16.8M3.6 15h16.8"></path><path d="M12 3c-2.5 3.5-4 7-4 9s1.5 5.5 4 9c2.5-3.5 4-7 4-9s-1.5-5.5-4-9z"></path></svg><span class="nav-label">Discover</span></a>
+        <div class="nav-item" data-nav="more" onclick="toggleMoreMenu()"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6h16M4 12h16M4 18h10"></path></svg><span class="nav-label">More</span></div>
+      </div>
+      <div class="nav-center-absolute"><button class="nav-center-btn" aria-label="Talk to Heali AI" onclick="openHealiChat()"><img src="../assets/Heali.png" alt="Heali Mascot" onerror="this.style.display='none'"></button></div>
+    </nav>`;
+
+    document.getElementById('bottom-nav-placeholder').innerHTML = bottomNavTemplate;
+
+    // Display user name
+    const userName = localStorage.getItem('userName');
+    if (userName) { document.getElementById('displayName').textContent = userName; document.getElementById('greetingText').textContent = 'Good morning, ' + userName; }
+
+    // User dropdown
+    document.getElementById('userProfileBtn').addEventListener('click', function(e) { e.stopPropagation(); document.getElementById('userDropdown').classList.toggle('open'); });
+    document.addEventListener('click', function() { document.getElementById('userDropdown').classList.remove('open'); });
+
+    // Notifications
+    document.getElementById('notifBtn').addEventListener('click', function() { document.getElementById('notificationOverlay').classList.add('open'); });
+    document.getElementById('notificationOverlay').addEventListener('click', function() { this.classList.remove('open'); });
+    document.getElementById('clearNotifBtn').addEventListener('click', function() { document.getElementById('notifList').innerHTML = ''; document.getElementById('notifEmpty').classList.add('show'); document.querySelector('.notification-dot').style.display = 'none'; this.style.display = 'none'; });
+
+    // Bottom nav expand
+    window.toggleMoreMenu = function() { const n = document.getElementById('bottomNav'), o = document.getElementById('moreMenuOverlay'); if (n.classList.contains('expanded')) { window.closeMoreMenu(); } else { n.classList.add('expanded'); o.classList.add('open'); } };
+    window.closeMoreMenu = function() { document.getElementById('bottomNav').classList.remove('expanded'); document.getElementById('moreMenuOverlay').classList.remove('open'); };
+
+    // Mood selection
+    const moodPrompts = { energized: "What's fueling your energy today?", calm: "What's bringing you peace today?", okay: "Anything on your mind?", sad: "What's making you feel down? Let it out.", stressed: "What's causing your stress? Writing it down might help." };
+    document.querySelectorAll('.mood-item').forEach(item => {
+      item.addEventListener('click', function() {
+        const wasSelected = this.classList.contains('selected');
+        document.querySelectorAll('.mood-item').forEach(i => i.classList.remove('selected'));
+        if (!wasSelected) { this.classList.add('selected'); const m = this.getAttribute('data-mood'); document.querySelector('.journal-prompt').textContent = moodPrompts[m] || "How are you feeling?"; document.getElementById('journal-section').classList.add('active'); }
+        else { document.getElementById('journal-section').classList.remove('active'); }
+      });
+    });
+    document.querySelector('.journal-save-btn').addEventListener('click', function() {
+      const selectedMood = document.querySelector('.mood-item.selected');
+      const journalText = document.querySelector('.journal-textarea').value.trim();
+      if (!selectedMood) { alert('Please select a mood first'); return; }
+      const moodData = {
+        mood: selectedMood.getAttribute('data-mood'),
+        journal: journalText,
+        date: new Date().toISOString()
+      };
+      localStorage.setItem('moodEntry', JSON.stringify(moodData));
+      this.textContent = 'Saved!'; this.style.backgroundColor = '#10b981';
+      setTimeout(() => { document.querySelector('.mood-card').style.display = 'none'; }, 1500);
+    });
+    document.querySelector('.mood-card .close-icon').addEventListener('click', () => { document.querySelector('.mood-card').style.display = 'none'; });
+
+    // Load dynamic data on page load
+    loadHomeData();
+
+    // Stagger animation for content cards
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, index) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.classList.add('visible');
+          }, index * 80);
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.content-card').forEach(card => observer.observe(card));
+
+    // Load home data from stored values
+    function loadHomeData() {
+      // Verify banner: hide if verified
+      const isVerified = localStorage.getItem('verifiedPhone') || localStorage.getItem('verifiedEmail');
+      if (isVerified) {
+        document.getElementById('verifyBanner').style.display = 'none';
+      }
+
+      // Greeting with focus areas
+      const focusAreas = localStorage.getItem('telehealings_focus');
+      const subtitle = document.getElementById('greetingSubtitle');
+      if (focusAreas && subtitle) {
+        try {
+          const areas = JSON.parse(focusAreas);
+          if (areas.length > 0) {
+            subtitle.textContent = "We're here to help you manage your " + areas[0] + " today. Take a moment for yourself.";
+          }
+        } catch(e) {}
+      }
+
+      // Stats from stored data
+      const appointments = localStorage.getItem('userAppointments');
+      if (appointments) {
+        try {
+          const appts = JSON.parse(appointments);
+          const completed = appts.filter(a => a.status === 'completed').length;
+          document.getElementById('statSessions').textContent = completed;
+          document.getElementById('statProgress').textContent = Math.min(100, completed * 10) + '%';
+          document.getElementById('statStreak').textContent = completed;
+        } catch(e) {}
+      }
+
+      // Heali insight based on mood history
+      const moodEntry = localStorage.getItem('moodEntry');
+      const insightText = document.getElementById('healiInsightText');
+      if (moodEntry && insightText) {
+        try {
+          const mood = JSON.parse(moodEntry);
+          const insights = {
+            energized: "<strong>Heali suggests:</strong> Great to see you're feeling energized! Channel that energy into a goal you've been working toward.",
+            calm: "<strong>Heali suggests:</strong> You're feeling calm today. This is a great time for reflection or journaling.",
+            okay: "<strong>Heali suggests:</strong> Feeling okay is perfectly fine. Consider a short mindfulness exercise to boost your mood.",
+            sad: "<strong>Heali suggests:</strong> I notice you're feeling sad. Would you like to talk to someone? Your therapist is here for you.",
+            stressed: "<strong>Heali suggests:</strong> You're feeling stressed. Try a 5-minute breathing exercise to help center yourself."
+          };
+          insightText.innerHTML = insights[mood.mood] || "<strong>Heali suggests:</strong> Take a moment for yourself today.";
+        } catch(e) {}
+      }
+    }
+  </script>
+
+  <!-- Heali Chat Modal -->
+  <div class="heali-chat-overlay" id="healiChatModal">
+    <div class="heali-chat-container" onclick="event.stopPropagation()">
+      <div class="heali-chat-header">
+        <div class="heali-chat-avatar"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2a2 2 0 0 1 2 2c0 1.1-.9 2-2 2a2 2 0 0 1-2-2c0-1.1.9-2 2-2z"></path><path d="M16 8h-8a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2z"></path><path d="M9 16v4a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-4"></path></svg></div>
+        <div class="heali-chat-title-block"><h3 class="heali-chat-title">Heali AI</h3><div class="heali-chat-status">Online</div></div>
+        <div class="heali-chat-close" onclick="closeHealiChat()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>
+      </div>
+      <div class="heali-chat-messages" id="healiChatMessages">
+        <div class="chat-bubble-wrapper ai"><div class="chat-bubble">Hi there! I'm Heali. How can I support your wellness journey today?</div><div class="chat-time">Just now</div></div>
+      </div>
+      <div class="heali-chat-input-area">
+        <textarea class="heali-chat-input" id="healiChatInput" placeholder="Message Heali..." rows="1"></textarea>
+        <button class="heali-chat-send" onclick="sendHealiMessage()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
+      </div>
+    </div>
+  </div>
+  <script>
+    function openHealiChat() { var m = document.getElementById('healiChatModal'); if(m) m.classList.add('open'); }
+    function closeHealiChat() { var m = document.getElementById('healiChatModal'); if(m) m.classList.remove('open'); }
+    function sendHealiMessage() {
+      var input = document.getElementById('healiChatInput');
+      var container = document.getElementById('healiChatMessages');
+      var text = input.value.trim();
+      if (!text) return;
+      container.insertAdjacentHTML('beforeend', '<div class="chat-bubble-wrapper user"><div class="chat-bubble">'+text.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div><div class="chat-time">Just now</div></div>');
+      input.value = ''; input.style.height = '50px';
+      container.scrollTop = container.scrollHeight;
+      var tid = 'typing-'+Date.now();
+      container.insertAdjacentHTML('beforeend', '<div class="chat-bubble-wrapper ai" id="'+tid+'"><div class="chat-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div></div>');
+      container.scrollTop = container.scrollHeight;
+      setTimeout(function(){
+        var el = document.getElementById(tid); if(el) el.remove();
+        var lower = text.toLowerCase();
+        var resp = "Thank you for sharing that with me. I'm here to support you. Is there anything specific you'd like to explore today?";
+        if(lower.includes('book')||lower.includes('appointment')) resp = "I can help with that! Head over to the <strong>Care</strong> tab to browse therapists and book a session.";
+        else if(lower.includes('sad')||lower.includes('stress')||lower.includes('anx')) resp = "I hear you. Would you like to try a quick 3-minute guided breathing exercise to help center yourself?";
+        else if(lower.includes('hi')||lower.includes('hello')) resp = "Hello! How are you feeling today?";
+        else if(lower.includes('thank')) resp = "You're very welcome! I'm always here if you need to talk.";
+        container.insertAdjacentHTML('beforeend', '<div class="chat-bubble-wrapper ai"><div class="chat-bubble">'+resp+'</div><div class="chat-time">Just now</div></div>');
+        container.scrollTop = container.scrollHeight;
+      }, 1500+Math.random()*1000);
+    }
+    document.getElementById('healiChatModal').addEventListener('click', closeHealiChat);
+    document.getElementById('healiChatInput').addEventListener('keydown', function(e) { if(e.key==='Enter'&&!e.shiftKey) { e.preventDefault(); sendHealiMessage(); } });
+  </script>
+</body>
+</html>

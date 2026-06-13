@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telehealings — Therapist Resources</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ─── Design Tokens (Original Palette) ─── */
+        :root {
+            --primary: #2a73d4;
+            --primary-hover: #2361b5;
+            --primary-dark: #0745b1;
+            --primary-subtitle: #144db9;
+            --bg-page: #e5e5e5;
+            --surface: #ffffff;
+            --text-main: #111111;
+            --text-muted: #4b4b4b;
+            --text-soft: #64748b;
+            --text-dark: #0f172a;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --radius: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --sidebar-width: 270px;
+            --sidebar-collapsed: 88px;
+        }
+
+        /* ─── Reset ─── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 16px; -webkit-font-smoothing: antialiased; height: 100%; }
+        body {
+            font-family: var(--font);
+            color: var(--text-main);
+            line-height: 1.5;
+            height: 100%;
+            display: flex;
+            overflow: hidden;
+            background: linear-gradient(110deg, #ffffff 0%, #eef5fc 35%, #7aaaf6 100%);
+        }
+        a { color: inherit; text-decoration: none; }
+        button { font-family: var(--font); cursor: pointer; border: none; outline: none; background: none; }
+        ul, li { list-style: none; }
+
+        /* ═══════════════════════════════════════════
+           SIDEBAR
+           ═══════════════════════════════════════════ */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100%;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(0,0,0,0.05);
+            background: var(--surface);
+            flex-shrink: 0;
+            position: relative;
+            transition: width 0.3s ease, padding 0.3s ease;
+            overflow: visible;
+            z-index: 100;
+        }
+
+        /* Brand */
+        .brand {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 30px;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+        .brand-left { display: flex; align-items: center; gap: 12px; }
+        .brand-logo { width: 36px; height: 36px; }
+        .brand-name-text { font-size: 20px; font-weight: 700; color: #000; }
+
+        /* Toggle */
+        .sidebar-toggle-btn {
+            color: var(--text-soft);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sidebar-toggle-btn:hover { background: var(--border-light); color: var(--text-main); }
+        .sidebar-toggle-btn svg { transition: transform 0.3s ease; }
+
+        /* Search */
+        .search-box { position: relative; margin-bottom: 20px; }
+        .search-box input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(42,115,212,0.1); }
+        .search-box svg {
+            position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+            width: 18px; height: 18px; color: var(--text-soft);
+        }
+
+        /* Nav */
+        .nav-menu {
+            display: flex; flex-direction: column; gap: 2px;
+            flex-grow: 1; overflow-y: auto; overflow-x: hidden; margin-bottom: 20px;
+        }
+        .nav-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 10px 16px; border-radius: var(--radius);
+            color: #475569; font-weight: 600; font-size: 15px;
+            transition: all 0.2s; white-space: nowrap;text-decoration:none;
+        }
+        .nav-item:hover { background: var(--border-light); color: var(--text-main); }
+        .nav-item.active { background: #1c52b8; color: #fff; }
+        .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+        .nav-item.active svg { color: #fff; }
+        .nav-text { overflow: hidden; }
+        .nav-separator{height:1px;background-color:var(--border);margin:2px 16px}
+        .badge {
+            margin-left: auto; background: #f04438; color: #fff;
+            font-size: 11px; padding: 2px 6px; border-radius: 10px; font-weight: 700;
+        }
+
+        /* User Profile */
+        .user-profile {
+            background: #fff; padding: 16px; border-radius: var(--radius-md);
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-top: auto;
+            border: 1px solid var(--border-light); cursor: pointer; position: relative; outline: none;
+        }
+        .avatar-wrap{position:relative;display:inline-block;margin-top:-45px;margin-bottom:10px}
+        .avatar-wrap img{width:75px;height:75px;border-radius:50%;object-fit:cover;border:4px solid #fff;display:block;margin:0}
+        .notification-indicator{position:absolute;top:0;right:0;width:18px;height:18px;border-radius:50%;background:#f04438;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff;z-index:10;transform:translate(30%,-30%)}
+
+        
+        .user-profile h4 { font-size: 14px; margin: 0 0 2px 0; color: var(--text-main); }
+        .user-profile p { font-size: 12px; color: var(--text-soft); margin: 0; }
+
+        /* Profile Dropdown */
+        .profile-dropdown {
+            display: none; position: absolute; bottom: calc(100% + 10px); left: 50%;
+            transform: translateX(-50%); width: 220px; background: #fff;
+            border-radius: var(--radius-md); box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid var(--border); flex-direction: column; padding: 8px 0; z-index: 1000;
+        }
+        .user-profile:focus .profile-dropdown,
+        .user-profile:focus-within .profile-dropdown { display: flex; }
+        .sidebar.collapsed .profile-dropdown {
+            left: 100%; bottom: 8px; transform: none; margin-left: 16px;
+        }
+        .dropdown-item {
+            display: flex; align-items: center; gap: 12px; padding: 10px 16px;
+            color: #475569; font-size: 14px; font-weight: 500; transition: all 0.2s;
+        }
+        .dropdown-item:hover { background: #f8fafc; color: var(--text-main); }
+        .dropdown-item svg { width: 16px; height: 16px; }
+        .dropdown-divider { height: 1px; background-color: var(--border-light); margin: 4px 0; }
+        .logout-item { color: #e11d48; }
+        .logout-item:hover { background: #fff1f2; color: #be123c; }
+
+        /* Collapsed State */
+        .sidebar.collapsed { width: var(--sidebar-collapsed); padding: 30px 10px; }
+        .sidebar.collapsed .nav-text,
+        .sidebar.collapsed .badge,
+        .sidebar.collapsed .user-profile h4,
+        .sidebar.collapsed .user-profile p { display: none; }
+        .sidebar.collapsed .brand { flex-direction: row !important; padding: 0 !important; justify-content: center !important; gap: 2px; }
+        .sidebar.collapsed .brand-left span { display: none; }
+        .sidebar.collapsed .sidebar-toggle-btn svg { transform: rotate(180deg); }
+        .sidebar.collapsed .search-box input { display: none; }
+        .sidebar.collapsed .search-box {
+            width: 40px; height: 40px; background: #f8fafc; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px auto; cursor: pointer;
+        }
+        .sidebar.collapsed .search-box svg { position: static; transform: none; }
+        .sidebar.collapsed .nav-item { padding: 12px; justify-content: center; }
+        .sidebar.collapsed .user-profile { padding: 10px; background: transparent; box-shadow: none; border: none; }
+        .sidebar.collapsed .user-profile img { margin-top: 0; margin-bottom: 0; width: 40px; height: 40px; border: none; box-shadow: none; }
+
+        /* ═══════════════════════════════════════════
+           MAIN CONTENT
+           ═══════════════════════════════════════════ */
+        .page-shell {
+            flex: 1; padding: 24px 32px; overflow-y: auto;
+            background: transparent; min-width: 0;
+        }
+        .content-wrapper {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-bottom: 40px;
+            transition: max-width 0.3s ease;
+        }
+        .sidebar:not(.collapsed) ~ .page-shell .content-wrapper {
+            max-width: 1100px;
+        }
+
+        /* Header */
+        .page-header {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            margin-bottom: 12px; padding-bottom: 0;
+        }
+        .header-tab {
+            font-size: 20px; font-weight: 700; color: #0f172a;
+            padding: 0 0 8px 0; position: relative;
+            border-bottom: 2px solid var(--border);
+        }
+        .header-tab::after {
+            content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
+            height: 3px; background: #0f172a; border-radius: 2px 2px 0 0;
+        }
+        .header-mascot { height: 48px; margin-bottom: -1px; }
+
+        /* Heali Insight Box */
+        .heali-insight {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .heali-insight-left {
+            flex-shrink: 0;
+        }
+        .heali-insight-left img {
+            width: 48px;
+            height: 48px;
+        }
+        .heali-insight-right {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .heali-insight-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #2a73d4;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .heali-insight-label svg { width: 16px; height: 16px; }
+        .heali-insight-text {
+            font-size: 14px;
+            font-style: italic;
+            color: #334155;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--surface); border-radius: var(--radius-lg); padding: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            display: flex; flex-direction: column;
+        }
+        .card-title { font-size: 16px; font-weight: 700; color: #0f172a; margin: 0 0 4px 0; }
+        .card-subtitle { font-size: 13px; color: var(--text-soft); margin: 0 0 20px 0; }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .tab-btn {
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-soft);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        .tab-count {
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--border-light);
+            color: var(--text-soft);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        .tab-btn.active .tab-count {
+            background: #eff6ff;
+            color: var(--primary);
+        }
+
+        /* Tab Contents */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Table Toolbar */
+        .table-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .table-search {
+            position: relative;
+            flex: 0 1 320px;
+        }
+        .table-search input {
+            width: 100%;
+            padding: 10px 12px 10px 38px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .table-search input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(42,115,212,0.1); }
+        .table-search svg {
+            position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+            width: 16px; height: 16px; color: var(--text-soft);
+        }
+        .toolbar-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Upload Button */
+        .btn-upload {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 18px;
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            background: var(--primary);
+            border: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .btn-upload:hover {
+            background: var(--primary-hover);
+        }
+        .btn-upload svg { width: 16px; height: 16px; }
+
+        /* ═══════════════════════════════════════════
+           RESOURCE CARDS GRID (My Library)
+           ═══════════════════════════════════════════ */
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .resource-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .resource-card:hover {
+            border-color: #93c5fd;
+            box-shadow: 0 4px 15px rgba(42,115,212,0.08);
+        }
+
+        .resource-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .resource-type-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .resource-type-icon svg { width: 20px; height: 20px; }
+        .resource-type-icon.pdf { background: #fef2f2; color: #dc2626; }
+        .resource-type-icon.video { background: #eff6ff; color: #2563eb; }
+        .resource-type-icon.audio { background: #f0fdf4; color: #16a34a; }
+        .resource-type-icon.doc { background: #fffbeb; color: #d97706; }
+        .resource-type-icon.image { background: #f5f3ff; color: #7c3aed; }
+        .resource-type-icon.link { background: #ecfeff; color: #0891b2; }
+
+        .resource-menu-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-soft);
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .resource-menu-btn:hover {
+            background: var(--border-light);
+            color: var(--text-main);
+        }
+        .resource-menu-btn svg { width: 16px; height: 16px; }
+
+        .resource-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #0f172a;
+            line-height: 1.4;
+        }
+
+        .resource-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .resource-category {
+            display: inline-flex;
+            align-self: flex-start;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--primary);
+            background: #eff6ff;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .resource-date {
+            font-size: 12px;
+            color: var(--text-soft);
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+        .resource-date svg { width: 14px; height: 14px; }
+
+        /* ═══════════════════════════════════════════
+           SHARED RESOURCES TABLE
+           ═══════════════════════════════════════════ */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table thead th {
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .data-table tbody td {
+            padding: 14px 12px;
+            font-size: 13px;
+            color: #334155;
+            border-bottom: 1px solid var(--border-light);
+            vertical-align: middle;
+        }
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .data-table tbody tr:hover td {
+            background: #f8fafc;
+        }
+
+        .shared-resource-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .shared-resource-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .shared-resource-icon svg { width: 18px; height: 18px; }
+        .shared-resource-icon.pdf { background: #fef2f2; color: #dc2626; }
+        .shared-resource-icon.video { background: #eff6ff; color: #2563eb; }
+        .shared-resource-icon.audio { background: #f0fdf4; color: #16a34a; }
+        .shared-resource-icon.doc { background: #fffbeb; color: #d97706; }
+        .shared-resource-icon.link { background: #ecfeff; color: #0891b2; }
+
+        .shared-resource-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .shared-resource-name {
+            font-weight: 600;
+            color: #0f172a;
+            font-size: 13px;
+        }
+        .shared-resource-type {
+            font-size: 11px;
+            color: var(--text-soft);
+        }
+
+        .shared-category-badge {
+            display: inline-flex;
+            font-size: 11px;
+            font-weight: 600;
+            color: #7c3aed;
+            background: #f5f3ff;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .shared-by-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .shared-by-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #e2e8f0;
+        }
+        .shared-by-name {
+            font-size: 13px;
+            color: #334155;
+        }
+
+        /* Action Buttons */
+        .action-btns {
+            display: flex;
+            gap: 6px;
+        }
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-soft);
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+            color: var(--text-main);
+        }
+        .action-btn.primary:hover {
+            background: #eff6ff;
+            border-color: #93c5fd;
+            color: var(--primary);
+        }
+        .action-btn svg { width: 14px; height: 14px; }
+
+        /* Compact Pagination */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-light);
+            margin-top: 8px;
+        }
+        .pagination-info {
+            font-size: 12px;
+            color: var(--text-soft);
+        }
+        .pagination-btns {
+            display: flex;
+            gap: 2px;
+        }
+        .page-btn {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .page-btn:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+        }
+        .page-btn.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        /* ═══════════════════════════════════════════
+           QUICK ACTIONS WIDGET
+           ═══════════════════════════════════════════ */
+        
+        
+        
+
+        
+        
+        
+        
+        
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .resource-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 768px) {
+            .resource-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     SIDEBAR
+     ═══════════════════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+    <div class="brand">
+        <div class="brand-left">
+            <img src="../assets/logo.png" alt="Telehealings" class="brand-logo">
+            <span class="nav-text brand-name-text">Telehealings</span>
+        </div>
+        <button class="sidebar-toggle-btn" id="sidebarToggle" title="Toggle Sidebar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+        </button>
+    </div>
+
+    <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" placeholder="Search">
+    </div>
+
+    <nav class="nav-menu">
+        <a href="dashboard.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span class="nav-text">Dashboard</span></a>
+        <a href="sessions.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="nav-text">Sessions</span></a>
+        <a href="clients.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-text">Clients</span></a>
+        <div class="nav-separator"></div>
+        <a href="calendar.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="nav-text">Calendar</span></a>
+        <a href="messages.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="nav-text">Messages</span><span class="badge">5</span></a>
+        <a href="resources.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span class="nav-text">Resources</span></a>
+        <a href="earnings.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span class="nav-text">Earnings</span></a>
+        <div class="nav-separator"></div>
+        <a href="tools.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg><span class="nav-text">Tools</span></a>
+    </nav>
+
+        <div class="user-profile" tabindex="0">
+        <div class="avatar-wrap">
+            <img src="../assets/user-profile.jpg" alt="Dr. Sarah Menon">
+            <div class="notification-indicator">3</div>
+        </div>
+        <h4>Dr. Sarah Menon</h4><p>Therapist</p>
+        <div class="profile-dropdown">
+            <a href="profile.html" class="dropdown-item">My Profile</a>
+            <div class="dropdown-divider"></div>
+            <a href="settings.html" class="dropdown-item">Settings</a>
+            <div class="dropdown-divider"></div>
+            <a href="index.html" class="dropdown-item logout-item">Logout</a>
+        </div>
+    </div>
+</aside>
+
+<!-- ═══════════════════════════════════════════
+     MAIN CONTENT
+     ═══════════════════════════════════════════ -->
+<div class="page-shell">
+    <div class="content-wrapper">
+
+        <!-- Header with Heali Mascot -->
+        <header class="page-header">
+            <div class="header-tab">Resources</div>
+            <img src="../assets/Heali.png" class="header-mascot" alt="Heali AI">
+        </header>
+
+        <!-- Heali Insight Box -->
+        <div class="heali-insight">
+            <div class="heali-insight-left">
+                <img src="../assets/Heali.png" alt="Heali">
+            </div>
+            <div class="heali-insight-right">
+                <div class="heali-insight-label">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/>
+                        <path d="M9 21h6"/>
+                    </svg>
+                    Heali says
+                </div>
+                <p class="heali-insight-text">You have 12 resources in your library. Consider sharing your anxiety management worksheet — it could help other therapists on the platform. New shared resources are available this week!</p>
+            </div>
+        </div>
+
+        <!-- Resources Card with Tabs -->
+        <section class="card">
+            <div class="card-title">Content Library</div>
+            <div class="card-subtitle">Manage and share your therapeutic resources</div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="my-library">
+                    My Library
+                    <span class="tab-count">6</span>
+                </button>
+                <button class="tab-btn" data-tab="shared">
+                    Shared Resources
+                    <span class="tab-count">5</span>
+                </button>
+            </div>
+
+            <!-- ═══ TAB: My Library ═══ -->
+            <div class="tab-content active" id="tab-my-library">
+                <!-- Toolbar -->
+                <div class="table-toolbar">
+                    <div class="table-search" style="flex: 1 1 100%; max-width: 400px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <input type="text" placeholder="Search resources..." id="myLibrarySearch">
+                    </div>
+                    <div class="toolbar-actions">
+                        <button class="btn-upload" id="uploadBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            Upload Resource
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Resource Cards Grid -->
+                <div class="resource-grid" id="resourceGrid">
+
+                    <!-- Card 1: PDF -->
+                    <div class="resource-card">
+                        <div class="resource-card-top">
+                            <div class="resource-type-icon pdf">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                    <polyline points="10 9 9 9 8 9"/>
+                                </svg>
+                            </div>
+                            <button class="resource-menu-btn" title="More options">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="resource-title">Anxiety Management Worksheet</div>
+                        <div class="resource-meta">
+                            <span class="resource-category">CBT</span>
+                            <span class="resource-date">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                Added Jun 10, 2026
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Video -->
+                    <div class="resource-card">
+                        <div class="resource-card-top">
+                            <div class="resource-type-icon video">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="23 7 16 12 23 17 23 7"/>
+                                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                                </svg>
+                            </div>
+                            <button class="resource-menu-btn" title="More options">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="resource-title">Guided Breathing Exercise</div>
+                        <div class="resource-meta">
+                            <span class="resource-category">Mindfulness</span>
+                            <span class="resource-date">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                Added Jun 8, 2026
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Audio -->
+                    <div class="resource-card">
+                        <div class="resource-card-top">
+                            <div class="resource-type-icon audio">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 18V5l12-2v13"/>
+                                    <circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+                                </svg>
+                            </div>
+                            <button class="resource-menu-btn" title="More options">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="resource-title">Sleep Meditation Audio</div>
+                        <div class="resource-meta">
+                            <span class="resource-category">Relaxation</span>
+                            <span class="resource-date">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                Added Jun 5, 2026
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Document -->
+                    <div class="resource-card">
+                        <div class="resource-card-top">
+                            <div class="resource-type-icon doc">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                </svg>
+                            </div>
+                            <button class="resource-menu-btn" title="More options">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="resource-title">Depression Screening Checklist</div>
+                        <div class="resource-meta">
+                            <span class="resource-category">Assessment</span>
+                            <span class="resource-date">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                Added May 28, 2026
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Card 5: Image -->
+                    <div class="resource-card">
+                        <div class="resource-card-top">
+                            <div class="resource-type-icon image">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                            </div>
+                            <button class="resource-menu-btn" title="More options">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="resource-title">Emotion Wheel Infographic</div>
+                        <div class="resource-meta">
+                            <span class="resource-category">Psychoeducation</span>
+                            <span class="resource-date">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                Added May 22, 2026
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Card 6: Link -->
+                    <div class="resource-card">
+                        <div class="resource-card-top">
+                            <div class="resource-type-icon link">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                                </svg>
+                            </div>
+                            <button class="resource-menu-btn" title="More options">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="resource-title">Stress Management Guide</div>
+                        <div class="resource-meta">
+                            <span class="resource-category">Self-Help</span>
+                            <span class="resource-date">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                Added May 15, 2026
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ═══ TAB: Shared Resources ═══ -->
+            <div class="tab-content" id="tab-shared">
+                <!-- Toolbar -->
+                <div class="table-toolbar">
+                    <div class="table-search" style="flex: 1 1 100%; max-width: 400px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <input type="text" placeholder="Search shared resources..." id="sharedSearch">
+                    </div>
+                    <div class="toolbar-actions">
+                        <button class="btn-upload" id="uploadSharedBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            Upload Resource
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Shared Resources Table -->
+                <table class="data-table" id="sharedTable">
+                    <thead>
+                        <tr>
+                            <th>Resource</th>
+                            <th>Category</th>
+                            <th>Shared By</th>
+                            <th>Date Shared</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="shared-resource-cell">
+                                    <div class="shared-resource-icon pdf">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14 2 14 8 20 8"/>
+                                            <line x1="16" y1="13" x2="8" y2="13"/>
+                                            <line x1="16" y1="17" x2="8" y2="17"/>
+                                            <polyline points="10 9 9 9 8 9"/>
+                                        </svg>
+                                    </div>
+                                    <div class="shared-resource-info">
+                                        <span class="shared-resource-name">DBT Skills Handout</span>
+                                        <span class="shared-resource-type">PDF Document</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="shared-category-badge">DBT</span></td>
+                            <td>
+                                <div class="shared-by-cell">
+                                    <img class="shared-by-avatar" src="../assets/user-profile.jpg" alt="Dr. Ananya Rao">
+                                    <span class="shared-by-name">Dr. Ananya Rao</span>
+                                </div>
+                            </td>
+                            <td>Jun 11, 2026</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="action-btn primary" title="Download">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                            <polyline points="7 10 12 15 17 10"/>
+                                            <line x1="12" y1="15" x2="12" y2="3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Preview">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Save to Library">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="shared-resource-cell">
+                                    <div class="shared-resource-icon video">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polygon points="23 7 16 12 23 17 23 7"/>
+                                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                                        </svg>
+                                    </div>
+                                    <div class="shared-resource-info">
+                                        <span class="shared-resource-name">Progressive Muscle Relaxation</span>
+                                        <span class="shared-resource-type">Video</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="shared-category-badge">Relaxation</span></td>
+                            <td>
+                                <div class="shared-by-cell">
+                                    <img class="shared-by-avatar" src="../assets/user-profile.jpg" alt="Dr. Vikram Nair">
+                                    <span class="shared-by-name">Dr. Vikram Nair</span>
+                                </div>
+                            </td>
+                            <td>Jun 9, 2026</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="action-btn primary" title="Download">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                            <polyline points="7 10 12 15 17 10"/>
+                                            <line x1="12" y1="15" x2="12" y2="3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Preview">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Save to Library">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="shared-resource-cell">
+                                    <div class="shared-resource-icon audio">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M9 18V5l12-2v13"/>
+                                            <circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+                                        </svg>
+                                    </div>
+                                    <div class="shared-resource-info">
+                                        <span class="shared-resource-name">Body Scan Meditation</span>
+                                        <span class="shared-resource-type">Audio</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="shared-category-badge">Mindfulness</span></td>
+                            <td>
+                                <div class="shared-by-cell">
+                                    <img class="shared-by-avatar" src="../assets/user-profile.jpg" alt="Dr. Meera Krishnan">
+                                    <span class="shared-by-name">Dr. Meera Krishnan</span>
+                                </div>
+                            </td>
+                            <td>Jun 7, 2026</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="action-btn primary" title="Download">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                            <polyline points="7 10 12 15 17 10"/>
+                                            <line x1="12" y1="15" x2="12" y2="3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Preview">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Save to Library">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="shared-resource-cell">
+                                    <div class="shared-resource-icon doc">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14 2 14 8 20 8"/>
+                                            <line x1="16" y1="13" x2="8" y2="13"/>
+                                            <line x1="16" y1="17" x2="8" y2="17"/>
+                                        </svg>
+                                    </div>
+                                    <div class="shared-resource-info">
+                                        <span class="shared-resource-name">Trauma-Informed Care Checklist</span>
+                                        <span class="shared-resource-type">Document</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="shared-category-badge">Trauma</span></td>
+                            <td>
+                                <div class="shared-by-cell">
+                                    <img class="shared-by-avatar" src="../assets/user-profile.jpg" alt="Dr. Arjun Pillai">
+                                    <span class="shared-by-name">Dr. Arjun Pillai</span>
+                                </div>
+                            </td>
+                            <td>Jun 4, 2026</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="action-btn primary" title="Download">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                            <polyline points="7 10 12 15 17 10"/>
+                                            <line x1="12" y1="15" x2="12" y2="3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Preview">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Save to Library">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="shared-resource-cell">
+                                    <div class="shared-resource-icon link">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                                        </svg>
+                                    </div>
+                                    <div class="shared-resource-info">
+                                        <span class="shared-resource-name">Burnout Prevention Toolkit</span>
+                                        <span class="shared-resource-type">External Link</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="shared-category-badge">Wellness</span></td>
+                            <td>
+                                <div class="shared-by-cell">
+                                    <img class="shared-by-avatar" src="../assets/user-profile.jpg" alt="Dr. Priya Sharma">
+                                    <span class="shared-by-name">Dr. Priya Sharma</span>
+                                </div>
+                            </td>
+                            <td>Jun 1, 2026</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="action-btn primary" title="Open Link">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                                            <polyline points="15 3 21 3 21 9"/>
+                                            <line x1="10" y1="14" x2="21" y2="3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Preview">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Save to Library">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <span class="pagination-info">Showing 1–5 of 5 shared resources</span>
+                    <div class="pagination-btns">
+                        <button class="page-btn">&#8249;</button>
+                        <button class="page-btn active">1</button>
+                        <button class="page-btn">&#8250;</button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     QUICK ACTIONS WIDGET
+     ═══════════════════════════════════════════ -->
+
+
+<script>
+    // Sidebar Toggle
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+        });
+    }
+
+    // Search Focus
+    const searchInput = document.querySelector('.search-box input');
+    const searchBox = document.querySelector('.search-box');
+    if (searchBox && searchInput) {
+        searchBox.addEventListener('click', () => {
+            if (sidebar.classList.contains('collapsed')) {
+                sidebar.classList.remove('collapsed');
+                setTimeout(() => searchInput.focus(), 300);
+            }
+        });
+    }
+
+    // Tab Switching
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = btn.getAttribute('data-tab');
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab-' + target).classList.add('active');
+        });
+    });
+
+    // Pagination button click
+    document.querySelectorAll('.page-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const parent = this.closest('.pagination-btns');
+            if (parent) {
+                parent.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            }
+        });
+    });
+
+    // Quick action menu items
+    
+        });
+    });
+
+    // Upload buttons
+    document.getElementById('uploadBtn').addEventListener('click', function() {
+        console.log('Upload resource clicked');
+    });
+    document.getElementById('uploadSharedBtn').addEventListener('click', function() {
+        console.log('Upload shared resource clicked');
+    });
+
+    // My Library search filter
+    document.getElementById('myLibrarySearch').addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        const cards = document.querySelectorAll('#resourceGrid .resource-card');
+        cards.forEach(card => {
+            const text = card.textContent.toLowerCase();
+            card.style.display = text.includes(query) ? '' : 'none';
+        });
+    });
+
+    // Shared Resources search filter
+    document.getElementById('sharedSearch').addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#sharedTable tbody tr');
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        });
+    });
+
+    // Action buttons
+    document.querySelectorAll('.action-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const title = this.getAttribute('title');
+            console.log('Action:', title);
+        });
+    });
+
+    // Resource card menu buttons
+    document.querySelectorAll('.resource-menu-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            console.log('Resource menu clicked');
+        });
+    });
+
+    // Resource card click
+    document.querySelectorAll('.resource-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const title = this.querySelector('.resource-title').textContent;
+            console.log('Resource card clicked:', title);
+        });
+    });
+</script>
+
+</body>
+</html>

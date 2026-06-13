@@ -1,0 +1,38 @@
+{
+  "name": "telehealings",
+  "private": true,
+  "version": "1.0.0",
+  "description": "TeleHealings — Telehealth Marketplace Platform",
+  "workspaces": [
+    "packages/*",
+    "shared",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "dev:admin": "turbo run dev --filter=web-admin",
+    "dev:therapist": "turbo run dev --filter=web-therapist",
+    "dev:mobile": "turbo run dev --filter=mobile",
+    "dev:backend": "turbo run dev --filter=backend",
+    "clean": "turbo run clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "eslint": "^9.17.0",
+    "prettier": "^3.4.2",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "expo-constants": "~17.0.8",
+    "expo-linking": "~7.0.5",
+    "react-native-web": "~0.19.13"
+  }
+}

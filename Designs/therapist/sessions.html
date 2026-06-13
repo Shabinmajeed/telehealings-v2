@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telehealings — Therapist Sessions</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ─── Design Tokens (Original Palette) ─── */
+        :root {
+            --primary: #2a73d4;
+            --primary-hover: #2361b5;
+            --primary-dark: #0745b1;
+            --primary-subtitle: #144db9;
+            --bg-page: #e5e5e5;
+            --surface: #ffffff;
+            --text-main: #111111;
+            --text-muted: #4b4b4b;
+            --text-soft: #64748b;
+            --text-dark: #0f172a;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --radius: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --sidebar-width: 270px;
+            --sidebar-collapsed: 88px;
+        }
+
+        /* ─── Reset ─── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 16px; -webkit-font-smoothing: antialiased; height: 100%; }
+        body {
+            font-family: var(--font);
+            color: var(--text-main);
+            line-height: 1.5;
+            height: 100%;
+            display: flex;
+            overflow: hidden;
+            background: linear-gradient(110deg, #ffffff 0%, #eef5fc 35%, #7aaaf6 100%);
+        }
+        a { color: inherit; text-decoration: none; }
+        button { font-family: var(--font); cursor: pointer; border: none; outline: none; background: none; }
+        ul, li { list-style: none; }
+
+        /* ═══════════════════════════════════════════
+           SIDEBAR
+           ═══════════════════════════════════════════ */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100%;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(0,0,0,0.05);
+            background: var(--surface);
+            flex-shrink: 0;
+            position: relative;
+            transition: width 0.3s ease, padding 0.3s ease;
+            overflow: visible;
+            z-index: 100;
+        }
+
+        /* Brand */
+        .brand {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 30px;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+        .brand-left { display: flex; align-items: center; gap: 12px; }
+        .brand-logo { width: 36px; height: 36px; }
+        .brand-name-text { font-size: 20px; font-weight: 700; color: #000; }
+
+        /* Toggle */
+        .sidebar-toggle-btn {
+            color: var(--text-soft);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sidebar-toggle-btn:hover { background: var(--border-light); color: var(--text-main); }
+        .sidebar-toggle-btn svg { transition: transform 0.3s ease; }
+
+        /* Search */
+        .search-box { position: relative; margin-bottom: 20px; }
+        .search-box input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(42,115,212,0.1); }
+        .search-box svg {
+            position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+            width: 18px; height: 18px; color: var(--text-soft);
+        }
+
+        /* Nav */
+        .nav-menu {
+            display: flex; flex-direction: column; gap: 2px;
+            flex-grow: 1; overflow-y: auto; overflow-x: hidden; margin-bottom: 20px;
+        }
+        .nav-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 10px 16px; border-radius: var(--radius);
+            color: #475569; font-weight: 600; font-size: 15px;
+            transition: all 0.2s; white-space: nowrap;text-decoration:none;
+        }
+        .nav-item:hover { background: var(--border-light); color: var(--text-main); }
+        .nav-item.active { background: #1c52b8; color: #fff; }
+        .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+        .nav-item.active svg { color: #fff; }
+        .nav-text { overflow: hidden; }
+        .nav-separator{height:1px;background-color:var(--border);margin:2px 16px}
+        .badge {
+            margin-left: auto; background: #f04438; color: #fff;
+            font-size: 11px; padding: 2px 6px; border-radius: 10px; font-weight: 700;
+        }
+
+        /* User Profile */
+        .user-profile {
+            background: #fff; padding: 16px; border-radius: var(--radius-md);
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-top: auto;
+            border: 1px solid var(--border-light); cursor: pointer; position: relative; outline: none;
+        }
+        .avatar-wrap{position:relative;display:inline-block;margin-top:-45px;margin-bottom:10px}
+        .avatar-wrap img{width:75px;height:75px;border-radius:50%;object-fit:cover;border:4px solid #fff;display:block;margin:0}
+        .notification-indicator{position:absolute;top:0;right:0;width:18px;height:18px;border-radius:50%;background:#f04438;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff;z-index:10;transform:translate(30%,-30%)}
+
+        
+        .user-profile h4 { font-size: 14px; margin: 0 0 2px 0; color: var(--text-main); }
+        .user-profile p { font-size: 12px; color: var(--text-soft); margin: 0; }
+
+        /* Profile Dropdown */
+        .profile-dropdown {
+            display: none; position: absolute; bottom: calc(100% + 10px); left: 50%;
+            transform: translateX(-50%); width: 220px; background: #fff;
+            border-radius: var(--radius-md); box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid var(--border); flex-direction: column; padding: 8px 0; z-index: 1000;
+        }
+        .user-profile:focus .profile-dropdown,
+        .user-profile:focus-within .profile-dropdown { display: flex; }
+        .sidebar.collapsed .profile-dropdown {
+            left: 100%; bottom: 8px; transform: none; margin-left: 16px;
+        }
+        .dropdown-item {
+            display: flex; align-items: center; gap: 12px; padding: 10px 16px;
+            color: #475569; font-size: 14px; font-weight: 500; transition: all 0.2s;
+        }
+        .dropdown-item:hover { background: #f8fafc; color: var(--text-main); }
+        .dropdown-item svg { width: 16px; height: 16px; }
+        .dropdown-divider { height: 1px; background-color: var(--border-light); margin: 4px 0; }
+        .logout-item { color: #e11d48; }
+        .logout-item:hover { background: #fff1f2; color: #be123c; }
+
+        /* Collapsed State */
+        .sidebar.collapsed { width: var(--sidebar-collapsed); padding: 30px 10px; }
+        .sidebar.collapsed .nav-text,
+        .sidebar.collapsed .badge,
+        .sidebar.collapsed .user-profile h4,
+        .sidebar.collapsed .user-profile p { display: none; }
+        .sidebar.collapsed .brand { flex-direction: row !important; padding: 0 !important; justify-content: center !important; gap: 2px; }
+        .sidebar.collapsed .brand-left span { display: none; }
+        .sidebar.collapsed .sidebar-toggle-btn svg { transform: rotate(180deg); }
+        .sidebar.collapsed .search-box input { display: none; }
+        .sidebar.collapsed .search-box {
+            width: 40px; height: 40px; background: #f8fafc; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px auto; cursor: pointer;
+        }
+        .sidebar.collapsed .search-box svg { position: static; transform: none; }
+        .sidebar.collapsed .nav-item { padding: 12px; justify-content: center; }
+        .sidebar.collapsed .user-profile { padding: 10px; background: transparent; box-shadow: none; border: none; }
+        .sidebar.collapsed .user-profile img { margin-top: 0; margin-bottom: 0; width: 40px; height: 40px; border: none; box-shadow: none; }
+
+        /* ═══════════════════════════════════════════
+           MAIN CONTENT
+           ═══════════════════════════════════════════ */
+        .page-shell {
+            flex: 1; padding: 24px 32px; overflow-y: auto;
+            background: transparent; min-width: 0;
+        }
+        .content-wrapper {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-bottom: 40px;
+            transition: max-width 0.3s ease;
+        }
+        .sidebar:not(.collapsed) ~ .page-shell .content-wrapper {
+            max-width: 1100px;
+        }
+
+        /* Header */
+        .page-header {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            margin-bottom: 12px; padding-bottom: 0;
+        }
+        .header-tab {
+            font-size: 20px; font-weight: 700; color: #0f172a;
+            padding: 0 0 8px 0; position: relative;
+            border-bottom: 2px solid var(--border);
+        }
+        .header-tab::after {
+            content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
+            height: 3px; background: #0f172a; border-radius: 2px 2px 0 0;
+        }
+        .header-mascot { height: 48px; margin-bottom: -1px; }
+
+        /* Heali Insight Box */
+        .heali-insight {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .heali-insight-left {
+            flex-shrink: 0;
+        }
+        .heali-insight-left img {
+            width: 48px;
+            height: 48px;
+        }
+        .heali-insight-right {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .heali-insight-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #2a73d4;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .heali-insight-label svg { width: 16px; height: 16px; }
+        .heali-insight-text {
+            font-size: 14px;
+            font-style: italic;
+            color: #334155;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--surface); border-radius: var(--radius-lg); padding: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            display: flex; flex-direction: column;
+        }
+        .card-title { font-size: 16px; font-weight: 700; color: #0f172a; margin: 0 0 4px 0; }
+        .card-subtitle { font-size: 13px; color: var(--text-soft); margin: 0 0 20px 0; }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .tab-btn {
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-soft);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        .tab-count {
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--border-light);
+            color: var(--text-soft);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        .tab-btn.active .tab-count {
+            background: #eff6ff;
+            color: var(--primary);
+        }
+
+        /* Table Toolbar */
+        .table-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 12px;
+        }
+        .table-search {
+            position: relative;
+            flex: 0 1 320px;
+        }
+        .table-search input {
+            width: 100%;
+            padding: 10px 12px 10px 38px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .table-search input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(42,115,212,0.1); }
+        .table-search svg {
+            position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+            width: 16px; height: 16px; color: var(--text-soft);
+        }
+        .toolbar-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-export {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            background: var(--surface);
+            transition: all 0.2s;
+        }
+        .btn-export:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+        }
+        .btn-export svg { width: 16px; height: 16px; }
+
+        /* Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table thead th {
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .data-table tbody td {
+            padding: 12px;
+            font-size: 13px;
+            color: #334155;
+            border-bottom: 1px solid var(--border-light);
+            vertical-align: middle;
+        }
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .data-table tbody tr:hover td {
+            background: #f8fafc;
+        }
+        .client-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .client-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #e2e8f0;
+        }
+        .client-name {
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .status-badge .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+        .status-badge.upcoming {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+        .status-badge.upcoming .dot {
+            background: #2563eb;
+        }
+        .status-badge.ongoing {
+            background: #fffbeb;
+            color: #d97706;
+        }
+        .status-badge.ongoing .dot {
+            background: #f59e0b;
+        }
+        .status-badge.completed {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+        .status-badge.completed .dot {
+            background: #22c55e;
+        }
+
+        /* Action Buttons */
+        .action-btns {
+            display: flex;
+            gap: 6px;
+        }
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-soft);
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+            color: var(--text-main);
+        }
+        .action-btn.primary:hover {
+            background: #eff6ff;
+            border-color: #93c5fd;
+            color: var(--primary);
+        }
+        .action-btn svg { width: 14px; height: 14px; }
+
+        /* Compact Pagination */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-light);
+            margin-top: 8px;
+        }
+        .pagination-info {
+            font-size: 12px;
+            color: var(--text-soft);
+        }
+        .pagination-btns {
+            display: flex;
+            gap: 2px;
+        }
+        .page-btn {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .page-btn:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+        }
+        .page-btn.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        
+        
+        
+        
+
+        
+        
+        
+        
+        
+
+        /* Tab content */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     SIDEBAR
+     ═══════════════════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+    <div class="brand">
+        <div class="brand-left">
+            <img src="../assets/logo.png" alt="Telehealings" class="brand-logo">
+            <span class="nav-text brand-name-text">Telehealings</span>
+        </div>
+        <button class="sidebar-toggle-btn" id="sidebarToggle" title="Toggle Sidebar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+        </button>
+    </div>
+
+    <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" placeholder="Search">
+    </div>
+
+    <nav class="nav-menu">
+        <a href="dashboard.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span class="nav-text">Dashboard</span></a>
+        <a href="sessions.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="nav-text">Sessions</span></a>
+        <a href="clients.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-text">Clients</span></a>
+        <div class="nav-separator"></div>
+        <a href="calendar.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="nav-text">Calendar</span></a>
+        <a href="messages.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="nav-text">Messages</span><span class="badge">5</span></a>
+        <a href="resources.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span class="nav-text">Resources</span></a>
+        <a href="earnings.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span class="nav-text">Earnings</span></a>
+        <div class="nav-separator"></div>
+        <a href="tools.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg><span class="nav-text">Tools</span></a>
+    </nav>
+
+        <div class="user-profile" tabindex="0">
+        <div class="avatar-wrap">
+            <img src="../assets/user-profile.jpg" alt="Dr. Sarah Menon">
+            <div class="notification-indicator">3</div>
+        </div>
+        <h4>Dr. Sarah Menon</h4><p>Therapist</p>
+        <div class="profile-dropdown">
+            <a href="profile.html" class="dropdown-item">My Profile</a>
+            <div class="dropdown-divider"></div>
+            <a href="settings.html" class="dropdown-item">Settings</a>
+            <div class="dropdown-divider"></div>
+            <a href="index.html" class="dropdown-item logout-item">Logout</a>
+        </div>
+    </div>
+</aside>
+
+<!-- ═══════════════════════════════════════════
+     MAIN CONTENT
+     ═══════════════════════════════════════════ -->
+<div class="page-shell">
+    <div class="content-wrapper">
+
+        <!-- Header with Heali Mascot -->
+        <header class="page-header">
+            <div class="header-tab">Sessions</div>
+            <img src="../assets/Heali.png" class="header-mascot" alt="Heali AI">
+        </header>
+
+        <!-- Heali Insight Box -->
+        <div class="heali-insight">
+            <div class="heali-insight-left">
+                <img src="../assets/Heali.png" alt="Heali">
+            </div>
+            <div class="heali-insight-right">
+                <div class="heali-insight-label">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/>
+                        <path d="M9 21h6"/>
+                    </svg>
+                    Heali says
+                </div>
+                <p class="heali-insight-text">You have 5 upcoming sessions this week. Your 2:00 PM session with Anjali Krishnan is coming up in 30 minutes — don't forget to review her progress notes beforehand!</p>
+            </div>
+        </div>
+
+        <!-- Sessions Card -->
+        <section class="card">
+            <h2 class="card-title">All Sessions</h2>
+            <p class="card-subtitle">Manage and track your therapy sessions</p>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="upcoming">
+                    Upcoming
+                    <span class="tab-count">5</span>
+                </button>
+                <button class="tab-btn" data-tab="completed">
+                    Completed
+                    <span class="tab-count">5</span>
+                </button>
+            </div>
+
+            <!-- Upcoming Tab -->
+            <div class="tab-content active" id="tab-upcoming">
+                <!-- Toolbar -->
+                <div class="table-toolbar">
+                    <div class="table-search">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <input type="text" placeholder="Search sessions..." id="upcomingSearch">
+                    </div>
+                    <div class="toolbar-actions">
+                        <button class="btn-export" id="exportUpcoming">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Export CSV
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <table class="data-table" id="upcomingTable">
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Date &amp; Time</th>
+                            <th>Type</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="client-cell">
+                                    <img class="client-avatar" src="../assets/user-profile.jpg" alt="Priya Sharma">
+                                    <span class="client-name">Priya Sharma</span>
+                                </div>
+                            </td>
+                            <td>Jun 13, 2026<br><span style="font-size:12px;color:#94a3b8;">10:00 AM</td>
+                            <td>Video Call</td>
+                            <td>45 min</td>
+                            <td><span class="status-badge upcoming"><span class="dot"></span>Upcoming</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="action-btn primary" title="Join Session">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polygon points="5 3 19 12 5 21 5 3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="View Details">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Reschedule">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                                            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="client-cell">
+                                    <img class="client-avatar" src="../assets/user-profile.jpg" alt="Rahul Nair">
+                                    <span class="client-name">Rahul Nair</span>
+                                </div>
+                            </td>
+                            <td>Jun 13, 2026<br><span style="font-size:12px;color:#94a3b8;">11:30 AM</span></td>
+                            <td>Audio Call</td>
+                            <td>30 min</td>
+                            <td><span class="status-badge ongoing"><span class="dot"></span>Ongoing</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="action-btn primary" title="Join Session">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polygon points="5 3 19 12 5 21 5 3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="View Details">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Reschedule">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                                            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="client-cell">
+                                    <img class="client-avatar" src="../assets/user-profile.jpg" alt="Anjali Krishnan">
+                                    <span class="client-name">Anjali Krishnan</span>
+                                </div>
+                            </td>
+                            <td>Jun 13, 2026<br><span style="font-size:12px;color:#94a3b8;">02:00 PM</span></td>
+                            <td>Chat</td>
+                            <td>30 min</td>
+                            <td><span class="status-badge upcoming"><span class="dot"></span>Upcoming</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="action-btn primary" title="Join Session">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polygon points="5 3 19 12 5 21 5 3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="View Details">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Reschedule">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                                            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="client-cell">
+                                    <img class="client-avatar" src="../assets/user-profile.jpg" alt="Vikram Das">
+                                    <span class="client-name">Vikram Das</span>
+                                </div>
+                            </td>
+                            <td>Jun 14, 2026<br><span style="font-size:12px;color:#94a3b8;">09:00 AM</span></td>
+                            <td>Video Call</td>
+                            <td>60 min</td>
+                            <td><span class="status-badge upcoming"><span class="dot"></span>Upcoming</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="action-btn primary" title="Join Session">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polygon points="5 3 19 12 5 21 5 3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="View Details">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Reschedule">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                                            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="client-cell">
+                                    <img class="client-avatar" src="../assets/user-profile.jpg" alt="Meera Patel">
+                                    <span class="client-name">Meera Patel</span>
+                                </div>
+                            </td>
+                            <td>Jun 14, 2026<br><span style="font-size:12px;color:#94a3b8;">03:00 PM</span></td>
+                            <td>In-Person</td>
+                            <td>50 min</td>
+                            <td><span class="status-badge upcoming"><span class="dot"></span>Upcoming</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="action-btn primary" title="View Location">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                            <circle cx="12" cy="10" r="3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="View Details">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Reschedule">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                                            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <span class="pagination-info">Showing 1–5 of 5 sessions</span>
+                    <div class="pagination-btns">
+                        <button class="page-btn">&#8249;</button>
+                        <button class="page-btn active">1</button>
+                        <button class="page-btn">&#8250;</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completed Tab -->
+            <div class="tab-content" id="tab-completed">
+                <!-- Toolbar -->
+                <div class="table-toolbar">
+                    <div class="table-search">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <input type="text" placeholder="Search sessions..." id="completedSearch">
+                    </div>
+                    <div class="toolbar-actions">
+                        <button class="btn-export" id="exportCompleted">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Export CSV
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <table class="data-table" id="completedTable">
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Date &amp; Time</th>
+                            <th>Type</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="client-cell">
+                                    <img class="client-avatar" src="../assets/user-profile.jpg" alt="Karthik Rajan">
+                                    <span class="client-name">Karthik Rajan</span>
+                                </div>
+                            </td>
+                            <td>Jun 12, 2026<br><span style="font-size:12px;color:#94a3b8;">10:00 AM</span></td>
+                            <td>Video Call</td>
+                            <td>45 min</td>
+                            <td><span class="status-badge completed"><span class="dot"></span>Completed</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="action-btn" title="View Summary">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>
+                                            <line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="View Details">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Add Notes">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="client-cell">
+                                    <img class="client-avatar" src="../assets/user-profile.jpg" alt="Deepa Menon">
+                                    <span class="client-name">Deepa Menon</span>
+                                </div>
+                            </td>
+                            <td>Jun 12, 2026<br><span style="font-size:12px;color:#94a3b8;">11:30 AM</span></td>
+                            <td>Audio Call</td>
+                            <td>30 min</td>
+                            <td><span class="status-badge completed"><span class="dot"></span>Completed</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="action-btn" title="View Summary">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>
+                                            <line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="View Details">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Add Notes">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="client-cell">
+                                    <img class="client-avatar" src="../assets/user-profile.jpg" alt="Arjun Pillai">
+                                    <span class="client-name">Arjun Pillai</span>
+                                </div>
+                            </td>
+                            <td>Jun 11, 2026<br><span style="font-size:12px;color:#94a3b8;">03:00 PM</span></td>
+                            <td>Video Call</td>
+                            <td>60 min</td>
+                            <td><span class="status-badge completed"><span class="dot"></span>Completed</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="action-btn" title="View Summary">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>
+                                            <line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="View Details">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Add Notes">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="client-cell">
+                                    <img class="client-avatar" src="../assets/user-profile.jpg" alt="Lakshmi Iyer">
+                                    <span class="client-name">Lakshmi Iyer</span>
+                                </div>
+                            </td>
+                            <td>Jun 11, 2026<br><span style="font-size:12px;color:#94a3b8;">05:00 PM</span></td>
+                            <td>Chat</td>
+                            <td>30 min</td>
+                            <td><span class="status-badge completed"><span class="dot"></span>Completed</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="action-btn" title="View Summary">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>
+                                            <line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="View Details">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Add Notes">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="client-cell">
+                                    <img class="client-avatar" src="../assets/user-profile.jpg" alt="Sanjay Gupta">
+                                    <span class="client-name">Sanjay Gupta</span>
+                                </div>
+                            </td>
+                            <td>Jun 10, 2026<br><span style="font-size:12px;color:#94a3b8;">02:00 PM</span></td>
+                            <td>In-Person</td>
+                            <td>50 min</td>
+                            <td><span class="status-badge completed"><span class="dot"></span>Completed</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="action-btn" title="View Summary">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>
+                                            <line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="View Details">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Add Notes">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <span class="pagination-info">Showing 1–5 of 5 sessions</span>
+                    <div class="pagination-btns">
+                        <button class="page-btn">&#8249;</button>
+                        <button class="page-btn active">1</button>
+                        <button class="page-btn">&#8250;</button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     QUICK ACTIONS WIDGET
+     ═══════════════════════════════════════════ -->
+
+
+<script>
+    // Sidebar Toggle
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+        });
+    }
+
+    // Search Focus
+    const searchInput = document.querySelector('.search-box input');
+    const searchBox = document.querySelector('.search-box');
+    if (searchBox && searchInput) {
+        searchBox.addEventListener('click', () => {
+            if (sidebar.classList.contains('collapsed')) {
+                sidebar.classList.remove('collapsed');
+                setTimeout(() => searchInput.focus(), 300);
+            }
+        });
+    }
+
+    // Tab Switching
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = btn.getAttribute('data-tab');
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab-' + target).classList.add('active');
+        });
+    });
+
+    // Pagination button click
+    document.querySelectorAll('.page-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const parent = this.closest('.pagination-btns');
+            if (parent) {
+                parent.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            }
+        });
+    });
+
+    // Quick action menu items
+    
+        });
+    });
+
+    // Export CSV buttons
+    document.getElementById('exportUpcoming').addEventListener('click', function() {
+        console.log('Exporting upcoming sessions to CSV...');
+    });
+    document.getElementById('exportCompleted').addEventListener('click', function() {
+        console.log('Exporting completed sessions to CSV...');
+    });
+
+    // Action buttons
+    document.querySelectorAll('.action-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const title = this.getAttribute('title');
+            console.log('Action:', title);
+        });
+    });
+
+    // Table search filter (upcoming)
+    document.getElementById('upcomingSearch').addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#upcomingTable tbody tr');
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        });
+    });
+
+    // Table search filter (completed)
+    document.getElementById('completedSearch').addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#completedTable tbody tr');
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        });
+    });
+</script>
+
+</body>
+</html>

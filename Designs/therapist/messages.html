@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telehealings — Therapist Messages</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ─── Design Tokens (Original Palette) ─── */
+        :root {
+            --primary: #2a73d4;
+            --primary-hover: #2361b5;
+            --primary-dark: #0745b1;
+            --primary-subtitle: #144db9;
+            --bg-page: #e5e5e5;
+            --surface: #ffffff;
+            --text-main: #111111;
+            --text-muted: #4b4b4b;
+            --text-soft: #64748b;
+            --text-dark: #0f172a;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --radius: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --sidebar-width: 270px;
+            --sidebar-collapsed: 88px;
+        }
+
+        /* ─── Reset ─── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 16px; -webkit-font-smoothing: antialiased; height: 100%; }
+        body {
+            font-family: var(--font);
+            color: var(--text-main);
+            line-height: 1.5;
+            height: 100%;
+            display: flex;
+            overflow: hidden;
+            background: linear-gradient(110deg, #ffffff 0%, #eef5fc 35%, #7aaaf6 100%);
+        }
+        a { color: inherit; text-decoration: none; }
+        button { font-family: var(--font); cursor: pointer; border: none; outline: none; background: none; }
+        ul, li { list-style: none; }
+
+        /* ═══════════════════════════════════════════
+           SIDEBAR
+           ═══════════════════════════════════════════ */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100%;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(0,0,0,0.05);
+            background: var(--surface);
+            flex-shrink: 0;
+            position: relative;
+            transition: width 0.3s ease, padding 0.3s ease;
+            overflow: visible;
+            z-index: 100;
+        }
+
+        /* Brand */
+        .brand {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 30px;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+        .brand-left { display: flex; align-items: center; gap: 12px; }
+        .brand-logo { width: 36px; height: 36px; }
+        .brand-name-text { font-size: 20px; font-weight: 700; color: #000; }
+
+        /* Toggle */
+        .sidebar-toggle-btn {
+            color: var(--text-soft);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sidebar-toggle-btn:hover { background: var(--border-light); color: var(--text-main); }
+        .sidebar-toggle-btn svg { transition: transform 0.3s ease; }
+
+        /* Search */
+        .search-box { position: relative; margin-bottom: 20px; }
+        .search-box input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(42,115,212,0.1); }
+        .search-box svg {
+            position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+            width: 18px; height: 18px; color: var(--text-soft);
+        }
+
+        /* Nav */
+        .nav-menu {
+            display: flex; flex-direction: column; gap: 2px;
+            flex-grow: 1; overflow-y: auto; overflow-x: hidden; margin-bottom: 20px;
+        }
+        .nav-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 10px 16px; border-radius: var(--radius);
+            color: #475569; font-weight: 600; font-size: 15px;
+            transition: all 0.2s; white-space: nowrap;text-decoration:none;
+        }
+        .nav-item:hover { background: var(--border-light); color: var(--text-main); }
+        .nav-item.active { background: #1c52b8; color: #fff; }
+        .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+        .nav-item.active svg { color: #fff; }
+        .nav-text { overflow: hidden; }
+        .nav-separator{height:1px;background-color:var(--border);margin:2px 16px}
+        .badge {
+            margin-left: auto; background: #f04438; color: #fff;
+            font-size: 11px; padding: 2px 6px; border-radius: 10px; font-weight: 700;
+        }
+
+        /* User Profile */
+        .user-profile {
+            background: #fff; padding: 16px; border-radius: var(--radius-md);
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-top: auto;
+            border: 1px solid var(--border-light); cursor: pointer; position: relative; outline: none;
+        }
+        .avatar-wrap{position:relative;display:inline-block;margin-top:-45px;margin-bottom:10px}
+        .avatar-wrap img{width:75px;height:75px;border-radius:50%;object-fit:cover;border:4px solid #fff;display:block;margin:0}
+        .notification-indicator{position:absolute;top:0;right:0;width:18px;height:18px;border-radius:50%;background:#f04438;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff;z-index:10;transform:translate(30%,-30%)}
+
+        
+        .user-profile h4 { font-size: 14px; margin: 0 0 2px 0; color: var(--text-main); }
+        .user-profile p { font-size: 12px; color: var(--text-soft); margin: 0; }
+
+        /* Profile Dropdown */
+        .profile-dropdown {
+            display: none; position: absolute; bottom: calc(100% + 10px); left: 50%;
+            transform: translateX(-50%); width: 220px; background: #fff;
+            border-radius: var(--radius-md); box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid var(--border); flex-direction: column; padding: 8px 0; z-index: 1000;
+        }
+        .user-profile:focus .profile-dropdown,
+        .user-profile:focus-within .profile-dropdown { display: flex; }
+        .sidebar.collapsed .profile-dropdown {
+            left: 100%; bottom: 8px; transform: none; margin-left: 16px;
+        }
+        .dropdown-item {
+            display: flex; align-items: center; gap: 12px; padding: 10px 16px;
+            color: #475569; font-size: 14px; font-weight: 500; transition: all 0.2s;
+        }
+        .dropdown-item:hover { background: #f8fafc; color: var(--text-main); }
+        .dropdown-item svg { width: 16px; height: 16px; }
+        .dropdown-divider { height: 1px; background-color: var(--border-light); margin: 4px 0; }
+        .logout-item { color: #e11d48; }
+        .logout-item:hover { background: #fff1f2; color: #be123c; }
+
+        /* Collapsed State */
+        .sidebar.collapsed { width: var(--sidebar-collapsed); padding: 30px 10px; }
+        .sidebar.collapsed .nav-text,
+        .sidebar.collapsed .badge,
+        .sidebar.collapsed .user-profile h4,
+        .sidebar.collapsed .user-profile p { display: none; }
+        .sidebar.collapsed .brand { flex-direction: row !important; padding: 0 !important; justify-content: center !important; gap: 2px; }
+        .sidebar.collapsed .brand-left span { display: none; }
+        .sidebar.collapsed .sidebar-toggle-btn svg { transform: rotate(180deg); }
+        .sidebar.collapsed .search-box input { display: none; }
+        .sidebar.collapsed .search-box {
+            width: 40px; height: 40px; background: #f8fafc; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px auto; cursor: pointer;
+        }
+        .sidebar.collapsed .search-box svg { position: static; transform: none; }
+        .sidebar.collapsed .nav-item { padding: 12px; justify-content: center; }
+        .sidebar.collapsed .user-profile { padding: 10px; background: transparent; box-shadow: none; border: none; }
+        .sidebar.collapsed .user-profile img { margin-top: 0; margin-bottom: 0; width: 40px; height: 40px; border: none; box-shadow: none; }
+
+        /* ═══════════════════════════════════════════
+           MAIN CONTENT
+           ═══════════════════════════════════════════ */
+        .page-shell {
+            flex: 1; padding: 24px 32px; overflow-y: auto;
+            background: transparent; min-width: 0;
+        }
+        .content-wrapper {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-bottom: 40px;
+            transition: max-width 0.3s ease;
+        }
+        .sidebar:not(.collapsed) ~ .page-shell .content-wrapper {
+            max-width: 1100px;
+        }
+
+        /* Header */
+        .page-header {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            margin-bottom: 12px; padding-bottom: 0;
+        }
+        .header-tab {
+            font-size: 20px; font-weight: 700; color: #0f172a;
+            padding: 0 0 8px 0; position: relative;
+            border-bottom: 2px solid var(--border);
+        }
+        .header-tab::after {
+            content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
+            height: 3px; background: #0f172a; border-radius: 2px 2px 0 0;
+        }
+        .header-mascot { height: 48px; margin-bottom: -1px; }
+
+        /* ═══════════════════════════════════════════
+           MESSAGES LAYOUT (Split Pane)
+           ═══════════════════════════════════════════ */
+        .messages-layout {
+            display: flex;
+            gap: 0;
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            overflow: hidden;
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* ─── Conversation List (Left Pane) ─── */
+        .conv-list {
+            width: 340px;
+            flex-shrink: 0;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+        }
+        .conv-list-header {
+            padding: 16px 16px 12px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .conv-list-header h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+        .conv-list-header .conv-count {
+            font-size: 12px;
+            color: var(--text-soft);
+            background: var(--border-light);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        .conv-search {
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .conv-search input {
+            width: 100%;
+            padding: 8px 12px 8px 34px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .conv-search input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(42,115,212,0.1); }
+        .conv-search {
+            position: relative;
+        }
+        .conv-search svg {
+            position: absolute;
+            left: 26px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            color: var(--text-soft);
+        }
+        .conv-items {
+            flex: 1;
+            overflow-y: auto;
+        }
+        .conv-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: background 0.15s;
+            border-bottom: 1px solid var(--border-light);
+            position: relative;
+        }
+        .conv-item:last-child {
+            border-bottom: none;
+        }
+        .conv-item:hover {
+            background: #f8fafc;
+        }
+        .conv-item.active {
+            background: #eff6ff;
+            border-left: 3px solid var(--primary);
+            padding-left: 13px;
+        }
+        .conv-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #e2e8f0;
+            flex-shrink: 0;
+        }
+        .conv-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .conv-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3px;
+        }
+        .conv-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+        .conv-time {
+            font-size: 11px;
+            color: #94a3b8;
+            flex-shrink: 0;
+        }
+        .conv-preview {
+            font-size: 12px;
+            color: var(--text-soft);
+            white-space: nowrap;text-decoration:none;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .conv-badge {
+            background: #f04438;
+            color: #fff;
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-weight: 700;
+            flex-shrink: 0;
+            min-width: 18px;
+            text-align: center;
+        }
+        .conv-item.active .conv-name {
+            color: var(--primary-dark);
+        }
+
+        /* ─── Chat Window (Right Pane) ─── */
+        .chat-window {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            background: #fafbfc;
+        }
+
+        /* Chat Header */
+        .chat-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .chat-header-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #e2e8f0;
+            flex-shrink: 0;
+        }
+        .chat-header-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .chat-header-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+        .chat-header-status {
+            font-size: 11px;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+        .chat-header-status .online-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--success);
+            display: inline-block;
+        }
+        .chat-header-actions {
+            display: flex;
+            gap: 6px;
+        }
+        .chat-action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-soft);
+            transition: all 0.2s;
+        }
+        .chat-action-btn:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+            color: var(--text-main);
+        }
+        .chat-action-btn svg { width: 16px; height: 16px; }
+
+        /* Chat Messages Area */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Date Separator */
+        .date-separator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 4px 0;
+        }
+        .date-separator::before,
+        .date-separator::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+        .date-separator span {
+            font-size: 11px;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Message Bubbles */
+        .msg-row {
+            display: flex;
+            flex-direction: column;
+            max-width: 70%;
+        }
+        .msg-row.sent {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+        .msg-row.received {
+            align-self: flex-start;
+            align-items: center;
+        }
+        .msg-bubble {
+            padding: 10px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text-main);
+            word-wrap: break-word;
+        }
+        .msg-row.sent .msg-bubble {
+            background: var(--primary);
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+        .msg-row.received .msg-bubble {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 4px;
+        }
+        .msg-time {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+        .msg-row.sent .msg-time {
+            text-align: right;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            padding: 10px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            width: fit-content;
+        }
+        .typing-indicator .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #94a3b8;
+            animation: typingBounce 1.4s infinite;
+        }
+        .typing-indicator .dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-4px); }
+        }
+
+        /* Chat Input Area */
+        .chat-input-area {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            padding: 14px 20px;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .chat-attach-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-soft);
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .chat-attach-btn:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+            color: var(--text-main);
+        }
+        .chat-attach-btn svg { width: 18px; height: 18px; }
+        .chat-input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+        .chat-input-wrapper textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            resize: none;
+            box-sizing: border-box;
+            min-height: 40px;
+            max-height: 100px;
+            line-height: 1.5;
+            transition: border-color 0.2s;
+        }
+        .chat-input-wrapper textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(42,115,212,0.1);
+        }
+        .chat-send-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #fff;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .chat-send-btn:hover {
+            background: var(--primary-hover);
+        }
+        .chat-send-btn svg { width: 18px; height: 18px; }
+
+        /* Empty State (when no conversation selected) */
+        .chat-empty {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-soft);
+            gap: 12px;
+        }
+        .chat-empty svg { width: 48px; height: 48px; color: #cbd5e1; }
+        .chat-empty p { font-size: 14px; }
+
+        /* ─── Scrollbar Styling ─── */
+        .conv-items::-webkit-scrollbar,
+        .chat-messages::-webkit-scrollbar { width: 6px; }
+        .conv-items::-webkit-scrollbar-track,
+        .chat-messages::-webkit-scrollbar-track { background: transparent; }
+        .conv-items::-webkit-scrollbar-thumb,
+        .chat-messages::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .conv-items::-webkit-scrollbar-thumb:hover,
+        .chat-messages::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 768px) {
+            .conv-list { width: 100%; }
+            .chat-window { display: none; }
+            .messages-layout.chat-open .conv-list { display: none; }
+            .messages-layout.chat-open .chat-window { display: flex; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     SIDEBAR
+     ═══════════════════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+    <!-- Brand -->
+    <div class="brand">
+        <div class="brand-left">
+            <img src="../assets/Heali.png" class="brand-logo" alt="Telehealings">
+            <span class="brand-name-text">Telehealings</span>
+        </div>
+        <button class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Toggle sidebar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <polyline points="11 17 6 12 11 7"/><line x1="6" y1="12" x2="18" y2="12"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Search -->
+    <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" placeholder="Search...">
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav-menu">
+        <a href="dashboard.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span class="nav-text">Dashboard</span></a>
+        <a href="sessions.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="nav-text">Sessions</span></a>
+        <a href="clients.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-text">Clients</span></a>
+        <div class="nav-separator"></div>
+        <a href="calendar.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="nav-text">Calendar</span></a>
+        <a href="messages.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="nav-text">Messages</span><span class="badge">5</span></a>
+        <a href="resources.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span class="nav-text">Resources</span></a>
+        <a href="earnings.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span class="nav-text">Earnings</span></a>
+        <div class="nav-separator"></div>
+        <a href="tools.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg><span class="nav-text">Tools</span></a>
+    </nav>
+
+    <!-- User Profile -->
+        <div class="user-profile" tabindex="0">
+        <div class="avatar-wrap">
+            <img src="../assets/user-profile.jpg" alt="Dr. Sarah Menon">
+            <div class="notification-indicator">3</div>
+        </div>
+        <h4>Dr. Sarah Menon</h4><p>Therapist</p>
+        <div class="profile-dropdown">
+            <a href="profile.html" class="dropdown-item">My Profile</a>
+            <div class="dropdown-divider"></div>
+            <a href="settings.html" class="dropdown-item">Settings</a>
+            <div class="dropdown-divider"></div>
+            <a href="index.html" class="dropdown-item logout-item">Logout</a>
+        </div>
+    </div>
+</aside>
+
+<!-- ═══════════════════════════════════════════
+     MAIN CONTENT
+     ═══════════════════════════════════════════ -->
+<div class="page-shell">
+    <div class="content-wrapper">
+
+        <!-- Header with Heali Mascot -->
+        <header class="page-header">
+            <div class="header-tab">Messages</div>
+            <img src="../assets/Heali.png" class="header-mascot" alt="Heali AI">
+        </header>
+
+        <!-- Split-Pane Messages Layout -->
+        <div class="messages-layout" id="messagesLayout">
+
+            <!-- Left: Conversation List -->
+            <div class="conv-list">
+                <div class="conv-list-header">
+                    <h3>Conversations</h3>
+                    <span class="conv-count">4</span>
+                </div>
+                <div class="conv-search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" placeholder="Search conversations...">
+                </div>
+                <div class="conv-items">
+
+                    <!-- Conversation 1 — Active, 2 unread -->
+                    <div class="conv-item active" data-conv="1">
+                        <img class="conv-avatar" src="../assets/user-profile.jpg" alt="Priya Sharma">
+                        <div class="conv-info">
+                            <div class="conv-top-row">
+                                <span class="conv-name">Priya Sharma</span>
+                                <span class="conv-time">10:32 AM</span>
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;">
+                                <span class="conv-preview">I've been feeling much better since our last session...</span>
+                                <span class="conv-badge">2</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Conversation 2 — 1 unread -->
+                    <div class="conv-item" data-conv="2">
+                        <img class="conv-avatar" src="../assets/user-profile.jpg" alt="Rahul Nair">
+                        <div class="conv-info">
+                            <div class="conv-top-row">
+                                <span class="conv-name">Rahul Nair</span>
+                                <span class="conv-time">9:15 AM</span>
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;">
+                                <span class="conv-preview">Could we reschedule Thursday's session?</span>
+                                <span class="conv-badge">1</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Conversation 3 — 2 unread -->
+                    <div class="conv-item" data-conv="3">
+                        <img class="conv-avatar" src="../assets/user-profile.jpg" alt="Anjali Krishnan">
+                        <div class="conv-info">
+                            <div class="conv-top-row">
+                                <span class="conv-name">Anjali Krishnan</span>
+                                <span class="conv-time">Yesterday</span>
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;">
+                                <span class="conv-preview">Thank you for the mindfulness exercises...</span>
+                                <span class="conv-badge">2</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Conversation 4 — no unread -->
+                    <div class="conv-item" data-conv="4">
+                        <img class="conv-avatar" src="../assets/user-profile.jpg" alt="Vikram Das">
+                        <div class="conv-info">
+                            <div class="conv-top-row">
+                                <span class="conv-name">Vikram Das</span>
+                                <span class="conv-time">Yesterday</span>
+                            </div>
+                            <span class="conv-preview">Sounds good, I'll practice the breathing technique.</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Right: Chat Window -->
+            <div class="chat-window" id="chatWindow">
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <img class="chat-header-avatar" src="../assets/user-profile.jpg" alt="Priya Sharma">
+                    <div class="chat-header-info">
+                        <div class="chat-header-name">Priya Sharma</div>
+                        <div class="chat-header-status">
+                            <span class="online-dot"></span> Online
+                        </div>
+                    </div>
+                    <div class="chat-header-actions">
+                        <button class="chat-action-btn" title="Voice Call">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                            </svg>
+                        </button>
+                        <button class="chat-action-btn" title="Video Call">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                            </svg>
+                        </button>
+                        <button class="chat-action-btn" title="More Options">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chat Messages -->
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Date Separator -->
+                    <div class="date-separator"><span>Today</span></div>
+
+                    <!-- Received messages -->
+                    <div class="msg-row received">
+                        <div class="msg-bubble">Hi Dr. Thomas, I hope you're doing well. I wanted to share something about my week.</div>
+                        <span class="msg-time">10:20 AM</span>
+                    </div>
+
+                    <div class="msg-row sent">
+                        <div class="msg-bubble">Hello Priya! I'm glad you reached out. I'm doing well, thank you. Please go ahead — I'm here to listen.</div>
+                        <span class="msg-time">10:22 AM</span>
+                    </div>
+
+                    <div class="msg-row received">
+                        <div class="msg-bubble">I've been feeling much better since our last session. The breathing exercises you recommended have been really helpful, especially during stressful moments at work.</div>
+                        <span class="msg-time">10:25 AM</span>
+                    </div>
+
+                    <div class="msg-row sent">
+                        <div class="msg-bubble">That's wonderful to hear, Priya! I'm so glad the techniques are making a difference. Consistency is key — keep practicing them daily, even when you're feeling calm. It builds resilience for tougher moments.</div>
+                        <span class="msg-time">10:27 AM</span>
+                    </div>
+
+                    <div class="msg-row received">
+                        <div class="msg-bubble">Absolutely! I've been doing the 4-7-8 technique every morning. Also, I had a situation yesterday where I felt anxiety creeping in during a meeting, and I managed to ground myself using the 5-4-3-2-1 method. It worked!</div>
+                        <span class="msg-time">10:30 AM</span>
+                    </div>
+
+                    <div class="msg-row sent">
+                        <div class="msg-bubble">That's fantastic progress! Using the 5-4-3-2-1 technique in real-time is a huge step forward. You should be proud of yourself for recognizing the anxiety and taking action. How did you feel afterward?</div>
+                        <span class="msg-time">10:31 AM</span>
+                    </div>
+
+                    <div class="msg-row received">
+                        <div class="msg-bubble">I felt really empowered, honestly. It's like I finally have tools I can rely on. I've been feeling much better since our last session and I wanted you to know how much of a difference it's made.</div>
+                        <span class="msg-time">10:32 AM</span>
+                    </div>
+
+                    <!-- Typing Indicator -->
+                    <div class="msg-row received" id="typingIndicator" style="display:none;">
+                        <div class="typing-indicator">
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Input -->
+                <div class="chat-input-area">
+                    <button class="chat-attach-btn" title="Attach file">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                        </svg>
+                    </button>
+                    <div class="chat-input-wrapper">
+                        <textarea id="chatInput" placeholder="Type a message..." rows="1"></textarea>
+                    </div>
+                    <button class="chat-send-btn" title="Send message" id="sendBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"/>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // ─── Sidebar Toggle ───
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('sidebarToggle');
+    toggleBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+    });
+
+    // ─── Conversation Switching ───
+    const convItems = document.querySelectorAll('.conv-item');
+    const chatHeaderName = document.querySelector('.chat-header-name');
+    const chatHeaderAvatar = document.querySelector('.chat-header-avatar');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const typingIndicator = document.getElementById('typingIndicator');
+
+    // Sample chat data per conversation
+    const convData = {
+        1: {
+            name: 'Priya Sharma',
+            status: 'Online',
+            messages: [
+                { type: 'received', text: 'Hi Dr. Thomas, I hope you\'re doing well. I wanted to share something about my week.', time: '10:20 AM' },
+                { type: 'sent', text: 'Hello Priya! I\'m glad you reached out. I\'m doing well, thank you. Please go ahead — I\'m here to listen.', time: '10:22 AM' },
+                { type: 'received', text: 'I\'ve been feeling much better since our last session. The breathing exercises you recommended have been really helpful, especially during stressful moments at work.', time: '10:25 AM' },
+                { type: 'sent', text: 'That\'s wonderful to hear, Priya! I\'m so glad the techniques are making a difference. Consistency is key — keep practicing them daily, even when you\'re feeling calm. It builds resilience for tougher moments.', time: '10:27 AM' },
+                { type: 'received', text: 'Absolutely! I\'ve been doing the 4-7-8 technique every morning. Also, I had a situation yesterday where I felt anxiety creeping in during a meeting, and I managed to ground myself using the 5-4-3-2-1 method. It worked!', time: '10:30 AM' },
+                { type: 'sent', text: 'That\'s fantastic progress! Using the 5-4-3-2-1 technique in real-time is a huge step forward. You should be proud of yourself for recognizing the anxiety and taking action. How did you feel afterward?', time: '10:31 AM' },
+                { type: 'received', text: 'I felt really empowered, honestly. It\'s like I finally have tools I can rely on. I\'ve been feeling much better since our last session and I wanted you to know how much of a difference it\'s made.', time: '10:32 AM' }
+            ]
+        },
+        2: {
+            name: 'Rahul Nair',
+            status: 'Last seen 15 min ago',
+            messages: [
+                { type: 'received', text: 'Hi Dr. Thomas, I hope this message finds you well.', time: '8:45 AM' },
+                { type: 'sent', text: 'Hi Rahul! Yes, I\'m doing well. How are you? Is everything okay?', time: '8:50 AM' },
+                { type: 'received', text: 'I wanted to ask — could we reschedule Thursday\'s session? Something urgent has come up at work and I won\'t be able to make it at 11:30 AM.', time: '9:15 AM' }
+            ]
+        },
+        3: {
+            name: 'Anjali Krishnan',
+            status: 'Last seen 2 hours ago',
+            messages: [
+                { type: 'sent', text: 'Hi Anjali! Here are the mindfulness exercises we discussed. Try to practice at least 10 minutes daily and let me know how it goes.', time: 'Yesterday, 4:00 PM' },
+                { type: 'received', text: 'Thank you for the mindfulness exercises! I\'ve already started the body scan meditation and it\'s been incredibly relaxing. I noticed I\'m sleeping better too.', time: 'Yesterday, 6:30 PM' },
+                { type: 'received', text: 'Also, I wanted to let you know that the journaling prompts have been really eye-opening. I\'m starting to notice patterns in my thoughts that I wasn\'t aware of before.', time: 'Yesterday, 7:15 PM' }
+            ]
+        },
+        4: {
+            name: 'Vikram Das',
+            status: 'Last seen 3 hours ago',
+            messages: [
+                { type: 'sent', text: 'Hi Vikram! Great session today. Remember to practice the diaphragmatic breathing technique we worked on. Even 5 minutes twice a day can make a big difference.', time: 'Yesterday, 2:00 PM' },
+                { type: 'received', text: 'Thank you, Dr. Thomas. I\'ll definitely keep practicing.', time: 'Yesterday, 3:30 PM' },
+                { type: 'sent', text: 'You\'re welcome! And don\'t worry about the progress being slow. Every small step counts. See you at our next session on Friday.', time: 'Yesterday, 3:35 PM' },
+                { type: 'received', text: 'Sounds good, I\'ll practice the breathing technique. Thank you for the encouragement!', time: 'Yesterday, 4:00 PM' }
+            ]
+        }
+    };
+
+    function renderChat(convId) {
+        const data = convData[convId];
+        if (!data) return;
+
+        chatHeaderName.textContent = data.name;
+        // Update status
+        const statusEl = document.querySelector('.chat-header-status');
+        if (data.status === 'Online') {
+            statusEl.innerHTML = '<span class="online-dot"></span> Online';
+            statusEl.style.color = 'var(--success)';
+        } else {
+            statusEl.innerHTML = data.status;
+            statusEl.style.color = 'var(--text-soft)';
+        }
+
+        // Build messages HTML
+        let html = '<div class="date-separator"><span>Today</span></div>';
+        data.messages.forEach(msg => {
+            html += `<div class="msg-row ${msg.type}">
+                <div class="msg-bubble">${msg.text}</div>
+                <span class="msg-time">${msg.time}</span>
+            </div>`;
+        });
+
+        // Insert before typing indicator
+        const typingEl = typingIndicator;
+        chatMessages.innerHTML = html;
+        chatMessages.appendChild(typingEl);
+
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Remove unread badge from selected conv
+        const selectedItem = document.querySelector(`.conv-item[data-conv="${convId}"]`);
+        if (selectedItem) {
+            const badge = selectedItem.querySelector('.conv-badge');
+            if (badge) badge.remove();
+            selectedItem.querySelector('.conv-preview').textContent = data.messages[data.messages.length - 1].text;
+        }
+    }
+
+    convItems.forEach(item => {
+        item.addEventListener('click', () => {
+            // Update active state
+            convItems.forEach(c => c.classList.remove('active'));
+            item.classList.add('active');
+
+            const convId = item.getAttribute('data-conv');
+            renderChat(convId);
+
+            // Mobile: show chat window
+            document.getElementById('messagesLayout').classList.add('chat-open');
+        });
+    });
+
+    // ─── Send Message ───
+    function sendMessage() {
+        const text = chatInput.value.trim();
+        if (!text) return;
+
+        const activeConv = document.querySelector('.conv-item.active');
+        if (!activeConv) return;
+
+        const convId = activeConv.getAttribute('data-conv');
+        const data = convData[convId];
+        if (!data) return;
+
+        // Add sent message to data
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        data.messages.push({ type: 'sent', text: text, time: timeStr });
+
+        // Append to chat
+        const msgHtml = `<div class="msg-row sent">
+            <div class="msg-bubble">${text}</div>
+            <span class="msg-time">${timeStr}</span>
+        </div>`;
+        chatMessages.insertAdjacentHTML('beforeend', msgHtml);
+
+        // Update preview in conv list
+        const preview = activeConv.querySelector('.conv-preview');
+        if (preview) preview.textContent = text;
+
+        // Clear input
+        chatInput.value = '';
+        chatInput.style.height = 'auto';
+
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Show typing indicator briefly, then respond
+        typingIndicator.style.display = '';
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        setTimeout(() => {
+            typingIndicator.style.display = 'none';
+            const responses = [
+                'Thank you for sharing that. Let me think about this...',
+                'I appreciate you bringing this up. Can you tell me more?',
+                'That\'s a great observation. Let\'s explore this further in our next session.',
+                'I understand. Let\'s work through this together.'
+            ];
+            const response = responses[Math.floor(Math.random() * responses.length)];
+            data.messages.push({ type: 'received', text: response, time: timeStr });
+            const respHtml = `<div class="msg-row received">
+                <div class="msg-bubble">${response}</div>
+                <span class="msg-time">${timeStr}</span>
+            </div>`;
+            chatMessages.insertAdjacentHTML('beforeend', respHtml);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 1500);
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    // Auto-resize textarea
+    chatInput.addEventListener('input', () => {
+        chatInput.style.height = 'auto';
+        chatInput.style.height = Math.min(chatInput.scrollHeight, 100) + 'px';
+    });
+
+    // ─── Mobile Back Button (click on chat header avatar to go back) ───
+    document.querySelector('.chat-header').addEventListener('dblclick', () => {
+        document.getElementById('messagesLayout').classList.remove('chat-open');
+    });
+</script>
+
+</body>
+</html>

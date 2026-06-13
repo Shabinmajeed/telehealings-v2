@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telehealings — Compliance</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{--primary:#2a73d4;--primary-hover:#2361b5;--surface:#ffffff;--text-main:#111111;--text-muted:#4b4b4b;--text-soft:#64748b;--text-dark:#0f172a;--border:#e2e8f0;--border-light:#f1f5f9;--success:#22c55e;--danger:#ef4444;--warning:#f59e0b;--radius:8px;--radius-md:12px;--radius-lg:16px;--font:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;--sidebar-width:280px;--sidebar-collapsed:88px}
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        html{font-size:16px;-webkit-font-smoothing:antialiased;height:100%}
+        body{font-family:var(--font);color:var(--text-main);line-height:1.5;height:100%;display:flex;overflow:hidden;background:linear-gradient(110deg,#ffffff 0%,#eef5fc 35%,#7aaaf6 100%)}
+        a{color:inherit;text-decoration:none}
+        button{font-family:var(--font);cursor:pointer;border:none;outline:none;background:none}
+        ul,li{list-style:none}img{display:block}
+        .sidebar{width:var(--sidebar-width);height:100%;padding:30px 20px;display:flex;flex-direction:column;border-right:1px solid rgba(0,0,0,0.05);background:var(--surface);flex-shrink:0;position:relative;transition:width 0.3s ease,padding 0.3s ease;overflow:visible;z-index:100}
+        .brand{display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:30px;padding:0 10px;box-sizing:border-box}
+        .brand-left{display:flex;align-items:center;gap:12px}.brand-logo{width:36px;height:36px}
+        .brand-name-text{font-size:20px;font-weight:700;color:#000}
+        .sidebar-toggle-btn{color:var(--text-soft);cursor:pointer;padding:4px;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+        .sidebar-toggle-btn:hover{background:var(--border-light);color:var(--text-main)}
+        .sidebar-toggle-btn svg{transition:transform 0.3s ease}
+        .search-box{position:relative;margin-bottom:20px}
+        .search-box input{width:100%;padding:12px 12px 12px 40px;border-radius:20px;border:1px solid var(--border);background:#f8fafc;font-family:inherit;font-size:14px;outline:none;box-sizing:border-box;transition:border-color 0.2s}
+        .search-box input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(42,115,212,0.1)}
+        .search-box svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--text-soft)}
+        .nav-menu{display:flex;flex-direction:column;gap:2px;flex-grow:1;overflow-y:auto;overflow-x:hidden;margin-bottom:25px}
+        .nav-item{display:flex;align-items:center;gap:14px;padding:10px 16px;border-radius:var(--radius);color:#475569;font-weight:600;font-size:15px;transition:all 0.2s;white-space:nowrap;text-decoration:none}
+        .nav-item:hover{background:var(--border-light);color:var(--text-main)}
+        .nav-item.active{background:#1c52b8;color:#fff}
+        .nav-item svg{width:20px;height:20px;flex-shrink:0}.nav-item.active svg{color:#fff}
+        .nav-text{overflow:hidden}.nav-separator{height:1px;background-color:var(--border);margin:2px 16px;flex-shrink:0}
+        .user-profile{background:#fff;padding:16px;border-radius:var(--radius-md);display:flex;flex-direction:column;align-items:center;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,0.05);margin-top:auto;border:1px solid var(--border-light);cursor:pointer;position:relative;outline:none}
+        .user-profile img{width:75px;height:75px;border-radius:50%;margin-top:-45px;margin-bottom:10px;object-fit:cover;border:4px solid #fff;box-shadow:0 4px 10px rgba(0,0,0,0.08);background-color:#fff}
+        .user-profile h4{font-size:14px;margin:0 0 2px 0;color:var(--text-main)}
+        .user-profile p{font-size:12px;color:var(--text-soft);margin:0}
+        .profile-dropdown{display:none;position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);width:220px;background:#fff;border-radius:var(--radius-md);box-shadow:0 10px 30px rgba(0,0,0,0.1);border:1px solid var(--border);flex-direction:column;padding:8px 0;z-index:1000}
+        .user-profile:focus .profile-dropdown,.user-profile:focus-within .profile-dropdown{display:flex}
+        .sidebar.collapsed .profile-dropdown{left:100%;bottom:8px;transform:none;margin-left:16px}
+        .dropdown-item{display:flex;align-items:center;gap:12px;padding:10px 16px;color:#475569;font-size:14px;font-weight:500;transition:all 0.2s}
+        .dropdown-item:hover{background:#f8fafc;color:var(--text-main)}.dropdown-item svg{width:16px;height:16px}
+        .dropdown-divider{height:1px;background-color:var(--border-light);margin:4px 0}
+        .logout-item{color:#e11d48}.logout-item:hover{background:#fff1f2;color:#be123c}
+        .sidebar.collapsed{width:var(--sidebar-collapsed);padding:30px 10px}
+        .sidebar.collapsed .nav-text,.sidebar.collapsed .user-profile h4,.sidebar.collapsed .user-profile p{display:none}
+        .sidebar.collapsed .brand{flex-direction:row!important;padding:0!important;justify-content:center!important;gap:4px}
+        .sidebar.collapsed .brand-left span{display:none}
+        .sidebar.collapsed .sidebar-toggle-btn svg{transform:rotate(180deg)}
+        .sidebar.collapsed .search-box input{display:none}
+        .sidebar.collapsed .search-box{width:40px;height:40px;background:#f8fafc;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px auto;cursor:pointer}
+        .sidebar.collapsed .search-box svg{position:static;transform:none}
+        .sidebar.collapsed .nav-item{padding:12px;justify-content:center}
+        .sidebar.collapsed .user-profile{padding:10px;background:transparent;box-shadow:none;border:none}
+        .sidebar.collapsed .user-profile img{margin-top:0;margin-bottom:0;width:40px;height:40px;border:none;box-shadow:none}
+        .page-shell{flex:1;padding:0 32px 16px;overflow-y:auto;background:transparent;min-width:0}
+        .content-wrapper{width:100%;max-width:100%;margin:0 auto;display:flex;flex-direction:column;padding-bottom:40px}
+        .sidebar:not(.collapsed)~.page-shell .content-wrapper{max-width:1100px}
+        .sticky-zone{position:sticky;top:0;z-index:50;background:linear-gradient(110deg,#ffffff 0%,#eef5fc 35%,#7aaaf6 100%);padding:0 32px 6px;margin:0 -32px}
+        .sticky-inner{max-width:100%}.sidebar:not(.collapsed)~.page-shell .sticky-inner{max-width:1100px;margin:0 auto}
+        .page-header{display:flex;justify-content:space-between;align-items:center;padding-top:40px;margin-bottom:12px}
+        .header-left{display:flex;align-items:center}.header-right{display:flex;align-items:center;gap:12px}
+        .header-tab{font-size:20px;font-weight:700;color:var(--text-dark);position:relative;padding:0 0 8px 0;border-bottom:2px solid var(--border)}
+        .header-tab::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:3px;background:var(--text-dark);border-radius:2px 2px 0 0}
+        .header-mascot{height:32px;flex-shrink:0}
+        .heali-inline{display:flex;align-items:center;gap:8px}
+        .heali-insight{display:flex;align-items:center;gap:8px;padding:6px 12px;background:linear-gradient(135deg,#eff6ff 0%,#dbeafe 100%);border:1px solid #bfdbfe;border-radius:8px;flex-shrink:0}
+        .heali-insight-icon{width:24px;height:24px;border-radius:50%;background:#2563eb;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .heali-insight-icon svg{width:12px;height:12px}
+        .heali-insight-content{display:flex;flex-direction:column;gap:0}
+        .heali-insight-label{font-size:9px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:0.3px;line-height:1.2}
+        .heali-insight-text{font-size:11px;color:#1e40af;line-height:1.3;white-space:nowrap;text-decoration:none}
+        .heali-insight-dismiss{background:none;border:none;color:#93c5fd;cursor:pointer;padding:2px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s}
+        .heali-insight-dismiss:hover{background:rgba(37,99,235,0.1);color:#2563eb}
+        .tabs-nav{display:flex;gap:24px;border-bottom:1px solid var(--border);margin-bottom:12px}
+        .tab-btn{background:transparent;border:none;padding:10px 4px;font-size:14px;font-weight:600;color:var(--text-soft);cursor:pointer;position:relative;transition:color 0.2s}
+        .tab-btn:hover{color:var(--text-dark)}.tab-btn.active{color:var(--primary)}
+        .tab-btn.active::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--primary);border-radius:2px 2px 0 0}
+        .tab-content{display:none}.tab-content.active{display:block}
+        .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px}
+        .toolbar-left,.toolbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+        .search-wrap{position:relative;width:220px}
+        .search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-soft)}
+        .search-input{width:100%;padding:8px 12px 8px 34px;border-radius:99px;border:1px solid var(--border);background:var(--surface);font-size:13px;outline:none;transition:border-color 0.2s}
+        .search-input:focus{border-color:var(--primary)}
+        .btn-sm{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;border:none}
+        .btn-sm svg{width:14px;height:14px}
+        .btn-sm.btn-outline{border:1px solid var(--border);background:var(--surface);color:var(--text-soft)}
+        .btn-sm.btn-outline:hover{border-color:#94a3b8;color:var(--text-dark);background:#f8fafc}
+        .btn-sm.btn-primary{background:var(--primary);color:#fff}
+        .btn-sm.btn-primary:hover{background:var(--primary-hover)}
+        .table-card{background:var(--surface);border-radius:var(--radius-lg);padding:24px 32px;box-shadow:0 4px 15px rgba(0,0,0,0.02);display:flex;flex-direction:column}
+        .clients-table{width:100%;border-collapse:collapse}
+        .clients-table th{text-align:left;font-size:12px;font-weight:500;color:var(--text-soft);padding:8px 12px 8px 0;border-bottom:1px solid var(--border-light);text-transform:uppercase}
+        .clients-table td{padding:10px 12px;border-bottom:1px solid var(--border-light);font-size:13px;color:#334155;vertical-align:middle}
+        .clients-table tr:last-child td;border-bottom:none}
+        .clients-table tbody tr:hover{background:#f8fafc}
+        .clients-table th:first-child,.clients-table td:first-child{padding-left:0}
+        .clients-table th:last-child,.clients-table td:last-child{padding-right:0}
+        .user-cell{display:flex;align-items:center;gap:10px}
+        .avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--border-light);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+        .avatar-fallback{background:#3b82f6}
+        .user-details{display:flex;flex-direction:column}
+        .user-name{font-weight:600;color:var(--text-dark);font-size:13px}
+        .sub-text{display:block;font-size:11px;color:#94a3b8;margin-top:2px}
+        .status-badge{display:inline-flex;align-items:center;justify-content:center;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;min-width:80px;text-align:center}
+        .status-verified{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
+        .status-pending{background:#fef9c3;color:#854d0e;border:1px solid #fef08a}
+        .status-expired{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
+        .status-missing{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0}
+        .action-btn{background:transparent;border:1px solid var(--border);color:var(--text-main);cursor:pointer;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:2px;transition:all 0.2s}
+        .action-btn:hover{background:#f1f5f9;border-color:#94a3b8}
+        .action-btn svg{width:12px;height:12px}
+        .pagination-container{display:flex;justify-content:space-between;align-items:center;padding-top:16px;border-top:1px solid var(--border-light);margin-top:16px}
+        .pagination-info{font-size:12px;font-weight:700;color:#94a3b8;letter-spacing:0.05em;text-transform:uppercase}
+        .pagination-nav{display:flex;gap:8px}
+        .page-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius);border:none;background:#f1f5f9;color:#334155;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s}
+        .page-btn:hover{background:#e2e8f0}.page-btn.active{background:#2563eb;color:#fff}
+        .page-btn svg{width:16px;height:16px}
+        .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,0.4);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:2000;opacity:0;visibility:hidden;transition:all 0.2s}
+        .modal-overlay.active{opacity:1;visibility:visible}
+        .modal-card{background:#fff;width:600px;max-width:90%;border-radius:var(--radius-lg);box-shadow:0 20px 40px rgba(0,0,0,0.1);transform:scale(0.95);transition:all 0.2s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;overflow:hidden}
+        .modal-overlay.active .modal-card{transform:scale(1)}
+        .modal-header{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:#f8fafc}
+        .modal-title{font-size:15px;font-weight:700;color:var(--text-dark);display:flex;align-items:center;gap:8px}
+        .modal-close{background:transparent;border:none;cursor:pointer;color:var(--text-soft);padding:4px;border-radius:50%}
+        .modal-close:hover{background:#e2e8f0;color:var(--text-dark)}
+        .modal-body{padding:22px;display:flex;flex-direction:column;gap:16px}
+        .doc-preview-area{background:#f1f5f9;border:1px dashed #cbd5e1;border-radius:10px;height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-soft);gap:10px}
+        .doc-preview-area svg{width:40px;height:40px;color:#94a3b8}
+        .doc-meta{display:flex;flex-direction:column;gap:6px}
+        .meta-row{display:flex;justify-content:space-between;font-size:13px;padding-bottom:6px;border-bottom:1px solid var(--border-light)}
+        .meta-label{color:var(--text-soft);font-weight:500}
+        .meta-value{color:var(--text-dark);font-weight:600}
+        .modal-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:space-between;background:#fafafa;align-items:center}
+        .footer-actions{display:flex;gap:10px}
+    </style>
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+    <div class="brand"><div class="brand-left"><img src="../assets/logo.png" class="brand-logo"><span class="nav-text brand-name-text">Telehealings</span></div><button class="sidebar-toggle-btn" id="sidebarToggle" title="Toggle Sidebar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button></div>
+    <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search"></div>
+    <nav class="nav-menu">
+        <a href="dashboard.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span class="nav-text">Dashboard</span></a>
+        <a href="therapist.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nav-text">Therapist</span></a>
+        <a href="clients.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-text">Clients</span></a>
+        <div class="nav-separator"></div>
+        <a href="schedule.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="nav-text">Sessions & Schedule</span></a>
+        <a href="content-management.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span class="nav-text">Content Management</span></a>
+        <a href="communications.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="nav-text">Communications</span></a>
+        <a href="compliance.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span class="nav-text">Compliance</span></a>
+        <div class="nav-separator"></div>
+        <a href="financials.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12"/><path d="M6 8h12"/><path d="m6 13 8.5 8"/><path d="M6 13h3"/><path d="M9 13c6.667 0 6.667-10 0-10"/></svg><span class="nav-text">Financials</span></a>
+        <a href="analytics.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span class="nav-text">Analytics & Reporting</span></a>
+        <a href="Promotion.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><span class="nav-text">Promotion & Offers</span></a>
+    </nav>
+    <div class="user-profile" tabindex="0"><img src="../assets/user-profile.jpg"><h4>Dr. Ajesh Anand</h4><p>Admin</p>
+        <div class="profile-dropdown"><a href="#" class="dropdown-item">My Profile</a><div class="dropdown-divider"></div><a href="#" class="dropdown-item">Settings</a><div class="dropdown-divider"></div><a href="index.html" class="dropdown-item logout-item">Logout</a></div>
+    </div>
+</aside>
+
+<div class="page-shell"><div class="content-wrapper">
+    <div class="sticky-zone"><div class="sticky-inner">
+        <header class="page-header">
+            <div class="header-left"><div class="header-tab">Compliance & Verification</div></div>
+            <div class="header-right">
+                <div class="heali-inline">
+                    <div class="heali-insight">
+                        <div class="heali-insight-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/></svg></div>
+                        <div class="heali-insight-content"><span class="heali-insight-label">Heali Insight</span><span class="heali-insight-text">3 therapists need document review. <strong>Dr. Olivia Wilde</strong> has 2 missing docs.</span></div>
+                        <button class="heali-insight-dismiss" title="Dismiss"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                    </div>
+                    <img src="../assets/Heali.png" class="header-mascot" alt="Mascot">
+                </div>
+            </div>
+        </header>
+        <div class="tabs-nav">
+            <button class="tab-btn active" data-target="tab-pending">Pending Reviews <span style="background:#ef4444;color:#fff;border-radius:99px;padding:1px 5px;font-size:10px;margin-left:4px;">3</span></button>
+            <button class="tab-btn" data-target="tab-all">All Records</button>
+            <button class="tab-btn" data-target="tab-expiring">Expiring Soon</button>
+        </div>
+    </div></div>
+
+    <!-- Pending Reviews -->
+    <div id="tab-pending" class="tab-content active">
+        <div class="toolbar">
+            <div class="toolbar-left"><div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" class="search-input" placeholder="Search therapists..."></div></div>
+            <div class="toolbar-right"><button class="btn-sm btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Export Report</button></div>
+        </div>
+        <div class="table-card"><table class="clients-table"><thead><tr><th>Therapist</th><th>Clinical License</th><th>Background Check</th><th>Indemnity Ins.</th><th>Next Verification</th><th style="text-align:right;">Action</th></tr></thead><tbody id="pendingTableBody"></tbody></table></div>
+    </div>
+
+    <!-- All Records -->
+    <div id="tab-all" class="tab-content">
+        <div class="table-card"><table class="clients-table"><thead><tr><th>Therapist</th><th>Clinical License</th><th>Background Check</th><th>Indemnity Ins.</th><th>Next Verification</th><th style="text-align:right;">Action</th></tr></thead><tbody id="allTableBody"></tbody></table>
+        <div class="pagination-container"><div class="pagination-info">SHOWING 1-6 OF 24</div><div class="pagination-nav"><button class="page-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button><button class="page-btn active">1</button><button class="page-btn">2</button><button class="page-btn">3</button><button class="page-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button></div></div></div>
+    </div>
+
+    <!-- Expiring Soon -->
+    <div id="tab-expiring" class="tab-content">
+        <div class="table-card" style="text-align:center;padding:40px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:48px;height:48px;color:#cbd5e1;margin-bottom:12px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><h3 style="font-size:15px;font-weight:700;color:var(--text-dark);margin-bottom:4px;">All Clear</h3><p style="font-size:13px;color:var(--text-soft);">No documents expiring within the next 30 days.</p></div>
+    </div>
+</div></div>
+
+<!-- Review Modal -->
+<div class="modal-overlay" id="reviewModal">
+    <div class="modal-card">
+        <div class="modal-header"><div class="modal-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>Document Review</div><button class="modal-close" id="closeReviewModal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+        <div class="modal-body">
+            <div class="user-cell" style="background:#f8fafc;padding:10px;border-radius:8px;border:1px solid var(--border);margin-bottom:12px;"><div class="avatar avatar-fallback" id="modalAvatar" style="width:36px;height:36px;font-size:13px;">SS</div><div class="user-details"><span class="user-name" id="modalName">Dr. Sarah Smith</span><span class="sub-text" style="margin-top:0;">Therapist ID: T-8492</span></div></div>
+            <div class="doc-meta"><div class="meta-row"><span class="meta-label">Document Type</span><span class="meta-value" style="color:var(--primary);">Clinical License Renewal</span></div><div class="meta-row"><span class="meta-label">Submitted On</span><span class="meta-value">25/04/2026, 09:14 AM</span></div><div class="meta-row"><span class="meta-label">Issuing Authority</span><span class="meta-value">National Board of Psychology</span></div></div>
+            <div class="doc-preview-area"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></polyline></svg><span style="font-weight:500;font-size:13px;color:#475569;">Clinical_License_2026.pdf</span><button class="btn-sm btn-outline" style="padding:5px 10px;font-size:11px;margin-top:6px;">Download to View</button></div>
+        </div>
+        <div class="modal-footer"><button class="btn-sm btn-outline" style="color:#dc2626;border-color:#fca5a5;" id="rejectBtn">Reject Document</button><div class="footer-actions"><button class="btn-sm btn-outline" id="cancelReviewBtn">Cancel</button><button class="btn-sm btn-primary" style="background:#16a34a;border-color:#16a34a;">Approve & Verify</button></div></div>
+    </div>
+</div>
+
+<script>
+document.getElementById('sidebarToggle').addEventListener('click',()=>{document.getElementById('sidebar').classList.toggle('collapsed')});
+const complianceData=[
+    {id:1,name:"Dr. Sarah Smith",type:"pending",license:"Pending",bgCheck:"Verified",insurance:"Verified",nextVerify:"24/05/2026",avatar:"https://i.pravatar.cc/150?u=sarah"},
+    {id:2,name:"Dr. Ethan Hunt",type:"pending",license:"Verified",bgCheck:"Pending",insurance:"Expired",nextVerify:"Action Required",avatar:"https://i.pravatar.cc/150?u=ethan"},
+    {id:3,name:"Dr. Olivia Wilde",type:"pending",license:"Missing",bgCheck:"Missing",insurance:"Pending",nextVerify:"Action Required",avatar:"https://i.pravatar.cc/150?u=olivia"},
+    {id:4,name:"Dr. Ajesh Anand",type:"all",license:"Verified",bgCheck:"Verified",insurance:"Verified",nextVerify:"15/11/2026",avatar:"https://i.pravatar.cc/150?u=ajesh"},
+    {id:5,name:"Dr. Emily Chen",type:"all",license:"Verified",bgCheck:"Verified",insurance:"Verified",nextVerify:"02/09/2026",avatar:"https://i.pravatar.cc/150?u=emily"},
+    {id:6,name:"Dr. Marcus Reed",type:"all",license:"Verified",bgCheck:"Verified",insurance:"Verified",nextVerify:"18/12/2026",avatar:"https://i.pravatar.cc/150?u=marcus"}
+];
+function getBadge(s){const l=s.toLowerCase();if(l==='verified')return'<span class="status-badge status-verified">Verified</span>';if(l==='pending')return'<span class="status-badge status-pending">Pending Review</span>';if(l==='expired')return'<span class="status-badge status-expired">Expired</span>';if(l==='missing')return'<span class="status-badge status-missing">Missing</span>';return'<span class="status-badge">'+s+'</span>'}
+function populateTables(){const p=document.getElementById('pendingTableBody'),a=document.getElementById('allTableBody');complianceData.forEach(item=>{const tr=document.createElement('tr');tr.innerHTML=`<td><div class="user-cell"><img src="${item.avatar}" class="avatar" alt="${item.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><div class="avatar avatar-fallback" style="display:none;">${item.name.split(' ').map(n=>n[0]).join('').substring(0,2)}</div><div class="user-details"><span class="user-name">${item.name}</span><span class="sub-text">ID: T-100${item.id}</span></div></div></td><td>${getBadge(item.license)}</td><td>${getBadge(item.bgCheck)}</td><td>${getBadge(item.insurance)}</td><td><span style="font-size:13px;color:${item.nextVerify.includes('Required')?'#dc2626;font-weight:600':'#475569'}">${item.nextVerify}</span></td><td style="text-align:right;"><button class="action-btn btn-review" data-name="${item.name}" data-avatar="${item.avatar}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>Review</button></td>`;if(item.type==='pending')p.appendChild(tr.cloneNode(true));a.appendChild(tr)})}
+populateTables();
+document.querySelectorAll('.tab-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));btn.classList.add('active');document.getElementById(btn.dataset.target).classList.add('active')})});
+const reviewModal=document.getElementById('reviewModal');
+document.body.addEventListener('click',(e)=>{const btn=e.target.closest('.btn-review');if(btn){document.getElementById('modalName').textContent=btn.dataset.name;document.getElementById('modalAvatar').textContent=btn.dataset.name.split(' ').map(n=>n[0]).join('').substring(0,2);reviewModal.classList.add('active')}});
+document.getElementById('closeReviewModal').addEventListener('click',()=>reviewModal.classList.remove('active'));
+document.getElementById('cancelReviewBtn').addEventListener('click',()=>reviewModal.classList.remove('active'));
+reviewModal.addEventListener('click',(e)=>{if(e.target===reviewModal)reviewModal.classList.remove('active')});
+const healiInsight=document.querySelector('.heali-insight');const healiDismiss=document.querySelector('.heali-insight-dismiss');if(healiDismiss&&healiInsight)healiDismiss.addEventListener('click',()=>{healiInsight.style.display='none'});
+</script>
+</body>
+</html>

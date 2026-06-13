@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Medical Profile — Telehealings</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; }
+    .mobile-app-container { height: 100%; width: 100%; background: #fff; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+    @keyframes slideFadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+    .top-section { background: linear-gradient(180deg, #e7f2ff 0%, #2366bd 100%); border-radius: 0 0 50% 50% / 0 0 35px 35px; padding: 18px 20px 24px; flex-shrink: 0; }
+    .header-row { display: flex; justify-content: space-between; align-items: center; }
+    .back-btn { width: 40px; display: flex; cursor: pointer; color: #ffffff; flex-shrink: 0; }
+    .header-title { flex: 1; text-align: center; color: #ffffff; font-size: 22px; font-weight: 700; margin: 0; }
+    .mascot { width: 40px; display: flex; justify-content: flex-end; flex-shrink: 0; }
+    .mascot img { width: 32px; height: auto; object-fit: contain; }
+    .stepper-row { display: flex; justify-content: center; gap: 6px; margin-top: 12px; }
+    .stepper-row .step { flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.3); max-width: 60px; }
+    .stepper-row .step.active { background: #ffffff; }
+
+    .form-section { flex: 1; padding: 20px 24px 40px; display: flex; flex-direction: column; animation: slideFadeUp 0.5s ease-out; background: #fff; z-index: 2; overflow-y: auto; }
+
+    .info-banner { background: #f4f8fd; border-left: 4px solid #3b82f6; border-radius: 8px; padding: 14px 16px; margin-bottom: 20px; }
+    .info-text { font-size: 12px; color: #475569; line-height: 1.5; font-weight: 400; }
+
+    .question-block { margin-bottom: 20px; }
+    .question-title { font-size: 17px; font-weight: 700; color: #000; margin-bottom: 14px; }
+    .question-subtitle { font-size: 13px; color: #64748b; margin-top: -10px; margin-bottom: 14px; line-height: 1.5; }
+
+    .radio-card { display: flex; align-items: center; padding: 16px; border: 1.5px solid #e2e8f0; border-radius: 12px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; background: #fff; }
+    .radio-card:hover { border-color: #93c5fd; background: #f8fafc; }
+    .radio-card:active { transform: scale(0.98); }
+    .radio-card.selected { border-color: #3b82f6; background: rgba(59,130,246,0.06); }
+    .radio-circle { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #cbd5e1; margin-right: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+    .radio-card.selected .radio-circle { border-color: #3b82f6; }
+    .radio-card.selected .radio-circle::after { content: ''; width: 12px; height: 12px; background: #3b82f6; border-radius: 50%; }
+    .radio-label { font-size: 15px; font-weight: 400; color: #334155; }
+    .radio-card.selected .radio-label { color: #0f172a; font-weight: 600; }
+
+    .custom-textarea { width: 100%; min-height: 100px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 15px; color: #1a293b; background: #fff; resize: none; outline: none; transition: all 0.3s; font-family: inherit; box-sizing: border-box; }
+    .custom-textarea::placeholder { color: #94a3b8; font-weight: 400; font-style: italic; }
+    .custom-textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+
+    .divider { height: 1px; background: #e2e8f0; margin-bottom: 16px; width: 100%; }
+
+    .inline-radio-group { display: flex; gap: 32px; margin-bottom: 12px; }
+    .simple-radio { display: flex; align-items: center; cursor: pointer; }
+    .simple-radio .radio-circle { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #cbd5e1; margin-right: 10px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .simple-radio.selected .radio-circle { border-color: #3b82f6; }
+    .simple-radio.selected .radio-circle::after { content: ''; width: 12px; height: 12px; background: #3b82f6; border-radius: 50%; }
+    .simple-radio .radio-label { font-size: 15px; color: #334155; }
+    .simple-radio.selected .radio-label { color: #0f172a; font-weight: 600; }
+
+    .line-label { font-size: 13px; color: #94a3b8; display: block; margin-bottom: 8px; }
+    .line-input { width: 100%; border: none; border-bottom: 1px solid #e2e8f0; padding: 8px 0; font-size: 15px; color: #1a293b; background: transparent; outline: none; transition: border-color 0.3s; font-family: inherit; }
+    .line-input::placeholder { color: #cbd5e1; }
+    .line-input:focus { border-bottom-color: #3b82f6; }
+
+    .conditional-details { display: none; animation: slideFadeUp 0.3s ease-out; background: #f8fafc; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+
+    .btn-primary { width: 100%; background: linear-gradient(135deg, #387bd5 0%, #1e5ab8 100%); color: #fff; border: none; border-radius: 25px; padding: 16px 24px; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; font-family: inherit; margin-top: 16px; margin-bottom: 24px; box-shadow: 0 8px 20px rgba(56, 123, 213, 0.25); }
+    .btn-primary:active { transform: scale(0.97); }
+    .req-star { color: #ef4444; font-size: 18px; vertical-align: middle; }
+    .req-star.valid { color: #10b981; }
+  </style>
+</head>
+<body>
+  <div class="mobile-app-container medical-container">
+    <div class="top-section">
+      <div class="header-row">
+        <div class="back-btn" onclick="window.history.back()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></div>
+        <h1 class="header-title">Medical Profile</h1>
+        <div class="mascot"><img src="../assets/Heali.png" alt="Heali" onerror="this.style.display='none'"></div>
+      </div>
+      <div class="stepper-row"><div class="step active"></div><div class="step"></div><div class="step"></div><div class="step"></div></div>
+    </div>
+
+    <div class="form-section">
+      <div class="info-banner"><div class="info-text">Your mental well-being is as vital as your physical health. Please provide honest details to help us tailor your medical profile accurately. This data is encrypted and handled with the highest clinical confidentiality.</div></div>
+
+      <div class="question-block" id="q1">
+        <div class="question-title">Have you attended therapy before? <span class="req-star" id="q1Status">*</span></div>
+        <div class="radio-card" onclick="selectRadio(this,'q1')"><div class="radio-circle"></div><span class="radio-label">Yes, currently</span></div>
+        <div class="radio-card" onclick="selectRadio(this,'q1')"><div class="radio-circle"></div><span class="radio-label">Yes, in the past</span></div>
+        <div class="radio-card" onclick="selectRadio(this,'q1')"><div class="radio-circle"></div><span class="radio-label">No, never</span></div>
+        <div class="field-error" id="q1Error">Please select an option</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="question-block">
+        <div class="question-title">Any past mental health diagnosis?</div>
+        <div class="question-subtitle">Please list any conditions you have been diagnosed with by a professional.</div>
+        <textarea class="custom-textarea" placeholder="E.g. Generalized Anxiety Disorder, Depression..."></textarea>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="question-block">
+        <div class="question-title">Any history of trauma or significant life events?</div>
+        <div class="question-subtitle">Sharing this helps us understand potential triggers or underlying factors.</div>
+        <textarea class="custom-textarea" placeholder="Describe briefly if comfortable..."></textarea>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="question-block" id="q4">
+        <div class="question-title">Any past psychiatric hospitalisation? <span class="req-star" id="q4Status">*</span></div>
+        <div class="inline-radio-group">
+          <div class="simple-radio" onclick="toggleHospitalisation(this); document.getElementById('q4Status').style.color='#10b981'; document.getElementById('q4Error').classList.remove('show')"><div class="radio-circle"></div><span class="radio-label">Yes</span></div>
+          <div class="simple-radio" onclick="toggleHospitalisation(this); document.getElementById('q4Status').style.color='#10b981'; document.getElementById('q4Error').classList.remove('show')"><div class="radio-circle"></div><span class="radio-label">No</span></div>
+        </div>
+        <div class="field-error" id="q4Error">Please select an option</div>
+        <div class="conditional-details" id="hospitalDetails">
+          <div style="margin-bottom:16px"><label class="line-label">Reason (Optional)</label><textarea class="custom-textarea" placeholder="Briefly describe the reason..." style="min-height:80px;padding:12px 16px"></textarea></div>
+          <div><label class="line-label">Date (Optional)</label><input type="date" class="line-input" style="color:#94a3b8" onchange="this.style.color='#1a293b'"></div>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="return validateMedical1()">Save & Next <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></button>
+    </div>
+  </div>
+  <script>
+    function selectRadio(card, qId) {
+      card.parentElement.querySelectorAll('.radio-card').forEach(r => r.classList.remove('selected'));
+      card.classList.add('selected');
+      document.getElementById(qId + 'Status').style.color = '#10b981';
+      document.getElementById(qId + 'Error').classList.remove('show');
+    }
+    function toggleHospitalisation(el) {
+      el.parentElement.querySelectorAll('.simple-radio').forEach(r => r.classList.remove('selected'));
+      el.classList.add('selected');
+      const isYes = el.querySelector('.radio-label').textContent.trim() === 'Yes';
+      document.getElementById('hospitalDetails').style.display = isYes ? 'block' : 'none';
+      document.getElementById('q4Status').style.color = '#10b981';
+      document.getElementById('q4Error').classList.remove('show');
+    }
+    function validateMedical1() {
+      let valid = true;
+      const q1Selected = document.querySelectorAll('#q1 .radio-card.selected').length > 0;
+      const q4Selected = document.querySelectorAll('#q4 .simple-radio.selected').length > 0;
+      if (!q1Selected) { document.getElementById('q1Error').classList.add('show'); document.getElementById('q1Status').style.color = '#ef4444'; valid = false; }
+      if (!q4Selected) { document.getElementById('q4Error').classList.add('show'); document.getElementById('q4Status').style.color = '#ef4444'; valid = false; }
+      if (valid) window.location.href = 'medical-profile-2.html';
+      return false;
+    }
+  </script>
+</body>
+</html>

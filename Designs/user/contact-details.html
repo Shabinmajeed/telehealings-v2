@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Contact Details — Telehealings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: #f0f2f5; }
+    .mobile-app-container { height: 100%; width: 100%; background: #fff; display: flex; flex-direction: column; overflow: hidden; }
+    @keyframes slideFadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    .top-section { background: linear-gradient(180deg, #e7f2ff 0%, #2366bd 100%); border-radius: 0 0 50% 50% / 0 0 35px 35px; padding: 18px 20px 24px; flex-shrink: 0; }
+    .back-btn { position: absolute; top: 18px; left: 20px; width: 40px; display: flex; cursor: pointer; color: #ffffff; }
+    .header-title { color: #ffffff; font-size: 22px; font-weight: 700; text-align: center; margin: 0 0 4px; }
+    .header-subtitle { color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 600; text-align: center; margin: 0; }
+    .stepper { display: flex; justify-content: center; gap: 6px; margin-top: 12px; }
+    .stepper .step { flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.3); max-width: 60px; }
+    .stepper .step.active { background: #ffffff; }
+    .form-section { flex: 1; padding: 20px 24px 40px; display: flex; flex-direction: column; animation: slideFadeUp 0.5s ease-out; background: #fff; overflow-y: auto; }
+    .input-group { position: relative; margin-bottom: 24px; }
+    .input-label { position: absolute; top: -8px; left: 12px; background: #fff; padding: 0 4px; font-size: 12px; color: #64748b; z-index: 1; }
+    .custom-input { width: 100%; height: 56px; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 16px; font-size: 16px; font-weight: 500; color: #1a293b; outline: none; transition: all 0.3s; box-sizing: border-box; font-family: inherit; }
+    .custom-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+    .custom-input.valid { border-color: #10b981; }
+    .custom-input.invalid { border-color: #ef4444; }
+    .custom-input.with-icon { padding-right: 48px; }
+    .custom-input[readonly] { background: #f8fafc; color: #64748b; }
+    .field-status { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); display: none; }
+    .field-status.show { display: flex; }
+    .field-status .check { color: #10b981; }
+    .field-status .error-icon { color: #ef4444; }
+    .field-error { font-size: 11px; color: #ef4444; margin-top: 4px; margin-left: 4px; display: none; }
+    .field-error.show { display: block; }
+    .verify-badge { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: #10b981; display: flex; }
+    select.custom-input { appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px; }
+    select.custom-input:invalid { color: #94a3b8; }
+    select.custom-input option { color: #1a293b; }
+    .info-banner { background: #f0fdfa; border: 1px solid #ccfbf1; border-left: 4px solid #10b981; border-radius: 12px; padding: 16px; display: flex; align-items: flex-start; gap: 12px; margin-bottom: 24px; }
+    .info-icon { width: 24px; height: 24px; background: #10b981; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+    .info-icon svg { width: 14px; height: 14px; }
+    .info-text { font-size: 13px; color: #0f172a; line-height: 1.5; }
+    .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; color: #f59e0b; }
+    .section-header h2 { font-size: 16px; font-weight: 700; margin: 0; color: #1a293b; }
+    .btn-primary { width: 100%; background: linear-gradient(135deg, #387bd5 0%, #1e5ab8 100%); color: #fff; border: none; border-radius: 25px; padding: 16px 24px; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; font-family: inherit; margin-top: 16px; margin-bottom: 24px; box-shadow: 0 8px 20px rgba(56, 123, 213, 0.25); }
+    .btn-primary:active { transform: scale(0.97); }
+  </style>
+</head>
+<body>
+  <div class="mobile-app-container">
+    <div class="top-section">
+      <div class="back-btn" onclick="window.history.back()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></div>
+      <h1 class="header-title">Contact Information</h1>
+      <p class="header-subtitle">Please provide your contact info.</p>
+      <div class="stepper"><div class="step"></div><div class="step active"></div></div>
+    </div>
+    <div class="form-section">
+      <div class="input-group"><label class="input-label">Phone Number *</label><input type="text" class="custom-input with-icon" id="displayPhone" readonly><div class="verify-badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="#1d4ed8"><path d="M12 2l3.09 2.26L19 5l-.54 3.76L21 12l-2.54 3.24L19 19l-3.91.74L12 22l-3.09-2.26L5 19l.54-3.76L3 12l2.54-3.24L5 5l3.91-.74L12 2zm-1.18 13.06L17 8.84l-1.42-1.42-4.76 4.76-2.12-2.12L7.28 11.48l3.54 3.58z"/></svg></div></div>
+      <div class="input-group"><label class="input-label">Email Address *</label><input type="text" class="custom-input with-icon" id="displayEmail" readonly><div class="verify-badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="#1d4ed8"><path d="M12 2l3.09 2.26L19 5l-.54 3.76L21 12l-2.54 3.24L19 19l-3.91.74L12 22l-3.09-2.26L5 19l.54-3.76L3 12l2.54-3.24L5 5l3.91-.74L12 2zm-1.18 13.06L17 8.84l-1.42-1.42-4.76 4.76-2.12-2.12L7.28 11.48l3.54 3.58z"/></svg></div></div>
+      <div class="input-group"><label class="input-label">Physical Address *</label><input type="text" class="custom-input" id="address" placeholder="Enter physical address" required><div class="field-status" id="addressStatus"><svg class="check" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg></div><div class="field-error" id="addressError">Please enter your address</div></div>
+      <div class="info-banner"><div class="info-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></div><div class="info-text">Your emergency contact will only be notified during critical security or medical emergencies. All data is securely encrypted and protected.</div></div>
+      <div class="section-header" style="margin-top:10px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="10" r="3"></circle><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 6.9 8 11.7z"></path></svg><h2>Emergency Contact</h2></div>
+      <div class="input-group"><label class="input-label">Full Name *</label><input type="text" class="custom-input" id="ecName" placeholder="Enter emergency contact name" required><div class="field-status" id="ecNameStatus"><svg class="check" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg></div><div class="field-error" id="ecNameError">Please enter a name</div></div>
+      <div class="input-group"><label class="input-label">Phone Number *</label><input type="tel" class="custom-input" id="ecPhone" placeholder="Enter phone number" required><div class="field-status" id="ecPhoneStatus"><svg class="check" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg></div><div class="field-error" id="ecPhoneError">Please enter a phone number</div></div>
+      <div class="input-group"><label class="input-label">Relationship *</label><select class="custom-input" id="ecRelation" required><option value="" disabled selected>Select</option><option value="parent">Parent</option><option value="spouse">Spouse</option><option value="sibling">Sibling</option><option value="friend">Friend</option></select><div class="field-status" id="ecRelationStatus"><svg class="check" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg></div><div class="field-error" id="ecRelationError">Please select a relationship</div></div>
+      <button class="btn-primary" id="saveBtn" onclick="validateContact()">Save & Complete <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></button>
+    </div>
+  </div>
+</body>
+<script>
+  function setStatus(id, isValid) {
+    const input = document.getElementById(id);
+    const status = document.getElementById(id + 'Status');
+    const error = document.getElementById(id + 'Error');
+    if (input) {
+      input.classList.toggle('valid', isValid);
+      input.classList.toggle('invalid', !isValid && input.value !== '');
+    }
+    if (status) status.classList.toggle('show', isValid);
+    if (error) error.classList.toggle('show', !isValid && input.value !== '');
+    return !!isValid;
+  }
+  document.getElementById('address').addEventListener('input', function() { setStatus('address', this.value.trim().length >= 3); });
+  document.getElementById('ecName').addEventListener('input', function() { setStatus('ecName', this.value.trim().length >= 2); });
+  document.getElementById('ecPhone').addEventListener('input', function() { setStatus('ecPhone', this.value.trim().length >= 7); });
+  document.getElementById('ecRelation').addEventListener('change', function() { setStatus('ecRelation', this.value !== ''); });
+  function validateContact() {
+    const fields = ['address','ecName','ecPhone','ecRelation'];
+    let allValid = true;
+    fields.forEach(f => { if (!setStatus(f, document.getElementById(f).value.trim().length >= (f==='ecPhone'?7:f==='address'?3:2))) allValid = false; });
+    if (allValid) {
+      // Store contact data (placeholder for API call)
+      const contactData = {
+        address: document.getElementById('address').value.trim(),
+        ecName: document.getElementById('ecName').value.trim(),
+        ecPhone: document.getElementById('ecPhone').value.trim(),
+        ecRelation: document.getElementById('ecRelation').value
+      };
+      localStorage.setItem('contactData', JSON.stringify(contactData));
+      window.location.href = 'profile-success.html';
+    }
+    else document.querySelectorAll('.custom-input.invalid').forEach(i => { i.style.animation='none'; i.offsetHeight; i.style.animation='shake 0.3s ease'; });
+  }
+  const style = document.createElement('style');
+  style.textContent = '@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }';
+  document.head.appendChild(style);
+
+  // Populate phone/email from stored registration data
+  const storedProfile = localStorage.getItem('profileData');
+  if (storedProfile) {
+    try {
+      const profile = JSON.parse(storedProfile);
+      // Phone would be from phone-verify flow; email from profile-completion
+      if (profile.email) document.getElementById('displayEmail').value = profile.email;
+    } catch(e) {}
+  }
+  const storedPhone = localStorage.getItem('verifiedPhone');
+  if (storedPhone) {
+    document.getElementById('displayPhone').value = storedPhone;
+  }
+</script>
+</html>

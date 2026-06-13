@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telehealings - Therapist Registration</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2a73d4;
+            --primary-hover: #2361b5;
+            --surface: #ffffff;
+            --text-main: #111111;
+            --text-muted: #4b4b4b;
+            --border: #999999;
+            --border-light: #e8e8e8;
+            --danger: #dc2626;
+            --radius: 8px;
+            --radius-lg: 16px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+        body { font-family: var(--font); background: #e5e5e5; color: var(--text-main); line-height: 1.5; }
+
+        .reg-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+            background: linear-gradient(110deg, #ffffff 0%, #eef5fc 35%, #7aaaf6 100%);
+        }
+
+        /* --- Header & Branding --- */
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo-img { width: 70px; height: 70px; margin-bottom: 12px; }
+        .brand-title { font-size: 32px; font-weight: 700; letter-spacing: -1px; color: #0745b1; margin-bottom: 6px; }
+
+        /* --- Registration Card Container --- */
+        .registration-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 550px;
+        }
+        .penguin-mascot {
+            position: absolute;
+            top: -140px;
+            left: -120px;
+            width: 250px;
+            height: auto;
+            z-index: 0;
+            transform: scaleX(-1);
+        }
+        .registration-card {
+            position: relative;
+            background-color: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            max-height: 80vh;
+        }
+        .card-body { padding: 40px; overflow-y: auto; }
+
+        .card-body::-webkit-scrollbar { width: 6px; }
+        .card-body::-webkit-scrollbar-track { background: transparent; }
+        .card-body::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+
+        .page-title { font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 8px; text-align: center; }
+        .page-subtitle { font-size: 14px; color: #64748b; margin-bottom: 30px; line-height: 1.5; text-align: center; }
+
+        /* --- Form Inputs --- */
+        .form-row { display: flex; gap: 16px; }
+        .input-group { position: relative; margin-bottom: 20px; flex: 1; }
+        .input-icon {
+            position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+            width: 20px; height: 20px; color: #64748b; pointer-events: none;
+        }
+        .form-control {
+            width: 100%; padding: 14px 16px 14px 42px;
+            background-color: #f8fafc; border: 1px solid #cbd5e1;
+            border-radius: var(--radius); font-size: 15px; font-family: 'Inter', sans-serif;
+            color: #0f172a; outline: none; transition: all 0.2s; box-sizing: border-box;
+        }
+        .form-control:focus { border-color: var(--primary); background-color: #fff; box-shadow: 0 0 0 3px rgba(42, 115, 212, 0.1); }
+        .input-group:focus-within .input-icon { color: var(--primary); }
+
+        select.form-control {
+            cursor: pointer; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px;
+        }
+
+        /* --- Form Fields Group --- */
+        .form-fields-group {
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+        .form-fields-group::-webkit-scrollbar { width: 6px; }
+        .form-fields-group::-webkit-scrollbar-track { background: transparent; }
+        .form-fields-group::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+
+        /* --- Actions & Links --- */
+        .btn-primary {
+            width: 100%; padding: 16px; background-color: var(--primary); color: #fff;
+            border: none; border-radius: var(--radius); font-size: 16px; font-weight: 600;
+            cursor: pointer; margin-top: 10px; transition: background-color 0.2s;
+        }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+
+        /* --- Card Footer --- */
+        .card-footer {
+            background-color: #f8fafc; padding: 22px; text-align: center;
+            font-size: 14px; font-weight: 500; color: #475569; border-top: 1px solid #f1f5f9;
+        }
+        .card-footer a { color: var(--primary); text-decoration: none; font-weight: 600; }
+
+        /* --- Terms Checkbox --- */
+        .terms-wrap {
+            display: flex; align-items: center; gap: 12px;
+            margin-top: 20px; margin-bottom: 24px; text-align: left;
+        }
+        .custom-checkbox {
+            width: 20px; height: 20px; border: 2px solid #cbd5e1; border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; flex-shrink: 0; transition: all 0.2s ease;
+        }
+        .custom-checkbox.checked { background: var(--primary); border-color: var(--primary); }
+        .checkbox-text { font-size: 13px; color: #475569; }
+
+        /* --- Modal Styles --- */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px); z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+        .modal-card {
+            background: #fff; border-radius: var(--radius-lg); padding: 32px 24px;
+            width: 90%; max-width: 400px; text-align: center;
+            transform: translateY(20px); transition: transform 0.3s ease;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .modal-overlay.open .modal-card { transform: translateY(0); }
+        .modal-icon {
+            width: 60px; height: 60px; background: #e2effb; color: var(--primary);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 16px auto;
+        }
+        .modal-title { font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
+        .modal-desc { font-size: 14px; color: #64748b; line-height: 1.5; margin-bottom: 24px; }
+        .terms-content::-webkit-scrollbar { width: 6px; }
+        .terms-content::-webkit-scrollbar-track { background: transparent; }
+        .terms-content::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+
+        @media (max-width: 520px) {
+            .penguin-mascot { display: none; }
+            .reg-page { padding: 40px 16px; }
+            .card-body { padding: 24px 20px; }
+            .form-row { flex-direction: column; gap: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="reg-page">
+    <div class="header">
+        <img src="../assets/logo.png" alt="Telehealings Logo" class="logo-img" onerror="this.parentElement.innerHTML='<svg viewBox=\\'0 0 48 48\\' fill=\\'none\\' width=\\'70\\' height=\\'70\\'><circle cx=\\'24\\' cy=\\'24\\' r=\\'20\\' fill=\\'#2a73d4\\'/><path d=\\'M24 10C16.268 10 10 16.268 10 24C24 24 24 24 24 24C31.732 24 24 24 24 24C31.732 31.732 24 38 24 38C16.268 38 10 31.732 10 24\\' stroke=\\'white\\' stroke-width=\\'2.5\\' stroke-linecap=\\'round\\'/><circle cx=\\'24\\' cy=\\'24\\' r=\\'5\\' fill=\\'white\\'/></svg>'">
+        <h1 class="brand-title">Telehealings</h1>
+        <p style="font-size:14px;font-weight:500;color:#144db9;margin-top:-4px;">Continuity-First Wellness Care Platform</p>
+    </div>
+
+    <div class="registration-wrapper">
+        <img src="../assets/Heali-peak.png" alt="Penguin Mascot" class="penguin-mascot" onerror="this.style.display='none'">
+
+        <div class="registration-card">
+            <div class="card-body">
+                <h2 class="page-title">Create an Account</h2>
+                <p class="page-subtitle">Join the Telehealings provider network to expand your practice and manage your clients seamlessly.</p>
+
+                <div class="form-fields-group">
+                    <div class="form-row">
+                        <div class="input-group">
+                            <svg class="input-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <input type="text" class="form-control" placeholder="First Name">
+                        </div>
+                        <div class="input-group">
+                            <svg class="input-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <input type="text" class="form-control" placeholder="Last Name">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <svg class="input-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        <input type="email" class="form-control" placeholder="Email Address">
+                    </div>
+
+                    <div class="input-group">
+                        <svg class="input-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        <input type="text" class="form-control" placeholder="Date of Birth" onfocus="this.type='date'" onblur="if(!this.value) this.type='text'">
+                    </div>
+
+                    <div class="input-group">
+                        <svg class="input-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                        <select class="form-control" onchange="this.style.color='#0f172a'" style="color:#64748b;">
+                            <option value="" disabled selected>Select Specialization</option>
+                            <option>Clinical Psychology</option>
+                            <option>Cognitive Behavioral Therapy</option>
+                            <option>Couples Therapy</option>
+                            <option>Child Psychology</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <svg class="input-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <input type="password" class="form-control" placeholder="Create Password">
+                    </div>
+
+                    <div class="input-group">
+                        <svg class="input-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <input type="password" class="form-control" placeholder="Confirm Password">
+                    </div>
+                </div>
+
+                <!-- Terms Checkbox -->
+                <div class="terms-wrap">
+                    <div class="custom-checkbox" id="termsCheck" onclick="toggleTerms()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><polyline points="20 6 9 17 4 12"/></polyline>
+                    </div>
+                    <div class="checkbox-text">
+                        I agree to the <a href="#" onclick="event.preventDefault(); openTermsModal();" style="color:var(--primary);font-weight:600;text-decoration:none;">Terms and Conditions</a>
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="registerAccount()">Register</button>
+
+            </div>
+            <div class="card-footer">
+                Already have an account? <a href="index.html">Log in</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-card">
+            <div class="modal-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                </svg>
+            </div>
+            <h3 class="modal-title">Check Your Email</h3>
+            <p class="modal-desc">We've sent a verification link to your email address. Please verify your account to continue.</p>
+            <button class="btn-primary" onclick="window.location.href='index.html'" style="margin-top:0;">Back to Login</button>
+        </div>
+    </div>
+
+    <!-- Terms and Conditions Modal -->
+    <div class="modal-overlay" id="termsModal">
+        <div class="modal-card" style="max-width:500px;text-align:left;">
+            <h3 class="modal-title" style="margin-bottom:16px;">Terms and Conditions</h3>
+            <div class="terms-content" style="max-height:250px;overflow-y:auto;font-size:13px;color:#475569;line-height:1.6;margin-bottom:24px;padding-right:10px;">
+                <p><strong>1. Introduction</strong><br>Welcome to Telehealings. By signing up, you agree to abide by our terms of service.</p>
+                <p style="margin-top:12px;"><strong>2. Professional Conduct</strong><br>As a therapist on our platform, you are expected to maintain professional standards, verify your credentials, and uphold the platform's guidelines.</p>
+                <p style="margin-top:12px;"><strong>3. Privacy & HIPAA Compliance</strong><br>All patient data must be handled in strict accordance with HIPAA regulations and our internal privacy policy.</p>
+                <p style="margin-top:12px;"><strong>4. Payments</strong><br>Platform fees and payout schedules are detailed in your provider agreement. Terms are subject to change with 30 days notice.</p>
+                <p style="margin-top:12px;"><strong>5. Termination</strong><br>We reserve the right to suspend or terminate accounts violating these terms.</p>
+                <p style="margin-top:12px;"><strong>6. Liability</strong><br>Telehealings is a technology platform and does not provide medical advice. Therapists are independent contractors.</p>
+                <p style="margin-top:12px;"><strong>7. Dispute Resolution</strong><br>Any disputes arising from these terms will be handled in arbitration according to local laws.</p>
+            </div>
+            <div style="display:flex;gap:12px;">
+                <button class="btn-primary" style="flex:1;background:#f8fafc;border:1px solid #cbd5e1;color:#475569;margin-top:0;" onclick="denyTerms()">Deny</button>
+                <button class="btn-primary" style="flex:1;margin-top:0;" onclick="acceptTerms()">Accept</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleTerms() {
+            const checkbox = document.getElementById('termsCheck');
+            if (checkbox.classList.contains('checked')) {
+                checkbox.classList.remove('checked');
+                checkbox.querySelector('svg').style.display = 'none';
+            } else {
+                openTermsModal();
+            }
+        }
+        function openTermsModal() { document.getElementById('termsModal').classList.add('open'); }
+        function acceptTerms() {
+            document.getElementById('termsModal').classList.remove('open');
+            document.getElementById('termsCheck').classList.add('checked');
+            document.getElementById('termsCheck').querySelector('svg').style.display = 'block';
+        }
+        function denyTerms() {
+            document.getElementById('termsModal').classList.remove('open');
+            document.getElementById('termsCheck').classList.remove('checked');
+            document.getElementById('termsCheck').querySelector('svg').style.display = 'none';
+        }
+        function registerAccount() {
+            const checkbox = document.getElementById('termsCheck');
+            if (!checkbox.classList.contains('checked')) {
+                alert('Please accept the Terms and Conditions before registering.');
+                return;
+            }
+            document.getElementById('successModal').classList.add('open');
+        }
+    </script>
+</body>
+</html>

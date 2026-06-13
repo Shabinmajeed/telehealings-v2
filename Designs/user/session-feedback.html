@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Session Feedback — Telehealings</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: #f0f2f5; }
+    .mobile-app-container { height: 100%; width: 100%; background: #fff; display: flex; flex-direction: column; overflow: hidden; }
+    @keyframes slideFadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    .top-section { background: linear-gradient(180deg, #e7f2ff 0%, #2366bd 100%); border-radius: 0 0 50% 50% / 0 0 35px 35px; padding: 18px 20px 24px; flex-shrink: 0; }
+    .header-title { color: #fff; font-size: 24px; font-weight: 700; text-align: center; margin: 0 0 4px; }
+    .header-subtitle { color: rgba(255,255,255,0.85); font-size: 14px; text-align: center; margin: 0; }
+    .content-section { flex: 1; padding: 24px; display: flex; flex-direction: column; overflow-y: auto; animation: slideFadeUp 0.5s ease-out; }
+    .section-title { font-size: 15px; font-weight: 700; color: #1a293b; margin: 20px 0 12px; }
+    .section-title:first-child { margin-top: 0; }
+    .rating-stars { display: flex; gap: 8px; margin-bottom: 20px; }
+    .star { width: 44px; height: 44px; border-radius: 50%; border: 2px solid #e2e8f0; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; transition: all 0.2s; }
+    .star.active { background: #fef3c7; border-color: #f59e0b; }
+    .chip-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .chip { padding: 8px 16px; border-radius: 20px; border: 1px solid #e2e8f0; background: #fff; font-size: 13px; font-weight: 500; color: #64748b; cursor: pointer; transition: all 0.2s; }
+    .chip.active { background: #eff6ff; color: #387bd5; border-color: #bfdbfe; }
+    textarea { width: 100%; height: 100px; border: 1px solid #cbd5e1; border-radius: 12px; padding: 16px; font-size: 14px; color: #1a293b; resize: none; outline: none; font-family: inherit; box-sizing: border-box; }
+    textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+    .btn-primary { width: 100%; background: linear-gradient(135deg, #387bd5 0%, #1e5ab8 100%); color: #fff; border: none; border-radius: 25px; padding: 16px 24px; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; font-family: inherit; margin-top: 24px; box-shadow: 0 8px 20px rgba(56, 123, 213, 0.25); }
+    .btn-primary:active { transform: scale(0.97); }
+    .btn-skip { text-align: center; font-size: 13px; color: #64748b; cursor: pointer; margin-top: 16px; margin-bottom: 24px; }
+
+    /* Recommend buttons */
+    .recommend-group { display: flex; gap: 12px; margin-bottom: 20px; }
+    .recommend-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; border-radius: 12px; border: 1.5px solid #e2e8f0; background: #fff; font-size: 15px; font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.2s; }
+    .recommend-btn.selected { border-color: #387bd5; background: #eff6ff; color: #387bd5; }
+    .recommend-btn svg { width: 20px; height: 20px; }
+  </style>
+</head>
+<body>
+  <div class="mobile-app-container">
+    <div class="top-section">
+      <h1 class="header-title">How was your session?</h1>
+      <p class="header-subtitle">Your feedback helps us improve your experience.</p>
+    </div>
+    <div class="content-section">
+      <div class="section-title">Overall Rating</div>
+      <div class="rating-stars" id="ratingStars">
+        <div class="star" data-value="1">😞</div>
+        <div class="star" data-value="2">😕</div>
+        <div class="star" data-value="3">😐</div>
+        <div class="star" data-value="4">😊</div>
+        <div class="star" data-value="5">😄</div>
+      </div>
+      <div class="section-title">Would you recommend this therapist?</div>
+      <div class="recommend-group">
+        <button class="recommend-btn" id="recYes" onclick="selectRecommend(true)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+          Yes
+        </button>
+        <button class="recommend-btn" id="recNo" onclick="selectRecommend(false)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 2.3l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
+          No
+        </button>
+      </div>
+      <div class="section-title">What went well?</div>
+      <div class="chip-group">
+        <div class="chip">Good listener</div>
+        <div class="chip">Helpful advice</div>
+        <div class="chip">Easy to talk to</div>
+        <div class="chip">Understanding</div>
+        <div class="chip">Professional</div>
+        <div class="chip">Punctual</div>
+      </div>
+      <div class="section-title">Additional Comments</div>
+      <textarea placeholder="Share your thoughts about the session (optional)..."></textarea>
+      <button class="btn-primary" id="submitFeedbackBtn">Submit Feedback <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></button>
+      <div class="btn-skip" onclick="window.location.href='home.html'">Skip for now</div>
+    </div>
+  </div>
+  <script>
+    let selectedRating = 0;
+    let wouldRecommend = null;
+
+    document.querySelectorAll('.star').forEach(s => {
+      s.addEventListener('click', function() {
+        const v = parseInt(this.dataset.value);
+        selectedRating = v;
+        document.querySelectorAll('.star').forEach((star, i) => star.classList.toggle('active', i < v));
+      });
+    });
+
+    document.querySelectorAll('.chip').forEach(c => {
+      c.addEventListener('click', () => c.classList.toggle('active'));
+    });
+
+    function selectRecommend(val) {
+      wouldRecommend = val;
+      document.getElementById('recYes').classList.toggle('selected', val === true);
+      document.getElementById('recNo').classList.toggle('selected', val === false);
+    }
+
+    // Update submit button to store feedback
+    document.getElementById('submitFeedbackBtn').onclick = function() {
+      if (selectedRating === 0) { alert('Please select a rating'); return; }
+      if (wouldRecommend === null) { alert('Please select whether you would recommend this therapist'); return; }
+
+      const feedbackData = {
+        rating: selectedRating,
+        wouldRecommend: wouldRecommend,
+        positiveAspects: Array.from(document.querySelectorAll('.chip.active')).map(c => c.textContent),
+        comments: document.querySelector('textarea').value.trim(),
+        submittedAt: new Date().toISOString()
+      };
+      localStorage.setItem('sessionFeedback', JSON.stringify(feedbackData));
+
+      // In production: send to API, then redirect
+      window.location.href = 'home.html';
+    };
+  </script>
+</body>
+</html>

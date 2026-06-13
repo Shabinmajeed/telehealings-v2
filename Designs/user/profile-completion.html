@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Profile Completion — Telehealings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; justify-content: center; align-items: center; background-color: #f0f2f5; }
+    .mobile-app-container { height: 100%; width: 100%; background-color: #ffffff; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+    @keyframes slideFadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes checkPop { 0% { transform: scale(0); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+    .profile-container { background-color: #ffffff; display: flex; flex-direction: column; height: 100vh; position: relative; overflow: hidden; }
+
+    /* Header */
+    .top-section { background: linear-gradient(180deg, #e7f2ff 0%, #2366bd 100%); border-radius: 0 0 50% 50% / 0 0 35px 35px; padding: 18px 20px 24px; flex-shrink: 0; }
+    .header-row { display: flex; justify-content: space-between; align-items: center; }
+    .back-btn { width: 40px; display: flex; cursor: pointer; color: #ffffff; flex-shrink: 0; }
+    .header-titles { flex: 1; text-align: center; }
+    .header-title { color: #ffffff; font-size: 22px; font-weight: 700; margin: 0 0 4px; }
+    .header-subtitle { color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 600; margin: 0; }
+    .mascot { width: 40px; display: flex; justify-content: flex-end; flex-shrink: 0; }
+    .mascot img { width: 32px; height: auto; object-fit: contain; }
+    .stepper { display: flex; justify-content: center; gap: 6px; margin-top: 12px; }
+    .stepper .step { flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.3); max-width: 60px; }
+    .stepper .step.active { background: #ffffff; }
+
+    /* Form */
+    .form-section { flex: 1; padding: 20px 24px 40px; display: flex; flex-direction: column; animation: slideFadeUp 0.5s ease-out; background: #ffffff; z-index: 2; overflow-y: auto; }
+
+    /* Avatar */
+    .avatar-upload { align-self: center; position: relative; margin-top: 10px; margin-bottom: 28px; z-index: 3; }
+    .avatar-circle { width: 100px; height: 100px; background: #f8fafc; border-radius: 50%; box-shadow: 0 8px 24px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 3px dashed #cbd5e1; transition: border-color 0.2s; }
+    .avatar-circle:hover { border-color: #3b82f6; }
+    .avatar-icon { color: #cbd5e1; width: 48px; height: 48px; }
+    .camera-btn { position: absolute; bottom: 0; right: 0; width: 34px; height: 34px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #ffffff; border: 3px solid #ffffff; cursor: pointer; box-shadow: 0 4px 10px rgba(59,130,246,0.3); transition: transform 0.2s; }
+    .camera-btn:active { transform: scale(0.9); }
+
+    /* Input Groups */
+    .input-group { position: relative; margin-bottom: 20px; }
+    .input-label { position: absolute; top: -8px; left: 12px; background: #ffffff; padding: 0 4px; font-size: 12px; font-weight: 400; color: #64748b; z-index: 1; }
+    .custom-input { width: 100%; height: 56px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 16px; padding-right: 44px; font-size: 16px; font-weight: 500; color: #1a293b; outline: none; transition: all 0.3s; box-sizing: border-box; font-family: inherit; }
+    .custom-input::placeholder { color: #94a3b8; font-weight: 400; }
+    .custom-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+    .custom-input.valid { border-color: #10b981; }
+    .custom-input.invalid { border-color: #ef4444; }
+
+    /* Field validation icon */
+    .field-status { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); display: none; }
+    .field-status.show { display: flex; }
+    .field-status .check { color: #10b981; animation: checkPop 0.3s ease-out; }
+    .field-status .error { color: #ef4444; }
+
+    /* Error message */
+    .field-error { font-size: 11px; color: #ef4444; margin-top: 4px; margin-left: 4px; display: none; }
+    .field-error.show { display: block; }
+
+    /* Select */
+    select.custom-input { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px; }
+    select.custom-input:invalid { color: #94a3b8; font-weight: 400; }
+    select.custom-input option { color: #1a293b; font-weight: 500; }
+
+    /* Date picker */
+    .date-wrapper { position: relative; }
+    .date-wrapper .calendar-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; z-index: 2; }
+    input[type="date"].custom-input { position: relative; color: #1a293b; }
+    input[type="date"].custom-input:invalid { color: #94a3b8; font-weight: 400; }
+    input[type="date"].custom-input::-webkit-calendar-picker-indicator { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+    .date-placeholder { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 16px; font-weight: 400; pointer-events: none; display: none; }
+    .date-placeholder.show { display: block; }
+
+    /* Segmented Control */
+    .segmented-control { display: flex; background: #f4f8fd; border: 1px solid #cbd5e1; border-radius: 8px; height: 56px; padding: 4px; }
+    .segment-btn { flex: 1; background: transparent; border: none; font-size: 15px; color: #475569; font-weight: 500; cursor: pointer; border-radius: 6px; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .segment-btn.active { background: #ffffff; color: #3b82f6; box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-weight: 600; }
+    .segment-btn .icon { font-size: 16px; }
+
+    /* Button */
+    .btn-primary { width: 100%; background: linear-gradient(135deg, #387bd5 0%, #1e5ab8 100%); color: #fff; border: none; border-radius: 25px; padding: 16px 24px; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; font-family: inherit; margin-top: 32px; margin-bottom: 24px; box-shadow: 0 8px 20px rgba(56, 123, 213, 0.25); }
+    .btn-primary:active { transform: scale(0.97); }
+    .btn-primary:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; }
+    .btn-primary .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; display: none; }
+    .btn-primary.loading .spinner { display: block; }
+    .btn-primary.loading .btn-text { display: none; }
+
+    /* Overlay */
+    .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.3); display: none; z-index: 100; }
+    .overlay.show { display: flex; align-items: center; justify-content: center; }
+    .overlay .spinner-large { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  </style>
+</head>
+<body>
+  <div class="mobile-app-container profile-container">
+    <div class="top-section">
+      <div class="header-row">
+        <div class="back-btn" onclick="window.history.back()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></div>
+        <div class="header-titles"><h1 class="header-title">Setup Profile</h1><p class="header-subtitle">Tell us a bit more about yourself.</p></div>
+        <div class="mascot"><img src="../assets/Heali.png" alt="Heali" onerror="this.parentElement.innerHTML='<svg width=32 height=32 viewBox=0 0 24 24 fill=none stroke=#fff stroke-width=1.5><circle cx=12 cy=8 r=4></circle><path d=M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2></path></svg>'"></div>
+      </div>
+      <div class="stepper"><div class="step active"></div><div class="step"></div></div>
+    </div>
+
+    <div class="form-section">
+      <div class="avatar-upload">
+        <div class="avatar-circle" id="avatarPreview" onclick="document.getElementById('avatarInput').click()">
+          <svg class="avatar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </div>
+        <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="handleAvatarUpload(event)">
+        <div class="camera-btn" onclick="document.getElementById('avatarInput').click()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></div>
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">Full Name *</label>
+        <input type="text" class="custom-input" id="fullName" placeholder="Enter your full name" required>
+        <div class="field-status" id="fullNameStatus"><svg class="check" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+        <div class="field-error" id="fullNameError">Please enter your full name</div>
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">Email Address *</label>
+        <input type="email" class="custom-input" id="email" placeholder="Enter your email address" required>
+        <div class="field-status" id="emailStatus"><svg class="check" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+        <div class="field-error" id="emailError">Please enter a valid email address</div>
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">Date Of Birth *</label>
+        <div class="date-wrapper">
+          <input type="date" class="custom-input" id="dob" required>
+          <div class="date-placeholder" id="dobPlaceholder">DD / MM / YYYY</div>
+          <div class="calendar-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+        </div>
+        <div class="field-error" id="dobError">Please select your date of birth</div>
+        <div class="field-error" id="dobAgeError" style="display:none;">You must be 18 or older to create an account</div>
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">Gender *</label>
+        <div class="segmented-control">
+          <button class="segment-btn active" type="button" data-value="male"><span class="icon">♂</span> Male</button>
+          <button class="segment-btn" type="button" data-value="female"><span class="icon">♀</span> Female</button>
+          <button class="segment-btn" type="button" data-value="other"><span class="icon">⚧</span> Other</button>
+        </div>
+        <input type="hidden" id="gender" value="male">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">Occupation *</label>
+        <select class="custom-input" id="occupation" required>
+          <option value="" disabled selected>Select</option>
+          <option value="student">Student</option>
+          <option value="employed">Employed</option>
+          <option value="unemployed">Unemployed</option>
+        </select>
+        <div class="field-status" id="occupationStatus"><svg class="check" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+        <div class="field-error" id="occupationError">Please select your occupation</div>
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">Marital Status *</label>
+        <select class="custom-input" id="marital" required>
+          <option value="" disabled selected>Select</option>
+          <option value="single">Single</option>
+          <option value="married">Married</option>
+          <option value="divorced">Divorced</option>
+          <option value="widowed">Widowed</option>
+        </select>
+        <div class="field-status" id="maritalStatus"><svg class="check" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+        <div class="field-error" id="maritalError">Please select your marital status</div>
+      </div>
+
+      <button class="btn-primary" id="saveBtn" onclick="handleSave()">
+        <span class="btn-text">Save & Next</span>
+        <div class="spinner"></div>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="btn-text"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      </button>
+    </div>
+    <div class="overlay" id="overlay"><div class="spinner-large"></div></div>
+  </div>
+
+  <script>
+    // Avatar upload
+    function handleAvatarUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image must be less than 5MB');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const preview = document.getElementById('avatarPreview');
+        preview.innerHTML = '';
+        preview.style.backgroundImage = 'url(' + e.target.result + ')';
+        preview.style.backgroundSize = 'cover';
+        preview.style.backgroundPosition = 'center';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Segmented control
+    document.querySelectorAll('.segment-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        this.parentElement.querySelectorAll('.segment-btn').forEach(s => s.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById('gender').value = this.dataset.value;
+      });
+    });
+
+    // Date picker placeholder + age gate
+    const dobInput = document.getElementById('dob');
+    const dobPlaceholder = document.getElementById('dobPlaceholder');
+    dobInput.addEventListener('input', function() {
+      dobPlaceholder.classList.toggle('show', !this.value);
+      validateAge();
+    });
+    dobInput.addEventListener('focus', () => dobPlaceholder.classList.remove('show'));
+    dobInput.addEventListener('blur', () => dobPlaceholder.classList.toggle('show', !dobInput.value));
+
+    function validateAge() {
+      const dob = dobInput.value;
+      if (!dob) return false;
+      const birthDate = new Date(dob);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      const ageError = document.getElementById('dobAgeError');
+      const dobError = document.getElementById('dobError');
+      if (age < 18) {
+        ageError.style.display = 'block';
+        dobError.style.display = 'none';
+        dobInput.classList.add('invalid');
+        dobInput.classList.remove('valid');
+        return false;
+      } else {
+        ageError.style.display = 'none';
+        dobInput.classList.remove('invalid');
+        return true;
+      }
+    }
+
+    // Form validation
+    function validateField(id, validator) {
+      const input = document.getElementById(id);
+      const status = document.getElementById(id + 'Status');
+      const error = document.getElementById(id + 'Error');
+      const isValid = validator(input.value);
+      input.classList.toggle('valid', isValid);
+      input.classList.toggle('invalid', !isValid && input.value !== '');
+      if (status) status.classList.toggle('show', isValid);
+      if (error) error.classList.toggle('show', !isValid && input.value !== '');
+      return isValid;
+    }
+
+    document.getElementById('fullName').addEventListener('input', function() {
+      validateField('fullName', v => v.trim().length >= 2);
+    });
+    document.getElementById('email').addEventListener('input', function() {
+      validateField('email', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
+    });
+    document.getElementById('dob').addEventListener('input', function() {
+      const isValid = !!this.value && validateAge();
+      document.getElementById('dobError').classList.toggle('show', !this.value);
+      return isValid;
+    });
+    document.getElementById('occupation').addEventListener('change', function() {
+      validateField('occupation', v => v !== '');
+    });
+    document.getElementById('marital').addEventListener('change', function() {
+      validateField('marital', v => v !== '');
+    });
+
+    // Save with loading state
+    function handleSave() {
+      const fields = [
+        { id: 'fullName', validator: v => v.trim().length >= 2 },
+        { id: 'email', validator: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+        { id: 'dob', validator: v => !!v && validateAge() },
+        { id: 'occupation', validator: v => v !== '' },
+        { id: 'marital', validator: v => v !== '' }
+      ];
+
+      let allValid = true;
+      fields.forEach(f => {
+        const isValid = validateField(f.id, f.validator);
+        if (!isValid) allValid = false;
+      });
+
+      if (!allValid) {
+        document.querySelectorAll('.custom-input.invalid').forEach(input => {
+          input.style.animation = 'none';
+          input.offsetHeight;
+          input.style.animation = 'shake 0.3s ease';
+        });
+        return;
+      }
+
+      // Store profile data (placeholder for API call)
+      const profileData = {
+        fullName: document.getElementById('fullName').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        dob: document.getElementById('dob').value,
+        gender: document.getElementById('gender').value,
+        occupation: document.getElementById('occupation').value,
+        maritalStatus: document.getElementById('marital').value,
+        avatar: document.getElementById('avatarPreview').style.backgroundImage || null
+      };
+      localStorage.setItem('profileData', JSON.stringify(profileData));
+
+      // Show loading state
+      const btn = document.getElementById('saveBtn');
+      btn.classList.add('loading');
+      btn.disabled = true;
+      document.getElementById('overlay').classList.add('show');
+
+      setTimeout(() => {
+        window.location.href = 'contact-details.html';
+      }, 1200);
+    }
+
+    const style = document.createElement('style');
+    style.textContent = '@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }';
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Telehealings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .splash-container {
+      background: radial-gradient(circle at center, #5b96ea 0%, #387bd5 70%);
+      height: 100%;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      text-align: center;
+      position: relative;
+      transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+
+    .splash-container.fade-out {
+      opacity: 0;
+    }
+
+    .brand-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: brandFadeIn 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .splash-logo-circle {
+      background-color: #ffffff;
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 25px;
+      margin-top: -60px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .splash-logo-circle img {
+      width: 100px;
+      height: auto;
+    }
+
+    @keyframes brandFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.98) translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .splash-title {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 36px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      letter-spacing: 0.01em;
+    }
+
+    .splash-subtitle {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      opacity: 0.85;
+      color: #e2effb;
+    }
+
+    /* Bottom fade */
+    .splash-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+      background: linear-gradient(to top, rgba(56, 123, 213, 0.3) 0%, transparent 100%);
+      pointer-events: none;
+    }
+    .splash-skip { position: absolute; bottom: 30px; right: 24px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.7); cursor: pointer; z-index: 10; }
+    .splash-timer { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: rgba(255,255,255,0.2); z-index: 10; }
+    .splash-timer-bar { height: 100%; width: 0; background: #fff; transition: width 3s linear; }
+  </style>
+</head>
+<body>
+  <div class="splash-container" id="splashContainer">
+    <div class="brand-block">
+      <div class="splash-logo-circle">
+        <img src="../assets/logo.png" alt="Telehealings Logo" onerror="this.parentElement.innerHTML='<svg viewBox=\\'0 0 48 48\\' fill=\\'none\\' width=\\'80\\' height=\\'80\\'><circle cx=\\'24\\' cy=\\'24\\' r=\\'20\\' fill=\\'#2a73d4\\'/><path d=\\'M24 10C16.268 10 10 16.268 10 24C24 24 24 24 24 24C31.732 24 24 24 24 24C31.732 31.732 24 38 24 38C16.268 38 10 31.732 10 24\\' stroke=\\'white\\' stroke-width=\\'2.5\\' stroke-linecap=\\'round\\'/><circle cx=\\'24\\' cy=\\'24\\' r=\\'5\\' fill=\\'white\\'/></svg>'">
+      </div>
+      <h1 class="splash-title">Telehealings</h1>
+      <p class="splash-subtitle">Continuity-First Wellness Care Platform</p>
+    </div>
+    <div class="splash-bottom"></div>
+    <div class="splash-skip" id="splashSkip">Skip →</div>
+    <div class="splash-timer"><div class="splash-timer-bar" id="splashTimerBar"></div></div>
+  </div>
+
+  <script>
+    let splashTimer;
+    function goToMarketing() {
+      document.getElementById('splashContainer').classList.add('fade-out');
+      setTimeout(() => { window.location.href = 'marketing.html'; }, 600);
+    }
+
+    // Auto-advance after 3 seconds
+    splashTimer = setTimeout(goToMarketing, 3000);
+
+    // Tap to skip
+    document.getElementById('splashContainer').addEventListener('click', () => {
+      clearTimeout(splashTimer);
+      goToMarketing();
+    });
+
+    // Skip button
+    document.getElementById('splashSkip').addEventListener('click', (e) => {
+      e.stopPropagation();
+      clearTimeout(splashTimer);
+      goToMarketing();
+    });
+
+    // Animate timer bar
+    setTimeout(() => { document.getElementById('splashTimerBar').style.width = '100%'; }, 50);
+  </script>
+</body>
+</html>

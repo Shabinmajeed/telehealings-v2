@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Appointments — Telehealings</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: #f0f2f5; }
+    .mobile-app-container { height: 100%; width: 100%; background: #fbfcfd; display: flex; flex-direction: column; overflow: hidden; }
+    @keyframes slideFadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    .top-section { background: linear-gradient(180deg, rgba(59,130,246,0.12) 0%, rgba(226,239,250,1) 100%); border-radius: 0 0 50% 50% / 0 0 25px 25px; padding: 48px 20px 24px; flex-shrink: 0; }
+    .header-row { display: flex; justify-content: space-between; align-items: center; }
+    .back-btn { width: 40px; display: flex; cursor: pointer; color: #335075; }
+    .header-title { flex: 1; text-align: center; color: #1e5ab8; font-size: 22px; font-weight: 700; margin: 0; }
+    .tabs { display: flex; gap: 24px; margin-top: 20px; padding: 0 4px; }
+    .tab { font-size: 15px; font-weight: 500; color: #64748b; padding-bottom: 8px; cursor: pointer; }
+    .tab.active { font-weight: 700; color: #1e5ab8; border-bottom: 2px solid #1e5ab8; }
+    .content-section { flex: 1; padding: 20px 24px; overflow-y: auto; animation: slideFadeUp 0.5s ease-out; }
+    .appointment-card { background: #fff; border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
+    .appt-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .appt-status { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 12px; text-transform: uppercase; }
+    .status-upcoming { background: #e2effb; color: #1e5ab8; }
+    .status-completed { background: #dcfce7; color: #16a34a; }
+    .status-cancelled { background: #fef2f2; color: #ef4444; }
+    .therapist-info { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .therapist-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #f1f5f9; }
+    .therapist-details h3 { font-size: 15px; font-weight: 700; color: #1a293b; margin: 0; }
+    .therapist-details p { font-size: 12px; color: #64748b; margin: 0; }
+    .appt-time { display: flex; background: #f8fafc; border-radius: 12px; padding: 12px; gap: 12px; margin-bottom: 12px; }
+    .time-block { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .time-label { font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; }
+    .time-value { font-size: 13px; font-weight: 700; color: #1a293b; }
+    .appt-actions { display: flex; gap: 8px; }
+    .btn-sm { flex: 1; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; font-family: inherit; }
+    .btn-join { background: #387bd5; color: #fff; }
+    .btn-reschedule { background: #f8fafc; color: #387bd5; border: 1px solid #e2e8f0; }
+    .btn-cancel { background: #fef2f2; color: #ef4444; }
+    .empty-state { text-align: center; padding: 40px 20px; color: #94a3b8; }
+    .empty-state h3 { font-size: 16px; font-weight: 600; color: #1a293b; margin-bottom: 8px; }
+
+    /* Cancel Modal */
+    .cancel-modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .cancel-modal-content { background: #fff; border-radius: 20px; padding: 24px; width: 100%; max-width: 340px; }
+    .cancel-modal-content h3 { font-size: 18px; font-weight: 700; color: #1a293b; margin: 0 0 8px; }
+    .cancel-modal-content p { font-size: 14px; color: #64748b; margin: 0 0 16px; line-height: 1.5; }
+    .cancel-reason { margin-bottom: 16px; }
+    .cancel-reason-label { font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 8px; }
+    .cancel-reason-options { display: flex; flex-wrap: wrap; gap: 6px; }
+    .cancel-reason-option { padding: 6px 12px; border-radius: 16px; border: 1.5px solid #e2e8f0; background: #fff; font-size: 12px; font-weight: 500; color: #64748b; cursor: pointer; transition: all 0.2s; }
+    .cancel-reason-option.selected { background: #e2effb; color: #1e5ab8; border-color: #1e5ab8; }
+    .cancel-actions { display: flex; gap: 10px; }
+    .btn-keep { flex: 1; padding: 12px; border-radius: 12px; border: 1.5px solid #e2e8f0; background: #fff; font-size: 14px; font-weight: 600; color: #64748b; cursor: pointer; font-family: inherit; }
+    .btn-confirm-cancel { flex: 1; padding: 12px; border-radius: 12px; border: none; background: #ef4444; font-size: 14px; font-weight: 600; color: #fff; cursor: pointer; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <div class="mobile-app-container">
+    <div class="top-section">
+      <div class="header-row">
+        <div class="back-btn" onclick="window.history.back()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></div>
+        <h1 class="header-title">My Appointments</h1>
+        <div style="width:40px"></div>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">Upcoming</div>
+        <div class="tab" onclick="document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">Completed</div>
+      </div>
+    </div>
+    <div class="content-section" id="appointmentsList">
+      <!-- Appointments will be dynamically loaded here -->
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <h3>No appointments</h3>
+      <p>Book a session with a therapist to get started.</p>
+    </div>
+  </div>
+
+  <!-- Cancel Modal -->
+  <div class="cancel-modal-overlay" id="cancelModal" style="display:none;">
+    <div class="cancel-modal-content">
+      <h3 id="cancelTitle">Cancel Appointment</h3>
+      <p id="cancelMessage">Are you sure you want to cancel this appointment?</p>
+      <div class="cancel-reason" id="cancelReasonSection">
+        <div class="cancel-reason-label">Reason for cancellation (optional)</div>
+        <div class="cancel-reason-options">
+          <div class="cancel-reason-option" onclick="selectCancelReason(this, 'Schedule conflict')">Schedule conflict</div>
+          <div class="cancel-reason-option" onclick="selectCancelReason(this, 'Not feeling well')">Not feeling well</div>
+          <div class="cancel-reason-option" onclick="selectCancelReason(this, 'Found a different therapist')">Found a different therapist</div>
+          <div class="cancel-reason-option" onclick="selectCancelReason(this, 'Financial reasons')">Financial reasons</div>
+          <div class="cancel-reason-option" onclick="selectCancelReason(this, 'No longer needed')">No longer needed</div>
+          <div class="cancel-reason-option" onclick="selectCancelReason(this, 'Other')">Other</div>
+        </div>
+      </div>
+      <div class="cancel-actions">
+        <button class="btn-keep" onclick="closeCancelModal()">Keep Appointment</button>
+        <button class="btn-confirm-cancel" id="confirmCancelBtn" onclick="confirmCancel()">Confirm Cancellation</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let cancelReason = '';
+    let appointmentToCancel = null;
+
+    // Sample appointment data (in production: loaded from API)
+    const sampleAppointments = [
+      { id: 'TH-9482', therapist: 'John .D', specialty: 'Clinical Psychologist', status: 'upcoming', date: 'Tomorrow, Oct 24', time: '04:00 PM', type: 'Video', avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=150&q=80' },
+      { id: 'TH-9475', therapist: 'Smitha .S', specialty: 'Counseling Psychologist', status: 'completed', date: 'Oct 20, 2026', time: '45 min', type: 'Audio', avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=150&q=80' }
+    ];
+
+    function loadAppointments() {
+      const container = document.getElementById('appointmentsList');
+      const emptyState = document.getElementById('emptyState');
+      const stored = localStorage.getItem('userAppointments');
+      const appointments = stored ? JSON.parse(stored) : sampleAppointments;
+
+      if (appointments.length === 0) {
+        container.innerHTML = '';
+        emptyState.style.display = 'block';
+        return;
+      }
+      emptyState.style.display = 'none';
+
+      let html = '';
+      appointments.forEach(appt => {
+        const isUpcoming = appt.status === 'upcoming';
+        html += '<div class="appointment-card">';
+        html += '<div class="appt-header"><span class="appt-status status-' + appt.status + '">' + (isUpcoming ? 'Upcoming' : 'Completed') + '</span><span style="font-size:12px;color:#94a3b8">#' + appt.id + '</span></div>';
+        html += '<div class="therapist-info"><img class="therapist-avatar" src="' + appt.avatar + '" alt="' + appt.therapist + '"><div class="therapist-details"><h3>' + appt.therapist + '</h3><p>' + appt.specialty + '</p></div></div>';
+        html += '<div class="appt-time"><div class="time-block"><span class="time-label">Date</span><span class="time-value">' + appt.date + '</span></div><div style="width:1.5px;background:#e2e8f0;margin:0 8px"></div><div class="time-block"><span class="time-label">' + (isUpcoming ? 'Time' : 'Duration') + '</span><span class="time-value">' + appt.time + '</span></div></div>';
+        if (isUpcoming) {
+          html += '<div class="appt-actions">';
+          html += '<button class="btn-sm btn-join" onclick="joinSession()">Join Session</button>';
+          html += '<button class="btn-sm btn-reschedule" onclick="rescheduleAppt(\'' + appt.id + '\')">Reschedule</button>';
+          html += '<button class="btn-sm btn-cancel" onclick="openCancelModal(\'' + appt.id + '\')">Cancel</button>';
+          html += '</div>';
+        }
+        html += '</div>';
+      });
+      container.innerHTML = html;
+    }
+
+    function openCancelModal(id) {
+      appointmentToCancel = id;
+      cancelReason = '';
+      document.querySelectorAll('.cancel-reason-option').forEach(o => o.classList.remove('selected'));
+      document.getElementById('cancelModal').style.display = 'flex';
+    }
+
+    function closeCancelModal() {
+      document.getElementById('cancelModal').style.display = 'none';
+      appointmentToCancel = null;
+      cancelReason = '';
+    }
+
+    function selectCancelReason(el, reason) {
+      document.querySelectorAll('.cancel-reason-option').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+      cancelReason = reason;
+    }
+
+    function confirmCancel() {
+      if (!appointmentToCancel) return;
+      // In production: API call to cancel
+      // For prototype: update localStorage
+      const stored = localStorage.getItem('userAppointments');
+      let appointments = stored ? JSON.parse(stored) : sampleAppointments;
+      appointments = appointments.map(a => a.id === appointmentToCancel ? {...a, status: 'cancelled', cancellationReason: cancelReason, cancelledAt: new Date().toISOString()} : a);
+      localStorage.setItem('userAppointments', JSON.stringify(appointments));
+      closeCancelModal();
+      loadAppointments();
+    }
+
+    function rescheduleAppt(id) {
+      // In production: open booking modal pre-filled
+      window.location.href = 'care.html';
+    }
+
+    function joinSession() {
+      window.location.href = 'delivery-precheck.html';
+    }
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // Load on page load
+    loadAppointments();
+  </script>
+</body>
+</html>
