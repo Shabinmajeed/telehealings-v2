@@ -1,0 +1,9 @@
+{
+  "$schema": "https://vercel.com/docs/project-configuration",
+  "buildCommand": "npm run build",
+  "outputDirectory": "packages/web-admin/dist",
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

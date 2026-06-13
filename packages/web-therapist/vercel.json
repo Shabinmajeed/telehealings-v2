@@ -1,0 +1,10 @@
+{
+  "$schema": "https://vercel.com/docs/project-configuration",
+  "name": "telehealings-therapist",
+  "buildCommand": "cd packages/web-therapist && npm run build",
+  "outputDirectory": "packages/web-therapist/dist",
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
