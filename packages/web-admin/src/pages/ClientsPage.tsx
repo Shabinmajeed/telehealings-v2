@@ -30,31 +30,6 @@ interface GuestUser {
   personalisation: string[];
 }
 
-// ─── Sample Data ───
-const clientsData: Client[] = [
-  { id: 1, name: "Ajesh Anand", email: "ajeshanand@gmail.com", therapist: "Dr. Ajesh Anand", phone: "+971 123456789", lastActiveDate: "22/04/2026", lastActiveTime: "11:10 Am", sessionStatus: "Schedule Booked", sessionDate: "25/04/2026 10:00 Am", avatar: "", status: "booked" },
-  { id: 2, name: "Nathaniel Jacob", email: "nathanieljacob@gmail.com", therapist: "Dr. Sarah Smith", phone: "+971 123456789", lastActiveDate: "22/04/2026", lastActiveTime: "11:10 Am", sessionStatus: "Schedule Booked", sessionDate: "25/04/2026 10:00 Am", avatar: "", status: "booked" },
-  { id: 3, name: "Bethany Kay", email: "bethanykay@gmail.com", therapist: "Dr. Ajesh Anand", phone: "+971 123456789", lastActiveDate: "22/04/2026", lastActiveTime: "11:10 Am", sessionStatus: "Schedule Booked", sessionDate: "25/04/2026 10:00 Am", avatar: "", status: "booked" },
-  { id: 4, name: "Nancy Wheeler", email: "nancywheeler@gmail.com", therapist: "Dr. Sarah Smith", phone: "+971 123456789", lastActiveDate: "22/04/2026", lastActiveTime: "11:10 Am", sessionStatus: "Schedule Booked", sessionDate: "25/04/2026 10:00 Am", avatar: "", status: "booked" },
-  { id: 5, name: "Victor Martinez", email: "victormartinez@gmail.com", therapist: "Dr. Ajesh Anand", phone: "+971 123456789", lastActiveDate: "22/04/2026", lastActiveTime: "11:10 Am", sessionStatus: "Schedule Booked", sessionDate: "25/04/2026 10:00 Am", avatar: "", status: "booked" },
-  { id: 6, name: "Jane Hopper", email: "janehopper@gmail.com", therapist: "Dr. Sarah Smith", phone: "+971 123456789", lastActiveDate: "22/04/2026", lastActiveTime: "11:10 Am", sessionStatus: "Schedule Booked", sessionDate: "25/04/2026 10:00 Am", avatar: "", status: "booked" },
-  { id: 7, name: "Max Mayfield", email: "maxmayfield@gmail.com", therapist: "Dr. Ajesh Anand", phone: "+971 123456789", lastActiveDate: "22/04/2026", lastActiveTime: "11:10 Am", sessionStatus: "Pending", sessionDate: "", avatar: "", status: "pending" },
-  { id: 8, name: "Mike Wheeler", email: "mikewheel@gmail.com", therapist: "Dr. Sarah Smith", phone: "+971 123456789", lastActiveDate: "22/04/2026", lastActiveTime: "11:10 Am", sessionStatus: "Pending", sessionDate: "", avatar: "", status: "pending" },
-  { id: 9, name: "Will Byers", email: "willbyers@gmail.com", therapist: "Dr. Ajesh Anand", phone: "+971 123456789", lastActiveDate: "22/04/2026", lastActiveTime: "11:10 Am", sessionStatus: "Schedule Booked", sessionDate: "25/04/2026 10:00 Am", avatar: "", status: "booked" },
-  { id: 10, name: "Chrissy Cunningham", email: "chrissycunninhgham@gmail.com", therapist: "Dr. Sarah Smith", phone: "+971 123456789", lastActiveDate: "22/04/2026", lastActiveTime: "11:10 Am", sessionStatus: "Schedule Booked", sessionDate: "25/04/2026 10:00 Am", avatar: "", status: "booked" },
-  { id: 11, name: "Lucas Sinclair", email: "lucass@gmail.com", therapist: "Unassigned", phone: "+971 509876543", lastActiveDate: "20/04/2026", lastActiveTime: "03:20 Pm", sessionStatus: "New", sessionDate: "", avatar: "", status: "new" },
-  { id: 12, name: "Dustin Henderson", email: "dustinh@gmail.com", therapist: "Unassigned", phone: "+971 508765432", lastActiveDate: "19/04/2026", lastActiveTime: "01:15 Pm", sessionStatus: "New", sessionDate: "", avatar: "", status: "new" },
-  { id: 13, name: "Alex Rivera", email: "alexr@gmail.com", therapist: "Unassigned", phone: "+971 507654321", lastActiveDate: "18/04/2026", lastActiveTime: "10:30 Am", sessionStatus: "New", sessionDate: "", avatar: "", status: "new" },
-  { id: 14, name: "Sam Okafor", email: "samok@gmail.com", therapist: "Unassigned", phone: "+971 506543210", lastActiveDate: "17/04/2026", lastActiveTime: "05:45 Pm", sessionStatus: "New", sessionDate: "", avatar: "", status: "new" },
-  { id: 15, name: "Riley Thompson", email: "rileyt@gmail.com", therapist: "Unassigned", phone: "+971 505432109", lastActiveDate: "16/04/2026", lastActiveTime: "12:00 Pm", sessionStatus: "New", sessionDate: "", avatar: "", status: "new" },
-  { id: 16, name: "Jordan Lee", email: "jordanl@gmail.com", therapist: "Unassigned", phone: "+971 504321098", lastActiveDate: "15/04/2026", lastActiveTime: "09:10 Am", sessionStatus: "New", sessionDate: "", avatar: "", status: "new" },
-  { id: 17, name: "Casey Morgan", email: "caseym@gmail.com", therapist: "Unassigned", phone: "+971 503210987", lastActiveDate: "14/04/2026", lastActiveTime: "04:25 Pm", sessionStatus: "New", sessionDate: "", avatar: "", status: "new" },
-  { id: 18, name: "Taylor Swift", email: "taylors@gmail.com", therapist: "Unassigned", phone: "+971 502109876", lastActiveDate: "13/04/2026", lastActiveTime: "11:55 Am", sessionStatus: "New", sessionDate: "", avatar: "", status: "new" },
-  { id: 19, name: "Inactive User 1", email: "inactive1@gmail.com", therapist: "Dr. Sarah Smith", phone: "+971 501098765", lastActiveDate: "15/01/2026", lastActiveTime: "09:00 Am", sessionStatus: "Inactive", sessionDate: "", avatar: "", status: "inactive" },
-  { id: 20, name: "Inactive User 2", email: "inactive2@gmail.com", therapist: "Dr. Ajesh Anand", phone: "+971 500987654", lastActiveDate: "20/12/2025", lastActiveTime: "02:30 Pm", sessionStatus: "Inactive", sessionDate: "", avatar: "", status: "inactive" },
-  { id: 21, name: "Inactive User 3", email: "inactive3@gmail.com", therapist: "Unassigned", phone: "+971 499876543", lastActiveDate: "05/11/2025", lastActiveTime: "11:15 Am", sessionStatus: "Inactive", sessionDate: "", avatar: "", status: "inactive" },
-];
-
 // ─── Helpers ───
 function getInitials(name: string) {
   return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
