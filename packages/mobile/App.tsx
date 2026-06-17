@@ -7,6 +7,7 @@ import SplashScreen from './src/screens/SplashScreen';
 import MarketingScreen from './src/screens/MarketingScreen';
 import SoftOnboardingScreen from './src/screens/SoftOnboardingScreen';
 import PersonalisationScreen from './src/screens/PersonalisationScreen';
+import HomeScreen from './src/screens/HomeScreen';
 
 export default function App() {
   const [route, setRoute] = useState('/');
@@ -28,6 +29,8 @@ export default function App() {
         return <SoftOnboardingScreen />;
       case '/personalisation':
         return <PersonalisationScreen />;
+      case '/home':
+        return <HomeScreen />;
       default:
         return <SplashScreen />;
     }

@@ -6,7 +6,7 @@
   "workspaces": [
     "packages/*",
     "shared",
-    "backend"
+    "packages/backend"
   ],
   "scripts": {
     "dev": "turbo run dev",
@@ -33,6 +33,7 @@
     "ajv": "^8.17.1",
     "expo-constants": "~17.0.8",
     "expo-linking": "~7.0.5",
+    "iconv-lite": "^0.4.24",
     "react-native-web": "~0.19.13"
   }
 }

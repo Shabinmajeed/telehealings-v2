@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum GuestStatus {
+  GUEST
+  REGISTERED
+  ACTIVE
+}
+
+enum TherapistStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  REJECTED
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+model GuestUser {
+  id              String      @id @default(uuid())
+  name            String
+  email           String?     @unique
+  phone           String?
+  personalisation Json        @default("[]")
+  tcAcceptedAt    DateTime
+  status          GuestStatus @default(GUEST)
+  convertedAt     DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  user            User?
+
+  @@map("guest_users")
+}
+
+model User {
+  id              String      @id @default(uuid())
+  guestId         String?     @unique
+  email           String      @unique
+  password        String
+  firstName       String
+  lastName        String
+  phone           String?
+  dob             String
+  gender          String
+  occupation      String
+  maritalStatus   String
+  avatar          String?
+  status          UserStatus  @default(ACTIVE)
+  emailVerified   Boolean     @default(false)
+  phoneVerified   Boolean     @default(false)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  guest           GuestUser?  @relation(fields: [guestId], references: [id])
+  contactDetails  ContactDetails?
+  medicalProfile  MedicalProfile?
+
+  @@map("users")
+}
+
+model ContactDetails {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  address           String
+  emergencyName     String
+  emergencyPhone    String
+  emergencyRelation String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user              User     @relation(fields: [userId], references: [id])
+
+  @@map("contact_details")
+}
+
+model MedicalProfile {
+  id                    String   @id @default(uuid())
+  userId                String   @unique
+
+  // Step 1: Therapy History
+  therapyHistory        String   @default("")
+  pastDiagnosis         String   @default("")
+  traumaHistory         String   @default("")
+  psychiatricHospital   String   @default("")  // Yes/No
+  hospitalReason        String   @default("")
+  hospitalDate          String   @default("")
+
+  // Step 2: Therapy Goals
+  bringsYouToTherapy    String   @default("")
+  howLongExperiencing   String   @default("")
+  affectingDailyLife    String   @default("")
+  expectations          String   @default("")
+
+  // Step 3: Medical History
+  medicalConditions     Json     @default("[]")
+  otherConditions       String   @default("")
+  tobaccoUse            String   @default("")
+  alcoholConsumption    String   @default("")
+  otherSubstances       String   @default("")
+  currentMedications    String   @default("")
+
+  // Step 4: Safety Assessment
+  selfHarmThoughts      String   @default("")  // Yes/No
+  selfHarmHistory       String   @default("")  // Yes/No
+  harmOthers            String   @default("")  // Yes/No
+
+  completed             Boolean  @default(false)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  user                  User     @relation(fields: [userId], references: [id])
+
+  @@map("medical_profiles")
+}
+
+model Therapist {
+  id              String         @id @default(uuid())
+  email           String         @unique
+  password        String
+  firstName       String
+  lastName        String
+  phone           String?
+  dob             String
+  specialization  String
+  credentials     String?
+  bio             String?
+  experience      Int            @default(0)
+  status          TherapistStatus @default(PENDING)
+  sessionCount    Int            @default(0)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@map("therapists")
+}

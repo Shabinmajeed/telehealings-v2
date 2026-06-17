@@ -13,5 +13,7 @@ export default defineConfig({
   server: {
     port: 5174,
     host: '0.0.0.0',
+    allowedHosts: ['implied-listening-sharing-wednesday.trycloudflare.com', 'telehealings-admin.loca.lt', '.loca.lt', '.trycloudflare.com'],
   },
+  publicDir: path.resolve(__dirname, '../../shared/assets'),
 });

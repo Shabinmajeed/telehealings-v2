@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../../stores/authStore';
+import { useAuthStore } from '@/stores/authStore';
 import { Eye, EyeOff, Mail, Lock, AlertCircle } from 'lucide-react';
 
 const AdminLoginPage: React.FC = () => {

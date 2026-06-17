@@ -1,9 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, Animated,
-  Image, Modal, ScrollView, Dimensions,
+  Image, Modal, ScrollView, Dimensions, KeyboardAvoidingView, Platform,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import Svg, { Path } from 'react-native-svg';
 import { navigate } from '../navigation';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const SOFT_ONBOARDING_STYLES = {
   colors: {
@@ -14,20 +18,22 @@ const SOFT_ONBOARDING_STYLES = {
     textSoft: '#94a3b8',
     border: '#e2e8f0',
     borderLight: 'rgba(56, 123, 213, 0.15)',
-    gradientTop: '#ffffff',
-    gradientMid: '#e2effb',
-    gradientBottom: '#8db8f1',
+  },
+  spacing: {
+    topPadding: SCREEN_HEIGHT * 0.06,
+    bottomPadding: SCREEN_HEIGHT * 0.04,
+    subtitleMargin: SCREEN_HEIGHT * 0.03,
+    healiHeight: Math.min(SCREEN_HEIGHT * 0.26, 280),
+    bottomSectionTop: SCREEN_HEIGHT * 0.06,
   },
 };
 
 export default function SoftOnboardingScreen() {
-  const router = useRouter();
   const [name, setName] = useState('');
   const [consentChecked, setConsentChecked] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [errorText, setErrorText] = useState('');
 
-  // Animations
   const titleAnim = useRef(new Animated.Value(0)).current;
   const subtitleAnim = useRef(new Animated.Value(0)).current;
   const healiAnim = useRef(new Animated.Value(0)).current;
@@ -55,90 +61,123 @@ export default function SoftOnboardingScreen() {
     transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [15, 0] }) }],
   });
 
+  const handleNameChange = (text) => {
+    if (text.length <= 20) {
+      setName(text);
+      setErrorText('');
+    }
+  };
+
   const handleContinue = () => {
-    if (!name.trim()) {
+    const trimmed = name.trim();
+    if (!trimmed) {
       setErrorText('Please enter your name');
+      return;
+    }
+    if (trimmed.length < 3) {
+      setErrorText('Name must be at least 3 characters');
+      return;
+    }
+    if (trimmed.length > 20) {
+      setErrorText('Name must be 20 characters or less');
       return;
     }
     if (!consentChecked) {
       setErrorText('Please accept the terms and conditions');
       return;
     }
-    // Save name to context/storage
     navigate('/personalisation');
   };
 
-  const handleConsentPress = () => {
-    setShowTermsModal(true);
-  };
+  const handleConsentPress = () => { setShowTermsModal(true); };
+  const acceptTerms = () => { setConsentChecked(true); setShowTermsModal(false); setErrorText(''); };
+  const rejectTerms = () => { setConsentChecked(false); setShowTermsModal(false); };
 
-  const acceptTerms = () => {
-    setConsentChecked(true);
-    setShowTermsModal(false);
-    setErrorText('');
-  };
-
-  const rejectTerms = () => {
-    setConsentChecked(false);
-    setShowTermsModal(false);
-  };
+  const isNameValid = name.trim().length >= 3 && name.trim().length <= 20;
 
   return (
-    <View style={styles.container}>
-      {/* Top Gradient Section */}
-      <View style={styles.topSection}>
-        <Animated.Text style={[styles.title, slideFade(titleAnim)]}>Hi, I'm Heali</Animated.Text>
-        <Animated.Text style={[styles.subtitle, slideFade(subtitleAnim)]}>AI-Powered Healing Partner</Animated.Text>
-
-        <Animated.View style={[{ alignItems: 'center', marginBottom: 20 }, { opacity: healiAnim, transform: [{ translateY: slideFade(healiAnim).transform[0].translateY }, { translateY: floatAnim }] }]}>
-          <Image
-            source={require('../../assets/Heali.png')}
-            style={styles.healiImg}
-            resizeMode="contain"
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={0}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTapped="handled"
+      >
+        {/* Top Gradient Section */}
+        <View style={styles.topSection}>
+          <LinearGradient
+            colors={['#ffffff', '#e2effb', '#8db8f1']}
+            locations={[0, 0.4, 1]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={StyleSheet.absoluteFillObject}
           />
+
+          <Animated.Text style={[styles.title, slideFade(titleAnim)]}>Hi, I'm Heali</Animated.Text>
+          <Animated.Text style={[styles.subtitle, slideFade(subtitleAnim)]}>AI-Powered Healing Partner</Animated.Text>
+
+          <Animated.View style={[{ alignItems: 'center', marginBottom: 35 }, { opacity: healiAnim, transform: [{ translateY: slideFade(healiAnim).transform[0].translateY }, { translateY: floatAnim }] }]}>
+            <Image source={require('../../assets/Heali.png')} style={styles.healiImg} resizeMode="contain" />
+          </Animated.View>
+
+          {/* Curved bottom edge */}
+          <Svg
+            height={35}
+            width="100%"
+            viewBox={`0 0 ${SCREEN_WIDTH} 35`}
+            preserveAspectRatio="none"
+            style={styles.curveSvg}
+          >
+            <Path
+              d={`M0 35 L0 0 Q${SCREEN_WIDTH / 2} 35 ${SCREEN_WIDTH} 0 L${SCREEN_WIDTH} 35 Z`}
+              fill="#ffffff"
+            />
+          </Svg>
+        </View>
+
+        {/* Bottom Section */}
+        <Animated.View style={[styles.bottomSection, slideFade(bottomAnim)]}>
+          <Text style={styles.questionText}>What should we call you?</Text>
+
+          <TextInput
+            style={[styles.inputField, errorText && name.trim().length < 3 && name.length > 0 && styles.inputError]}
+            placeholder="Your name"
+            placeholderTextColor={SOFT_ONBOARDING_STYLES.colors.textSoft}
+            value={name}
+            onChangeText={handleNameChange}
+            autoCapitalize="words"
+            maxLength={20}
+          />
+
+          <TouchableOpacity style={styles.consentRow} onPress={handleConsentPress} activeOpacity={0.7}>
+            <View style={[styles.checkbox, consentChecked && styles.checkboxChecked]}>
+              {consentChecked && <Text style={styles.checkmark}>✓</Text>}
+            </View>
+            <Text style={styles.consentText}>
+              I confirm that I am 18 or older and agree to the{' '}
+              <Text style={styles.consentLink} onPress={() => setShowTermsModal(true)}>Terms</Text>
+              {' '}and{' '}
+              <Text style={styles.consentLink} onPress={() => setShowTermsModal(true)}>Privacy Policy</Text>
+            </Text>
+          </TouchableOpacity>
+
+          {errorText ? <Text style={styles.errorText}>{errorText}</Text> : null}
+
+          <TouchableOpacity
+            style={[styles.btnPrimary, (!isNameValid || !consentChecked) && styles.btnDisabled]}
+            onPress={handleContinue}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.btnPrimaryText}>Continue</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.loginLink} onPress={() => navigate('/login')}>
+            <Text style={styles.loginLinkText}>Already a member? <Text style={styles.loginLinkBold}>Login</Text></Text>
+          </TouchableOpacity>
         </Animated.View>
-      </View>
-
-      {/* Bottom Section */}
-      <Animated.View style={[styles.bottomSection, slideFade(bottomAnim)]}>
-        <Text style={styles.questionText}>What should we call you?</Text>
-
-        <TextInput
-          style={styles.inputField}
-          placeholder="Your name"
-          placeholderTextColor={SOFT_ONBOARDING_STYLES.colors.textSoft}
-          value={name}
-          onChangeText={(text) => { setName(text); setErrorText(''); }}
-          autoCapitalize="words"
-        />
-
-        {/* Consent Row */}
-        <TouchableOpacity style={styles.consentRow} onPress={handleConsentPress} activeOpacity={0.7}>
-          <View style={[styles.checkbox, consentChecked && styles.checkboxChecked]}>
-            {consentChecked && <Text style={styles.checkmark}>✓</Text>}
-          </View>
-          <Text style={styles.consentText}>
-            I confirm that I am 18 or older and agree to the{' '}
-            <Text style={styles.consentLink} onPress={() => setShowTermsModal(true)}>Terms</Text>
-            {' '}and{' '}
-            <Text style={styles.consentLink} onPress={() => setShowTermsModal(true)}>Privacy Policy</Text>
-          </Text>
-        </TouchableOpacity>
-
-        {errorText ? <Text style={styles.errorText}>{errorText}</Text> : null}
-
-        <TouchableOpacity
-          style={[styles.btnPrimary, (!name.trim() || !consentChecked) && styles.btnDisabled]}
-          onPress={handleContinue}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.btnPrimaryText}>Continue</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.loginLink} onPress={() => navigate('/login')}>
-          <Text style={styles.loginLinkText}>Already a member? <Text style={styles.loginLinkBold}>Login</Text></Text>
-        </TouchableOpacity>
-      </Animated.View>
+      </ScrollView>
 
       {/* T&C Modal */}
       <Modal visible={showTermsModal} transparent animationType="slide" onRequestClose={() => setShowTermsModal(false)}>
@@ -173,27 +212,31 @@ export default function SoftOnboardingScreen() {
           </View>
         </View>
       </Modal>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#ffffff' },
+  scrollContent: { flexGrow: 1 },
   topSection: {
-    paddingTop: 60,
-    paddingBottom: 40,
+    paddingTop: SOFT_ONBOARDING_STYLES.spacing.topPadding,
+    paddingBottom: 0,
     paddingHorizontal: 20,
     alignItems: 'center',
-    borderBottomLeftRadius: 35,
-    borderBottomRightRadius: 35,
-    backgroundColor: '#e2effa',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  curveSvg: {
+    position: 'absolute',
+    bottom: -1,
+    left: 0,
+    right: 0,
   },
   title: { fontSize: 26, fontWeight: '800', color: SOFT_ONBOARDING_STYLES.colors.primaryDark, marginBottom: 6, letterSpacing: -0.3 },
-  subtitle: { fontSize: 14, fontWeight: '600', color: SOFT_ONBOARDING_STYLES.colors.primaryDark, marginBottom: 20, letterSpacing: -0.1 },
-  healiImg: { height: 200, width: 200 },
-  bottomSection: { flex: 1, paddingHorizontal: 30, paddingTop: 40, paddingBottom: 20 },
+  subtitle: { fontSize: 14, fontWeight: '600', color: SOFT_ONBOARDING_STYLES.colors.primaryDark, marginBottom: SOFT_ONBOARDING_STYLES.spacing.subtitleMargin, letterSpacing: -0.1 },
+  healiImg: { height: SOFT_ONBOARDING_STYLES.spacing.healiHeight, width: SOFT_ONBOARDING_STYLES.spacing.healiHeight },
+  bottomSection: { flex: 1, paddingHorizontal: 30, paddingTop: SOFT_ONBOARDING_STYLES.spacing.bottomSectionTop, paddingBottom: 20 },
   questionText: { fontSize: 18, fontWeight: '600', color: '#334155', textAlign: 'center', marginBottom: 16 },
   inputField: {
     width: '100%', height: 56, paddingHorizontal: 24, borderWidth: 1,
@@ -202,6 +245,7 @@ const styles = StyleSheet.create({
     marginBottom: 24, backgroundColor: '#ffffff',
     boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.02)', elevation: 2,
   },
+  inputError: { borderColor: '#d93838' },
   consentRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 32 },
   checkbox: {
     width: 18, height: 18, borderWidth: 1.5, borderColor: '#cbd5e1', borderRadius: 6,
@@ -214,15 +258,13 @@ const styles = StyleSheet.create({
   errorText: { textAlign: 'center', fontSize: 13, color: '#d93838', marginBottom: 16, fontStyle: 'italic' },
   btnPrimary: {
     backgroundColor: SOFT_ONBOARDING_STYLES.colors.primary, height: 56, borderRadius: 30,
-    alignItems: 'center', justifyContent: 'center',
-    marginBottom: 15,
+    alignItems: 'center', justifyContent: 'center', marginBottom: 15,
   },
   btnDisabled: { opacity: 0.5 },
   btnPrimaryText: { color: '#ffffff', fontSize: 17, fontWeight: '600' },
   loginLink: { alignItems: 'center', marginTop: 10, marginBottom: 30 },
   loginLinkText: { fontSize: 14, fontWeight: '500', color: SOFT_ONBOARDING_STYLES.colors.textMuted },
   loginLinkBold: { color: SOFT_ONBOARDING_STYLES.colors.primary, fontWeight: '700' },
-  // Modal
   modalOverlay: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   modalContent: { backgroundColor: '#ffffff', height: '80%', borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 24 },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
