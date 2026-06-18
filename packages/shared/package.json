@@ -1,0 +1,22 @@
+{
+  "name": "@telehealings/shared",
+  "version": "1.0.0",
+  "private": true,
+  "exports": {
+    "./components/chat/ConversationListItem": {
+      "types": "./src/components/chat/ConversationListItem.tsx",
+      "import": "./src/components/chat/ConversationListItem.tsx"
+    },
+    "./components/chat/ChatBubble": {
+      "types": "./src/components/chat/ChatBubble.tsx",
+      "import": "./src/components/chat/ChatBubble.tsx"
+    },
+    "./components/chat/ChatInput": {
+      "types": "./src/components/chat/ChatInput.tsx",
+      "import": "./src/components/chat/ChatInput.tsx"
+    }
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  }
+}
