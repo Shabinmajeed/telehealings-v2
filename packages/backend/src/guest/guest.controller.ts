@@ -10,6 +10,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiParam, ApiQuery, ApiBody } from '@nestjs/swagger';
 import { GuestService } from './guest.service';
 import { CreateGuestDto } from './dto/create-guest.dto';
 import { UpdateGuestDto } from './dto/update-guest.dto';
@@ -27,17 +28,21 @@ class ConvertGuestDto {
   maritalStatus?: string;
 }
 
+@ApiTags('guest')
 @Controller('guest')
 export class GuestController {
   constructor(private readonly guestService: GuestService) {}
 
-  // POST /api/guest/register — open, no auth
+  @ApiOperation({ summary: 'Register a new guest' })
   @Post('register')
   register(@Body() dto: CreateGuestDto) {
     return this.guestService.create(dto);
   }
 
-  // GET /api/guest — admin only
+  @ApiOperation({ summary: 'List all guests (admin)' })
+  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
+  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page' })
+  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search term' })
   @Get()
   @UseGuards(AdminGuard)
   findAll(
@@ -52,33 +57,38 @@ export class GuestController {
     );
   }
 
-  // GET /api/guest/:id — admin only
+  @ApiOperation({ summary: 'Get guest by ID (admin)' })
+  @ApiParam({ name: 'id', description: 'Guest UUID' })
   @Get(':id')
   @UseGuards(AdminGuard)
   findOne(@Param('id') id: string) {
     return this.guestService.findOne(id);
   }
 
-  // PATCH /api/guest/:id — update guest (personalisation, name, etc.)
+  @ApiOperation({ summary: 'Update guest info' })
+  @ApiParam({ name: 'id', description: 'Guest UUID' })
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateGuestDto) {
     return this.guestService.update(id, dto);
   }
 
-  // PUT /api/guest/:id/profile — full profile update (used by mobile app)
+  @ApiOperation({ summary: 'Full profile update (mobile app)' })
+  @ApiParam({ name: 'id', description: 'Guest UUID' })
   @Put(':id/profile')
   updateProfile(@Param('id') id: string, @Body() dto: UpdateGuestDto) {
     return this.guestService.updateProfile(id, dto);
   }
 
-  // DELETE /api/guest/:id — admin only
+  @ApiOperation({ summary: 'Delete guest (admin)' })
+  @ApiParam({ name: 'id', description: 'Guest UUID' })
   @Delete(':id')
   @UseGuards(AdminGuard)
   remove(@Param('id') id: string) {
     return this.guestService.remove(id);
   }
 
-  // POST /api/guest/:id/convert — convert guest to full user
+  @ApiOperation({ summary: 'Convert guest to full user (admin)' })
+  @ApiParam({ name: 'id', description: 'Guest UUID' })
   @Post(':id/convert')
   @UseGuards(AdminGuard)
   convert(@Param('id') id: string, @Body() dto: ConvertGuestDto) {
