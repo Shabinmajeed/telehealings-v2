@@ -1,6 +1,6 @@
 // Simple navigation module to avoid require cycles
 let currentRoute = '/';
-let routeListeners = [];
+let routeListeners: ((path: string) => void)[] = [];
 
 export function navigate(path: string) {
   currentRoute = path;

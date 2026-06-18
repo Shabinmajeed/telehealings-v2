@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, Image, Dimensions } from 'react-native';
+import api from '../api/client';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
-const API_BASE = 'https://submit-avoiding-contributing-guards.trycloudflare.com';
 
 const ICON_PATHS: Record<string, string> = {
   stress: 'M17 18a4.5 4.5 0 0 0 .76-8.93 7 7 0 0 0-13.33-1.6A4.5 4.5 0 0 0 6 18h4v-3H8l4-6v4h2l-4 6h3z',
@@ -71,11 +70,7 @@ export default function PersonalisationScreen() {
     try {
       const guestId = localStorage.getItem('guestId');
       if (guestId) {
-        await fetch(`${API_BASE}/guest/${guestId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ personalisation }),
-        });
+        await api.patch(`/guest/${guestId}`, { personalisation });
       }
     } catch (e) {
       // Continue even if API fails

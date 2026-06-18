@@ -56,12 +56,12 @@ export default function SoftOnboardingScreen() {
     ).start();
   }, []);
 
-  const slideFade = (anim) => ({
+  const slideFade = (anim: any) => ({
     opacity: anim,
     transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [15, 0] }) }],
   });
 
-  const handleNameChange = (text) => {
+  const handleNameChange = (text: any) => {
     if (text.length <= 20) {
       setName(text);
       setErrorText('');
@@ -103,7 +103,7 @@ export default function SoftOnboardingScreen() {
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTapped="handled"
+        {...{ keyboardShouldPersistTaps: 'handled' } as any}
       >
         {/* Top Gradient Section */}
         <View style={styles.topSection}>

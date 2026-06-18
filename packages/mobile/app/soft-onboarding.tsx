@@ -11,7 +11,7 @@ const SOFT_ONBOARDING_STYLES = {
   spacing: { topPadding: SCREEN_HEIGHT * 0.06, bottomPadding: SCREEN_HEIGHT * 0.04, subtitleMargin: SCREEN_HEIGHT * 0.03, healiHeight: Math.min(SCREEN_HEIGHT * 0.26, 280), bottomSectionTop: SCREEN_HEIGHT * 0.06 },
 };
 
-const API_BASE = 'https://submit-avoiding-contributing-guards.trycloudflare.com';
+import api from '../api/client';
 
 export default function SoftOnboardingScreen() {
   const router = useRouter();
@@ -55,20 +55,10 @@ export default function SoftOnboardingScreen() {
     if (!consentChecked) { setErrorText('Please accept the terms and conditions'); return; }
 
     try {
-      const response = await fetch(`${API_BASE}/guest/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: trimmed,
-          personalisation: [], // Will be filled in personalisation screen
-        }),
+      const { data: guest } = await api.post('/guest/register', {
+        name: trimmed,
+        personalisation: [],
       });
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        setErrorText(err.message || 'Registration failed. Please try again.');
-        return;
-      }
-      const guest = await response.json();
       // Store guest ID for personalisation update
       try {
         localStorage.setItem('guestId', guest.id);

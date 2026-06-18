@@ -14,6 +14,7 @@ import {
   Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import api from '../api/client';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Circle, Line, Rect, Polyline } from 'react-native-svg';
 
@@ -97,20 +98,16 @@ export default function ProfileCompletionScreen() {
     if (guestId) {
       try {
         const fullNameParts = fullName.trim().split(' ');
-        await fetch(`${API_BASE}/guest/${guestId}/profile`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            firstName: fullNameParts[0] || '',
-            lastName: fullNameParts.slice(1).join(' ') || '',
-            email,
-            dob: confirmedDay && confirmedMonth !== null && confirmedYear
-              ? `${confirmedDay.toString().padStart(2, '0')}/${(confirmedMonth + 1).toString().padStart(2, '0')}/${confirmedYear}`
-              : '',
-            gender,
-            occupation,
-            maritalStatus,
-          }),
+        await api.put(`/guest/${guestId}/profile`, {
+          firstName: fullNameParts[0] || '',
+          lastName: fullNameParts.slice(1).join(' ') || '',
+          email,
+          dob: confirmedDay && confirmedMonth !== null && confirmedYear
+            ? `${confirmedDay.toString().padStart(2, '0')}/${(confirmedMonth + 1).toString().padStart(2, '0')}/${confirmedYear}`
+            : '',
+          gender,
+          occupation,
+          maritalStatus,
         });
       } catch (e) {
         // Continue even if API fails

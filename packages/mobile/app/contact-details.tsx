@@ -3,6 +3,7 @@ import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, Animated,
   ScrollView, KeyboardAvoidingView, Platform, Dimensions,
 } from 'react-native';
+import api from '../api/client';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
@@ -26,8 +27,6 @@ const ICONS = {
   email: 'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6',
   verified: 'M12 2l3.09 2.26L19 5l-.54 3.76L21 12l-2.54 3.24L19 19l-3.91.74L12 22l-3.09-2.26L5 19l.54-3.76L3 12l2.54-3.24L5 5l3.91-.74L12 2z',
 };
-
-const API_BASE = 'https://submit-avoiding-contributing-guards.trycloudflare.com';
 
 export default function ContactDetailsScreen() {
   const router = useRouter();
@@ -89,22 +88,14 @@ export default function ContactDetailsScreen() {
       const guestId = localStorage.getItem('guestId');
       if (guestId) {
         // Save contact details
-        await fetch(`${API_BASE}/guest/${guestId}/profile`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            address,
-            emergencyName: ecName,
-            emergencyPhone: ecPhone,
-            emergencyRelation: ecRelation,
-          }),
+        await api.put(`/guest/${guestId}/profile`, {
+          address,
+          emergencyName: ecName,
+          emergencyPhone: ecPhone,
+          emergencyRelation: ecRelation,
         });
         // Convert guest to full user
-        await fetch(`${API_BASE}/guest/${guestId}/convert`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({}),
-        });
+        await api.post(`/guest/${guestId}/convert`, {});
       }
     } catch (e) {
       // Continue even if API fails
