@@ -1,6 +1,6 @@
 {
   "$schema": "https://vercel.com/docs/project-configuration",
-  "buildCommand": "npm run build",
+  "buildCommand": "cd packages/web-admin && npx tsc --noEmit && npx vite build",
   "outputDirectory": "packages/web-admin/dist",
   "framework": "vite",
   "rewrites": [

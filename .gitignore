@@ -35,3 +35,4 @@ npm-debug-lock.*
 # Temp
 tmp
 *.tmp
+.vercel

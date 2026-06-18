@@ -3,6 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "description": "TeleHealings — Telehealth Marketplace Platform",
+  "packageManager": "npm@10.0.0",
   "workspaces": [
     "packages/*",
     "shared",
