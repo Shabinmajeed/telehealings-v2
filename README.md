@@ -3,7 +3,7 @@
 Telehealth marketplace platform built with Expo (mobile), React/Vite (web), and NestJS (backend).
 
 ## Status
-- **Backend**: Running on Railway at https://telehealings-backend.up.railway.app
+- **Backend**: Deployed on Railway
 - **Admin Portal**: https://telehealings-admin.vercel.app
 - **Therapist Portal**: https://telehealings-therapist.vercel.app
 - **API Docs**: Available at /api/docs (Swagger UI)
