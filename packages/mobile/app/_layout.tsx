@@ -11,6 +11,7 @@ export default function RootLayout() {
       <Stack.Screen name="contact-details" />
       <Stack.Screen name="profile-success" />
       <Stack.Screen name="verify" />
+      <Stack.Screen name="discover-therapists" />
       <Stack.Screen name="login" />
       <Stack.Screen name="therapist-register" />
       <Stack.Screen name="home" />
