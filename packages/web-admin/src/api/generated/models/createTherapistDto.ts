@@ -20,10 +20,8 @@ export interface CreateTherapistDto {
   password: string;
   /** Phone number */
   phone?: string;
-  /** Date of birth (YYYY-MM-DD) */
-  dob: string;
   /** Specialization area */
-  specialization: string;
+  specialization?: string;
   /** Professional credentials */
   credentials?: string;
   /** Short biography */

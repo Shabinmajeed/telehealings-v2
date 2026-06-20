@@ -20,10 +20,6 @@ export interface UpdateUserDto {
   dob?: string;
   /** Gender */
   gender?: UpdateUserDtoGender;
-  /** Occupation */
-  occupation?: string;
-  /** Marital status */
-  maritalStatus?: string;
   /** Avatar URL */
-  avatar?: string;
+  avatarUrl?: string;
 }

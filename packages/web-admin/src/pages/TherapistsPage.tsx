@@ -3,7 +3,7 @@ import {
   Search, Plus, Eye, XCircle, CheckCircle, X,
   Download
 } from 'lucide-react';
-import { useAuthStore } from '@/stores/authStore';
+import { adminApi, TherapistWithUser } from '@/api/admin-api';
 
 interface Therapist {
   id: string;
@@ -30,8 +30,6 @@ function getInitials(firstName: string, lastName: string) {
 }
 
 const TherapistsPage: React.FC = () => {
-  const adminKey = useAuthStore((s) => s.adminKey) || '';
-  const API_URL = 'https://submit-avoiding-contributing-guards.trycloudflare.com';
   const [therapists, setTherapists] = useState<Therapist[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -46,20 +44,27 @@ const TherapistsPage: React.FC = () => {
   const fetchTherapists = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({
-        page: String(currentPage),
-        limit: String(rowsPerPage),
+      const res = await adminApi.getTherapists({
+        page: currentPage,
+        limit: rowsPerPage,
         ...(searchQuery && { search: searchQuery }),
-        ...(statusFilter !== 'all' && { status: statusFilter }),
       });
-      const res = await fetch(`${API_URL}/therapist?${params}`, {
-        headers: { 'x-admin-key': adminKey },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setTherapists(data.data || []);
-        setTotal(data.total || 0);
-      }
+      const data = res.data;
+      // Map TherapistWithUser to local Therapist interface
+      const mapped: Therapist[] = (data.data || []).map((t: TherapistWithUser) => ({
+        id: t.id,
+        firstName: t.firstName,
+        lastName: t.lastName,
+        email: t.email,
+        specialization: t.TherapistProfile?.specialization?.join(', ') || '',
+        status: t.TherapistProfile?.isVerified ? 'ACTIVE' : 'PENDING',
+        sessionCount: t.TherapistProfile?.totalSessions || 0,
+        credentials: null,
+        experience: t.TherapistProfile?.yearsExperience || 0,
+        createdAt: (t as any).createdAt || new Date().toISOString(),
+      }));
+      setTherapists(mapped);
+      setTotal(data.total || 0);
     } catch (err) {
       console.error('Failed to fetch therapists:', err);
     } finally {
@@ -83,16 +88,10 @@ const TherapistsPage: React.FC = () => {
   const handleStatusChange = async (id: string, newStatus: string) => {
     setActionLoading(id);
     try {
-      const res = await fetch(`${API_URL}/therapist/${id}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      if (res.ok) {
-        fetchTherapists();
-        if (selectedTherapist?.id === id) {
-          setSelectedTherapist(prev => prev ? { ...prev, status: newStatus as Therapist['status'] } : null);
-        }
+      await adminApi.updateTherapistStatus(id, newStatus);
+      fetchTherapists();
+      if (selectedTherapist?.id === id) {
+        setSelectedTherapist(prev => prev ? { ...prev, status: newStatus as Therapist['status'] } : null);
       }
     } catch (err) {
       console.error('Failed to update status:', err);

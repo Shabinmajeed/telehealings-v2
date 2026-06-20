@@ -22,13 +22,7 @@ export interface RegisterUserDto {
   /** Phone number */
   phone?: string;
   /** Date of birth (YYYY-MM-DD) */
-  dob: string;
+  dob?: string;
   /** Gender */
-  gender: RegisterUserDtoGender;
-  /** Occupation */
-  occupation: string;
-  /** Marital status */
-  maritalStatus: string;
-  /** Guest ID if converting from guest */
-  guestId?: string;
+  gender?: RegisterUserDtoGender;
 }

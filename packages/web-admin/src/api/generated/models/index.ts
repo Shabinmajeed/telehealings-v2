@@ -6,6 +6,9 @@
  * OpenAPI spec version: 1.0
  */
 
+export * from "./bookingControllerDiscoverTherapistsParams.ts";
+export * from "./bookingControllerGetTherapistAppointmentsParams.ts";
+export * from "./bookingControllerGetUserAppointmentsParams.ts";
 export * from "./convertGuestDto.ts";
 export * from "./createGuestDto.ts";
 export * from "./createTherapistDto.ts";
@@ -14,7 +17,6 @@ export * from "./loginUserDto.ts";
 export * from "./medicalProfileControllerFindAllProfilesParams.ts";
 export * from "./registerUserDto.ts";
 export * from "./registerUserDtoGender.ts";
-export * from "./saveContactDetailsDto.ts";
 export * from "./therapistControllerFindAllParams.ts";
 export * from "./updateGuestDto.ts";
 export * from "./updateGuestDtoGender.ts";
