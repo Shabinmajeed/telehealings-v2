@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import customInstance from '../api/custom-instance';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -8,7 +9,7 @@ const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -26,10 +27,19 @@ const LoginPage: React.FC = () => {
     }
 
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const res = await customInstance.post('/auth/login', { email: email.trim(), password });
+      const { access_token, user } = res.data;
+      localStorage.setItem('auth_token', access_token);
+      localStorage.setItem('userId', user.id);
+      localStorage.setItem('userRole', user.role);
       window.location.href = '/dashboard';
-    }, 1200);
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Invalid email or password. Please try again.';
+      setError(Array.isArray(msg) ? msg.join(', ') : msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const inputStyle: React.CSSProperties = {
