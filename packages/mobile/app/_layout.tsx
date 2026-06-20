@@ -16,6 +16,8 @@ export default function RootLayout() {
       <Stack.Screen name="therapist-register" />
       <Stack.Screen name="home" />
       <Stack.Screen name="care" />
+      <Stack.Screen name="my-appointments" />
+      <Stack.Screen name="book-appointment" />
       <Stack.Screen name="booking-confirmed" />
       <Stack.Screen name="session-confirm" />
       <Stack.Screen name="medical-profile-1" />

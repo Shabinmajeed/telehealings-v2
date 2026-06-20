@@ -14,7 +14,7 @@ import {
   Modal,
   TextInput,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Polyline, Line, Rect, Circle } from 'react-native-svg';
 
@@ -48,6 +48,13 @@ const CONFETTI = Array.from({ length: 40 }, (_, i) => ({
 
 export default function BookingConfirmedScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams();
+  const therapistName = params.therapistName as string || 'Therapist';
+  const date = params.date as string;
+  const time = params.time as string;
+  const duration = params.duration as string;
+  const type = params.type as string;
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(15)).current;
   const checkAnim = useRef(new Animated.Value(0)).current;
@@ -138,7 +145,7 @@ export default function BookingConfirmedScreen() {
               </View>
               <View style={styles.rowContent}>
                 <Text style={styles.rowLabel}>Date & Time</Text>
-                <Text style={styles.rowVal}>Thu, Oct 24 • 10:30 AM</Text>
+                <Text style={styles.rowVal}>{date ? new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : 'TBD'} • {time || 'TBD'}</Text>
               </View>
             </View>
 
@@ -150,7 +157,7 @@ export default function BookingConfirmedScreen() {
               </View>
               <View style={styles.rowContent}>
                 <Text style={styles.rowLabel}>Duration</Text>
-                <Text style={styles.rowVal}>50 minutes</Text>
+                <Text style={styles.rowVal}>{duration ? `${duration} minutes` : 'TBD'}</Text>
               </View>
             </View>
           </View>
