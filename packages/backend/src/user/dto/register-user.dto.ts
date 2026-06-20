@@ -28,25 +28,14 @@ export class RegisterUserDto {
   @IsString()
   phone?: string;
 
-  @ApiProperty({ description: 'Date of birth (YYYY-MM-DD)', example: '1990-01-15' })
-  @IsString()
-  dob: string;
-
-  @ApiProperty({ description: 'Gender', example: 'male', enum: ['male', 'female', 'other'] })
-  @IsString()
-  @IsIn(['male', 'female', 'other'])
-  gender: string;
-
-  @ApiProperty({ description: 'Occupation', example: 'Software Engineer' })
-  @IsString()
-  occupation: string;
-
-  @ApiProperty({ description: 'Marital status', example: 'single' })
-  @IsString()
-  maritalStatus: string;
-
-  @ApiPropertyOptional({ description: 'Guest ID if converting from guest', example: 'uuid-string' })
+  @ApiPropertyOptional({ description: 'Date of birth (YYYY-MM-DD)', example: '1990-01-15' })
   @IsOptional()
   @IsString()
-  guestId?: string;
+  dob?: string;
+
+  @ApiPropertyOptional({ description: 'Gender', example: 'male', enum: ['male', 'female', 'other'] })
+  @IsOptional()
+  @IsString()
+  @IsIn(['male', 'female', 'other'])
+  gender?: string;
 }

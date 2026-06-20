@@ -23,18 +23,15 @@ export class CreateTherapistDto {
   @MinLength(8)
   password: string;
 
-  @ApiPropertyOptional({ description: 'Phone number', example: '+1234567890' })
+  @ApiPropertyOptional({ description: 'Phone number', example: '+123****7890' })
   @IsString()
   @IsOptional()
   phone?: string;
 
-  @ApiProperty({ description: 'Date of birth (YYYY-MM-DD)', example: '1985-06-15' })
+  @ApiPropertyOptional({ description: 'Specialization area', example: 'Clinical Psychology' })
   @IsString()
-  dob: string;
-
-  @ApiProperty({ description: 'Specialization area', example: 'Clinical Psychology' })
-  @IsString()
-  specialization: string;
+  @IsOptional()
+  specialization?: string;
 
   @ApiPropertyOptional({ description: 'Professional credentials', example: 'PhD, LPC' })
   @IsString()

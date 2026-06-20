@@ -6,7 +6,6 @@ import { UserService } from './user.service';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { SaveContactDetailsDto } from './dto/save-contact-details.dto';
 
 @ApiTags('user')
 @Controller('api/user')
@@ -61,14 +60,6 @@ export class UserController {
   async updateProfile(@Param('id') id: string, @Body() dto: UpdateUserDto) {
     const user = await this.userService.updateProfile(id, dto);
     return { message: 'Profile updated', user };
-  }
-
-  @ApiOperation({ summary: 'Save user contact details' })
-  @ApiParam({ name: 'id', description: 'User UUID' })
-  @Post(':id/contact-details')
-  async saveContactDetails(@Param('id') userId: string, @Body() dto: SaveContactDetailsDto) {
-    const result = await this.userService.saveContactDetails(userId, dto);
-    return { message: 'Contact details saved', contactDetails: result };
   }
 
   @ApiOperation({ summary: 'Delete user' })

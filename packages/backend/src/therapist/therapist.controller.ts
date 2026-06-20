@@ -13,7 +13,7 @@ export class TherapistController {
   @Post('register')
   async register(@Body() dto: CreateTherapistDto) {
     const therapist = await this.therapistService.create(dto);
-    const { password, ...result } = therapist as any;
+    const { passwordHash, ...result } = therapist as any;
     return {
       success: true,
       message: 'Therapist registered successfully. Your account is pending admin approval.',

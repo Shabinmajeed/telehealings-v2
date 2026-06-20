@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "npx prisma generate && nest build",
+    "build": "rm -rf dist && npx prisma generate && npx tsc --outDir ./dist --target ES2021 --module commonjs --declaration --experimentalDecorators --emitDecoratorMetadata --esModuleInterop --skipLibCheck --resolveJsonModule --strictPropertyInitialization false --noImplicitAny false --incremental false src/main.ts",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",

@@ -2,13 +2,13 @@ import {
   Controller, Get, Post, Body, Param, Query, HttpCode, HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
-import { MedicalProfileService } from './medical-profile.service';
+import { medicalProfileService } from './medical-profile.service';
 import { MedicalProfileStep1Dto, MedicalProfileStep2Dto, MedicalProfileStep3Dto, MedicalProfileStep4Dto } from './dto/medical-profile.dto';
 
 @ApiTags('medical-profile')
 @Controller('api/medical-profile')
 export class MedicalProfileController {
-  constructor(private readonly medicalProfileService: MedicalProfileService) {}
+  constructor(private readonly medicalProfileService: medicalProfileService) {}
 
   @ApiOperation({ summary: 'Save a medical profile step' })
   @ApiParam({ name: 'userId', description: 'User UUID' })

@@ -5,6 +5,7 @@ import { TherapistModule } from './therapist/therapist.module';
 import { UserModule } from './user/user.module';
 import { MedicalProfileModule } from './medical-profile/medical-profile.module';
 import { AuthModule } from './auth/auth.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -15,5 +16,6 @@ import { AuthModule } from './auth/auth.module';
     UserModule,
     MedicalProfileModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}

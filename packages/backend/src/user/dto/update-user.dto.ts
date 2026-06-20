@@ -21,7 +21,7 @@ export class UpdateUserDto {
   @IsEmail()
   email?: string;
 
-  @ApiPropertyOptional({ description: 'Phone number', example: '+1234567890' })
+  @ApiPropertyOptional({ description: 'Phone number', example: '+123****7890' })
   @IsOptional()
   @IsString()
   phone?: string;
@@ -37,18 +37,8 @@ export class UpdateUserDto {
   @IsIn(['male', 'female', 'other'])
   gender?: string;
 
-  @ApiPropertyOptional({ description: 'Occupation', example: 'Software Engineer' })
-  @IsOptional()
-  @IsString()
-  occupation?: string;
-
-  @ApiPropertyOptional({ description: 'Marital status', example: 'single' })
-  @IsOptional()
-  @IsString()
-  maritalStatus?: string;
-
   @ApiPropertyOptional({ description: 'Avatar URL', example: 'https://example.com/avatar.jpg' })
   @IsOptional()
   @IsString()
-  avatar?: string;
+  avatarUrl?: string;
 }

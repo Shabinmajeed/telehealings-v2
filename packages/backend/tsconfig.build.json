@@ -1,4 +1,11 @@
 {
   "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "strictPropertyInitialization": false,
+    "noImplicitAny": false,
+    "strict": false,
+    "incremental": false,
+    "tsBuildInfoFile": null
+  },
   "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
 }

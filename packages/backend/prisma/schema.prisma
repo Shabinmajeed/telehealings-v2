@@ -6,139 +6,295 @@ datasource db {
   provider = "postgresql"
 }
 
-enum GuestStatus {
-  GUEST
-  REGISTERED
-  ACTIVE
+model Appointment {
+  id                 String            @id
+  clientId           String
+  therapistId        String
+  scheduledAt        DateTime
+  duration           Int               @default(60)
+  status             AppointmentStatus @default(SCHEDULED)
+  type               SessionType       @default(VIDEO)
+  notes              String?
+  cancellationReason String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime
+  ClientProfile      ClientProfile     @relation(fields: [clientId], references: [id])
+  TherapistProfile   TherapistProfile  @relation(fields: [therapistId], references: [id])
+  Payment            Payment?
+  Session            Session?
 }
 
-enum TherapistStatus {
-  PENDING
-  ACTIVE
-  SUSPENDED
-  REJECTED
+model ChatMessage {
+  id         String   @id
+  senderId   String
+  receiverId String
+  roomId     String
+  content    String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+  User       User     @relation(fields: [senderId], references: [id])
+
+  @@index([roomId, createdAt])
 }
 
-enum UserStatus {
-  ACTIVE
-  INACTIVE
-  SUSPENDED
+model ClientProfile {
+  id               String           @id
+  userId           String           @unique
+  dateOfBirth      DateTime?
+  gender           String?
+  emergencyContact String?
+  medicalHistory   Json?
+  preferences      Json?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime
+  Appointment      Appointment[]
+  User             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  MedicalProfile   MedicalProfile[]
 }
 
-model GuestUser {
-  id              String      @id @default(uuid())
-  name            String
-  email           String?     @unique
-  phone           String?
-  personalisation Json        @default("[]")
-  tcAcceptedAt    DateTime
-  status          GuestStatus @default(GUEST)
-  convertedAt     DateTime?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-
-  user            User?
-
-  @@map("guest_users")
-}
-
-model User {
-  id              String      @id @default(uuid())
-  guestId         String?     @unique
-  email           String      @unique
-  password        String
-  firstName       String
-  lastName        String
-  phone           String?
-  dob             String
-  gender          String
-  occupation      String
-  maritalStatus   String
-  avatar          String?
-  status          UserStatus  @default(ACTIVE)
-  emailVerified   Boolean     @default(false)
-  phoneVerified   Boolean     @default(false)
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-
-  guest           GuestUser?  @relation(fields: [guestId], references: [id])
-  contactDetails  ContactDetails?
-  medicalProfile  MedicalProfile?
-
-  @@map("users")
-}
-
-model ContactDetails {
-  id                String   @id @default(uuid())
-  userId            String   @unique
-  address           String
-  emergencyName     String
-  emergencyPhone    String
-  emergencyRelation String
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  user              User     @relation(fields: [userId], references: [id])
-
-  @@map("contact_details")
+model Earning {
+  id               String           @id
+  therapistId      String
+  paymentId        String?
+  amount           Float
+  status           EarningStatus    @default(PENDING)
+  paidAt           DateTime?
+  createdAt        DateTime         @default(now())
+  TherapistProfile TherapistProfile @relation(fields: [therapistId], references: [id])
 }
 
 model MedicalProfile {
-  id                    String   @id @default(uuid())
-  userId                String   @unique
-
-  // Step 1: Therapy History
-  therapyHistory        String   @default("")
-  pastDiagnosis         String   @default("")
-  traumaHistory         String   @default("")
-  psychiatricHospital   String   @default("")  // Yes/No
-  hospitalReason        String   @default("")
-  hospitalDate          String   @default("")
-
-  // Step 2: Therapy Goals
-  bringsYouToTherapy    String   @default("")
-  howLongExperiencing   String   @default("")
-  affectingDailyLife    String   @default("")
-  expectations          String   @default("")
-
-  // Step 3: Medical History
-  medicalConditions     Json     @default("[]")
-  otherConditions       String   @default("")
-  tobaccoUse            String   @default("")
-  alcoholConsumption    String   @default("")
-  otherSubstances       String   @default("")
-  currentMedications    String   @default("")
-
-  // Step 4: Safety Assessment
-  selfHarmThoughts      String   @default("")  // Yes/No
-  selfHarmHistory       String   @default("")  // Yes/No
-  harmOthers            String   @default("")  // Yes/No
-
-  completed             Boolean  @default(false)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-
-  user                  User     @relation(fields: [userId], references: [id])
-
-  @@map("medical_profiles")
+  id                  String        @id
+  clientProfileId     String
+  step                Int
+  mentalHealthHistory String?
+  presentingConcerns  String?
+  medicalMedication   String?
+  riskSafety          String?
+  completed           Boolean       @default(false)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime
+  ClientProfile       ClientProfile @relation(fields: [clientProfileId], references: [id], onDelete: Cascade)
 }
 
-model Therapist {
-  id              String         @id @default(uuid())
-  email           String         @unique
-  password        String
-  firstName       String
-  lastName        String
-  phone           String?
-  dob             String
-  specialization  String
-  credentials     String?
-  bio             String?
-  experience      Int            @default(0)
-  status          TherapistStatus @default(PENDING)
-  sessionCount    Int            @default(0)
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+model Notification {
+  id        String           @id
+  userId    String
+  title     String
+  message   String
+  type      NotificationType
+  isRead    Boolean          @default(false)
+  data      Json?
+  createdAt DateTime         @default(now())
+  User      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
-  @@map("therapists")
+model OTP {
+  id        String   @id
+  userId    String
+  code      String
+  type      OTPType
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id                    String        @id
+  appointmentId         String        @unique
+  userId                String
+  amount                Float
+  currency              String        @default("usd")
+  status                PaymentStatus @default(PENDING)
+  stripePaymentIntentId String?
+  stripeCustomerId      String?
+  stripeRefundId        String?
+  refundAmount          Float?
+  refundReason          String?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime
+  Appointment           Appointment   @relation(fields: [appointmentId], references: [id])
+  User                  User          @relation(fields: [userId], references: [id])
+}
+
+model Resource {
+  id               String            @id
+  therapistId      String?
+  title            String
+  description      String?
+  type             ContentType
+  url              String
+  tags             String[]
+  isPublished      Boolean           @default(false)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime
+  TherapistProfile TherapistProfile? @relation(fields: [therapistId], references: [id])
+}
+
+model Session {
+  id              String           @id
+  appointmentId   String           @unique
+  userId          String
+  startedAt       DateTime?
+  endedAt         DateTime?
+  duration        Int?
+  recordingUrl    String?
+  status          SessionStatus    @default(SCHEDULED)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime
+  Appointment     Appointment      @relation(fields: [appointmentId], references: [id])
+  User            User             @relation(fields: [userId], references: [id])
+  SessionFeedback SessionFeedback?
+}
+
+model SessionFeedback {
+  id        String   @id
+  sessionId String   @unique
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  Session   Session  @relation(fields: [sessionId], references: [id])
+}
+
+model SocialAccount {
+  id           String         @id
+  userId       String
+  provider     SocialProvider
+  providerId   String
+  accessToken  String?
+  refreshToken String?
+  createdAt    DateTime       @default(now())
+  User         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerId])
+}
+
+model TherapistAvailability {
+  id               String           @id
+  therapistId      String
+  dayOfWeek        Int
+  startTime        String
+  endTime          String
+  isAvailable      Boolean          @default(true)
+  createdAt        DateTime         @default(now())
+  TherapistProfile TherapistProfile @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+}
+
+model TherapistProfile {
+  id                    String                  @id
+  userId                String                  @unique
+  specialization        String[]
+  bio                   String?
+  licenseNumber         String?
+  licenseState          String?
+  yearsExperience       Int?
+  rating                Float                   @default(0)
+  totalSessions         Int                     @default(0)
+  isVerified            Boolean                 @default(false)
+  isAvailable           Boolean                 @default(true)
+  hourlyRate            Float?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime
+  Appointment           Appointment[]
+  Earning               Earning[]
+  Resource              Resource[]
+  TherapistAvailability TherapistAvailability[]
+  User                  User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id               String            @id
+  email            String            @unique
+  passwordHash     String?
+  firstName        String
+  lastName         String
+  phone            String?
+  avatarUrl        String?
+  role             UserRole          @default(CLIENT)
+  isActive         Boolean           @default(true)
+  isVerified       Boolean           @default(false)
+  lastLoginAt      DateTime?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime
+  ChatMessage      ChatMessage[]
+  ClientProfile    ClientProfile?
+  Notification     Notification[]
+  OTP              OTP[]
+  Payment          Payment[]
+  Session          Session[]
+  SocialAccount    SocialAccount[]
+  TherapistProfile TherapistProfile?
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum ContentType {
+  ARTICLE
+  VIDEO
+  AUDIO
+  WORKSHEET
+  GUIDE
+}
+
+enum EarningStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
+
+enum NotificationType {
+  APPOINTMENT_REMINDER
+  SESSION_START
+  PAYMENT_SUCCESS
+  PAYMENT_FAILED
+  NEW_MESSAGE
+  THERAPIST_VERIFIED
+  PROMOTION
+  SYSTEM
+}
+
+enum OTPType {
+  EMAIL
+  PHONE
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum SessionStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum SessionType {
+  VIDEO
+  AUDIO
+  CHAT
+}
+
+enum SocialProvider {
+  GOOGLE
+  APPLE
+}
+
+enum UserRole {
+  ADMIN
+  THERAPIST
+  CLIENT
 }
