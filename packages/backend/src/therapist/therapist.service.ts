@@ -1,4 +1,5 @@
 // @ts-nocheck
+// @ts-nocheck
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
@@ -30,19 +31,27 @@ export class TherapistService {
     // Create User with THERAPIST role and TherapistProfile in one go
     return this.prisma.user.create({
       data: {
+        id: crypto.randomUUID(),
         firstName: dto.firstName,
         lastName: dto.lastName,
         email: dto.email,
         passwordHash: hashedPassword,
         phone: dto.phone || null,
         role: 'THERAPIST',
+        isActive: true,
+        isVerified: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         TherapistProfile: {
           create: {
+            id: crypto.randomUUID(),
             specialization: dto.specialization ? [dto.specialization] : [],
             bio: dto.bio || null,
             yearsExperience: dto.experience || 0,
             isVerified: false,
             isAvailable: true,
+            createdAt: new Date(),
+            updatedAt: new Date(),
           },
         },
       },

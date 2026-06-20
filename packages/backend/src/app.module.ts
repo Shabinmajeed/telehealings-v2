@@ -5,6 +5,7 @@ import { TherapistModule } from './therapist/therapist.module';
 import { UserModule } from './user/user.module';
 import { MedicalProfileModule } from './medical-profile/medical-profile.module';
 import { AuthModule } from './auth/auth.module';
+import { BookingModule } from './booking/booking.module';
 import { AppController } from './app.controller';
 
 @Module({
@@ -15,6 +16,7 @@ import { AppController } from './app.controller';
     TherapistModule,
     UserModule,
     MedicalProfileModule,
+    BookingModule,
   ],
   controllers: [AppController],
 })
