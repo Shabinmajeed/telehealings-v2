@@ -1,7 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { therapistApi } from '../api/therapist-api';
 
 const DashboardPage: React.FC = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [dashboardStats, setDashboardStats] = useState<{ totalAppointments: number; upcomingAppointments: number; completedAppointments: number } | null>(null);
+
+  useEffect(() => {
+    therapistApi.getStats().then(res => setDashboardStats(res as any)).catch(console.error);
+  }, []);
 
   const navItems: Array<{ icon?: string; label?: string; active?: boolean; badge?: number; type?: string }> = [
     { icon: 'dashboard', label: 'Dashboard', active: true },
@@ -29,10 +35,9 @@ const DashboardPage: React.FC = () => {
     { initials: 'AK', color: '#f59e0b', name: 'Anjali Krishnan', text: 'Completed the worksheet you sent regarding core beliefs.', time: '4h ago' },
   ];
 
-  const stats = [
-    { label: 'Earnings', value: '₹48k', trend: 'up', trendText: '↑ 12%', icon: 'money', iconBg: '#eff6ff', iconColor: '#2563eb' },
-    { label: 'Clients', value: '32', trend: 'up', trendText: '↑ 4%', icon: 'people', iconBg: '#fef3c7', iconColor: '#d97706' },
-    { label: 'Feedback', value: '4.8', sub: '/5', trend: 'up', trendText: '↑', icon: 'star', iconBg: '#dcfce7', iconColor: '#059669' },
+  const statCards: Array<{ label: string; value: string; trend: string; trendText: string; icon: string; iconBg: string; iconColor: string; sub?: string }> = [
+    { label: 'Total Sessions', value: dashboardStats ? String(dashboardStats.totalAppointments) : '...', trend: 'up', trendText: dashboardStats ? `↑ ${dashboardStats.upcomingAppointments} upcoming` : '', icon: 'people', iconBg: '#eff6ff', iconColor: '#2563eb' },
+    { label: 'Completed', value: dashboardStats ? String(dashboardStats.completedAppointments) : '...', trend: 'up', trendText: '', icon: 'star', iconBg: '#dcfce7', iconColor: '#059669' },
   ];
 
   const chartBars = [
@@ -363,7 +368,7 @@ const DashboardPage: React.FC = () => {
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
               {/* KPI Stats */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-                {stats.map((stat, i) => (
+                {statCards.map((stat, i) => (
                   <div
                     key={i}
                     style={{
