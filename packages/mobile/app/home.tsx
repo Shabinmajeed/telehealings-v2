@@ -6,6 +6,7 @@ import {
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Circle, Line, Rect, Polygon } from 'react-native-svg';
+import api from '../api/client';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -67,6 +68,11 @@ export default function HomeScreen() {
   const contentAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      router.replace('/login');
+      return;
+    }
     Animated.stagger(100, [
       Animated.timing(headerAnim, { toValue: 1, duration: 500, useNativeDriver: false }),
       Animated.timing(contentAnim, { toValue: 1, duration: 500, useNativeDriver: false }),
