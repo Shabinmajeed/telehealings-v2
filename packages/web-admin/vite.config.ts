@@ -14,6 +14,20 @@ export default defineConfig({
     port: 5174,
     host: '0.0.0.0',
     allowedHosts: ['implied-listening-sharing-wednesday.trycloudflare.com', 'telehealings-admin.loca.lt', '.loca.lt', '.trycloudflare.com'],
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5172',
+        changeOrigin: true,
+      },
+      '/therapist': {
+        target: 'http://localhost:5172',
+        changeOrigin: true,
+      },
+      '/guest': {
+        target: 'http://localhost:5172',
+        changeOrigin: true,
+      },
+    },
   },
   publicDir: path.resolve(__dirname, '../../shared/assets'),
 });
