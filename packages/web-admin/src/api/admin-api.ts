@@ -102,6 +102,9 @@ export const adminApi = {
   getGuests: (params?: { page?: number; limit?: number; search?: string }) =>
     customInstance.get<PaginatedResponse<User>>('/guest', { params }),
 
+  convertGuest: (guestId: string, userData?: any) =>
+    customInstance.post(`/guest/${guestId}/convert`, userData || {}),
+
   // Therapists
   getTherapists: (params?: { page?: number; limit?: number; search?: string }) =>
     customInstance.get<PaginatedResponse<TherapistWithUser>>('/therapist', { params }),

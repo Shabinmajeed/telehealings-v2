@@ -36,16 +36,12 @@ const RegisterPage: React.FC = () => {
 
     try {
       const response = await customInstance.post('/therapist/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          password: formData.password,
-          dob: formData.dob,
-          specialization: formData.specialization,
-        }),
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        dob: formData.dob,
+        specialization: formData.specialization,
       });
 
       const result = response.data || response;
