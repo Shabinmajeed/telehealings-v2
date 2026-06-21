@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import customInstance from '../api/custom-instance';
 
 const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -34,7 +35,7 @@ const RegisterPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5172/therapist/register', {
+      const response = await customInstance.post('/therapist/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -47,9 +48,9 @@ const RegisterPage: React.FC = () => {
         }),
       });
 
-      const result = await response.json();
+      const result = response.data || response;
 
-      if (!response.ok) {
+      if (result.message && result.status >= 400) {
         alert(result.message || 'Registration failed. Please try again.');
         return;
       }

@@ -19,7 +19,7 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       adminKey: null,
       login: async (email: string, password: string) => {
-        const res = await customInstance.post('/auth/login', { email, password });
+        const res = await customInstance.post('/api/auth/login', { email, password });
         const { access_token, user } = res.data;
         localStorage.setItem('auth_token', access_token);
         set({

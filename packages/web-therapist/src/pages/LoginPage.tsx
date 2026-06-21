@@ -28,7 +28,7 @@ const LoginPage: React.FC = () => {
 
     setLoading(true);
     try {
-      const res = await customInstance.post('/auth/login', { email: email.trim(), password });
+      const res = await customInstance.post('/api/auth/login', { email: email.trim(), password });
       const { access_token, user } = res.data;
       localStorage.setItem('auth_token', access_token);
       localStorage.setItem('userId', user.id);
