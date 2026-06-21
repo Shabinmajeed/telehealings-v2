@@ -1,5 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
+import { useEffect } from 'react';
+import customInstance from './api/custom-instance';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import TherapistsPage from './pages/TherapistsPage';
@@ -15,6 +17,17 @@ import DashboardLayout from './components/layout/DashboardLayout';
 
 function App() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const logout = useAuthStore((s) => s.logout);
+
+  // Validate token on app load
+  useEffect(() => {
+    if (isAuthenticated) {
+      customInstance.get('/api/auth/me').catch(() => {
+        logout();
+      });
+    }
+  }, []);
+
   return (
     <Routes>
       <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage />} />
